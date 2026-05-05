@@ -16,15 +16,15 @@ class TimesheetSeeder extends Seeder
     {
         $timesheets = [
             [
-                'employee_id' => Employee::where('matricule', 'EMP0003')->first()->id, // Pierre Durand
+                'employee_id' => Employee::where('matricule', 'EMP0001')->first()->id,
                 'period_start' => '2024-04-01',
                 'period_end' => '2024-04-07',
                 'status' => 'validé',
-                'validated_by' => Employee::where('matricule', 'EMP0004')->first()->id, // Sophie Lefebvre
+                'validated_by' => Employee::where('matricule', 'EMP0002')->first()->id,
                 'validated_at' => '2024-04-08 10:00:00',
             ],
             [
-                'employee_id' => Employee::where('matricule', 'EMP0005')->first()->id, // Thomas Bernard
+                'employee_id' => Employee::where('matricule', 'EMP0002')->first()->id,
                 'period_start' => '2024-04-01',
                 'period_end' => '2024-04-07',
                 'status' => 'soumis',
@@ -32,7 +32,7 @@ class TimesheetSeeder extends Seeder
                 'validated_at' => null,
             ],
             [
-                'employee_id' => Employee::where('matricule', 'EMP0006')->first()->id, // Camille Petit
+                'employee_id' => Employee::where('matricule', 'EMP0003')->first()->id,
                 'period_start' => '2024-04-01',
                 'period_end' => '2024-04-07',
                 'status' => 'brouillon',
@@ -40,20 +40,12 @@ class TimesheetSeeder extends Seeder
                 'validated_at' => null,
             ],
             [
-                'employee_id' => Employee::where('matricule', 'EMP0003')->first()->id, // Pierre Durand
+                'employee_id' => Employee::where('matricule', 'EMP0004')->first()->id,
                 'period_start' => '2024-04-08',
                 'period_end' => '2024-04-14',
-                'status' => 'brouillon',
-                'validated_by' => null,
-                'validated_at' => null,
-            ],
-            [
-                'employee_id' => Employee::where('matricule', 'EMP0008')->first()->id, // Isabelle Dubois
-                'period_start' => '2024-04-01',
-                'period_end' => '2024-04-07',
                 'status' => 'validé',
-                'validated_by' => Employee::where('matricule', 'EMP0002')->first()->id, // Marie Martin
-                'validated_at' => '2024-04-08 11:00:00',
+                'validated_by' => Employee::where('matricule', 'EMP0001')->first()->id,
+                'validated_at' => '2024-04-15 09:00:00',
             ],
         ];
 

@@ -14,16 +14,10 @@ class PositionSeeder extends Seeder
     public function run(): void
     {
         $positions = [
-            ['name' => 'Développeur Senior', 'code' => 'DEV_SR', 'description' => 'Développeur expérimenté avec plus de 5 ans d\'expérience'],
-            ['name' => 'Développeur Junior', 'code' => 'DEV_JR', 'description' => 'Développeur débutant avec moins de 2 ans d\'expérience'],
-            ['name' => 'Chef de Projet', 'code' => 'CP', 'description' => 'Responsable de la gestion de projet et de l\'équipe'],
-            ['name' => 'Superviseur', 'code' => 'SUP', 'description' => 'Supervise les équipes techniques'],
-            ['name' => 'Technicien', 'code' => 'TECH', 'description' => 'Support technique et maintenance'],
-            ['name' => 'Manager', 'code' => 'MGR', 'description' => 'Manager d\'équipe ou de département'],
-            ['name' => 'Analyste', 'code' => 'ANA', 'description' => 'Analyste fonctionnel ou business'],
-            ['name' => 'Designer', 'code' => 'DES', 'description' => 'Designer UI/UX'],
-            ['name' => 'Testeur QA', 'code' => 'QA', 'description' => 'Responsable des tests qualité'],
-            ['name' => 'DevOps', 'code' => 'DEVOPS', 'description' => 'Ingénieur DevOps et infrastructure'],
+            ['name' => 'Ressources Humaines', 'code' => 'RH', 'description' => 'Gestion des ressources humaines et administration du personnel'],
+            ['name' => 'ChefProjet', 'code' => 'CP', 'description' => 'Responsable de la gestion de projet et coordination des équipes'],
+            ['name' => 'Superviseur', 'code' => 'SUP', 'description' => 'Supervision des équipes et suivi des performances'],
+            ['name' => 'Téléconseiller', 'code' => 'TC', 'description' => 'Conseiller client par téléphone et support à distance'],
         ];
 
         foreach ($positions as $position) {

@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Models\Employee;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Models\Employee;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Timesheet>
@@ -17,16 +17,16 @@ class TimesheetFactory extends Factory
      */
     public function definition(): array
     {
-        $periodStart = fake()->dateTimeBetween('-3 months', '-1 week');
-        $periodEnd = (clone $periodStart)->modify('+6 days');
+        $startDate = fake()->dateTimeBetween('-3 months', '-1 week');
+        $endDate = (clone $startDate)->modify('+6 days');
         
         return [
             'employee_id' => Employee::factory(),
-            'period_start' => $periodStart->format('Y-m-d'),
-            'period_end' => $periodEnd->format('Y-m-d'),
+            'period_start' => $startDate->format('Y-m-d'),
+            'period_end' => $endDate->format('Y-m-d'),
             'status' => fake()->randomElement(['brouillon', 'soumis', 'validé']),
-            'validated_by' => Employee::factory(),
-            'validated_at' => fake()->optional(0.6)->dateTime(),
+            'validated_by' => Employee::inRandomOrder()->first()->id,
+            'validated_at' => fake()->randomElement([null, fake()->dateTime()]),
         ];
     }
 }

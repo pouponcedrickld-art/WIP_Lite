@@ -2,10 +2,10 @@
 
 namespace Database\Factories;
 
-use App\Models\Campaign;
-use App\Models\Employee;
-use App\Models\Position;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Models\Employee;
+use App\Models\Campaign;
+use App\Models\Position;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Assignment>
@@ -20,16 +20,16 @@ class AssignmentFactory extends Factory
     public function definition(): array
     {
         $startDate = fake()->dateTimeBetween('-6 months', '+1 month');
-        $endDate = fake()->dateTimeBetween($startDate, '+6 months');
+        $endDate = fake()->dateTimeBetween($startDate, '+1 year');
         
         return [
             'employee_id' => Employee::factory(),
             'campaign_id' => Campaign::factory(),
-            'manager_id' => Employee::factory(),
-            'position_id' => Position::factory(),
+            'manager_id' => Employee::inRandomOrder()->first()->id,
+            'position_id' => Position::inRandomOrder()->first()->id,
             'status' => fake()->randomElement(['actif', 'inactif', 'terminé']),
             'start_date' => $startDate->format('Y-m-d'),
-            'end_date' => $endDate->format('Y-m-d'),
+            'end_date' => fake()->randomElement([null, $endDate->format('Y-m-d')]),
         ];
     }
 }
