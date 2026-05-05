@@ -16,12 +16,12 @@ class CampaignFactory extends Factory
      */
     public function definition(): array
     {
-        $startDate = fake()->dateTimeBetween('-1 year', '+6 months');
+        $startDate = fake()->dateTimeBetween('-6 months', '+1 month');
         $endDate = fake()->dateTimeBetween($startDate, '+1 year');
         
         return [
-            'name' => fake()->catchPhrase(),
-            'description' => fake()->text(200),
+            'name' => fake()->sentence(3),
+            'description' => fake()->paragraph(3),
             'start_date' => $startDate->format('Y-m-d'),
             'end_date' => $endDate->format('Y-m-d'),
             'status' => fake()->randomElement(['active', 'inactive', 'terminée']),

@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
+use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\PlanningAssignment;
 use App\Models\User;
-use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\PlanningHistory>
@@ -20,7 +20,7 @@ class PlanningHistoryFactory extends Factory
     {
         return [
             'planning_assignment_id' => PlanningAssignment::factory(),
-            'old_status' => fake()->randomElement(['en attente', 'validé', 'suspendu', 'terminé']),
+            'old_status' => fake()->randomElement([null, 'en attente', 'validé', 'suspendu', 'terminé']),
             'new_status' => fake()->randomElement(['en attente', 'validé', 'suspendu', 'terminé']),
             'changed_by' => User::factory(),
             'reason' => fake()->sentence(10),

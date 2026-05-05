@@ -17,14 +17,10 @@ class PositionFactory extends Factory
     public function definition(): array
     {
         $positions = [
-            ['name' => 'Développeur Senior', 'code' => 'DEV_SR'],
-            ['name' => 'Développeur Junior', 'code' => 'DEV_JR'],
-            ['name' => 'Chef de Projet', 'code' => 'CP'],
+            ['name' => 'Ressources Humaines', 'code' => 'RH'],
+            ['name' => 'ChefProjet', 'code' => 'CP'],
             ['name' => 'Superviseur', 'code' => 'SUP'],
-            ['name' => 'Technicien', 'code' => 'TECH'],
-            ['name' => 'Manager', 'code' => 'MGR'],
-            ['name' => 'Analyste', 'code' => 'ANA'],
-            ['name' => 'Designer', 'code' => 'DES'],
+            ['name' => 'Téléconseiller', 'code' => 'TC'],
         ];
         
         $position = fake()->unique()->randomElement($positions);

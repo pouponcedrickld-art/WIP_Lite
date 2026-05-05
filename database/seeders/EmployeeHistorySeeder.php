@@ -18,49 +18,40 @@ class EmployeeHistorySeeder extends Seeder
     {
         $employeeHistories = [
             [
-                'employee_id' => Employee::where('matricule', 'EMP0003')->first()->id, // Pierre Durand
-                'old_position_id' => Position::where('code', 'DEV_JR')->first()->id,
-                'new_position_id' => Position::where('code', 'DEV_SR')->first()->id,
+                'employee_id' => Employee::where('matricule', 'EMP0001')->first()->id,
+                'old_position_id' => Position::where('code', 'CP')->first()->id,
+                'new_position_id' => Position::where('code', 'RH')->first()->id,
                 'old_status' => 'actif',
                 'new_status' => 'actif',
                 'changed_by' => User::first()->id,
-                'reason' => 'Promotion au niveau senior après 3 ans d\'expérience',
+                'reason' => 'Promotion aux Ressources Humaines',
             ],
             [
-                'employee_id' => Employee::where('matricule', 'EMP0005')->first()->id, // Thomas Bernard
-                'old_position_id' => null,
-                'new_position_id' => Position::where('code', 'DEV_JR')->first()->id,
-                'old_status' => null,
-                'new_status' => 'actif',
-                'changed_by' => User::first()->id,
-                'reason' => 'Nouvel embauche comme développeur junior',
-            ],
-            [
-                'employee_id' => Employee::where('matricule', 'EMP0007')->first()->id, // Nicolas Robert
-                'old_position_id' => Position::where('code', 'DEV_JR')->first()->id,
-                'new_position_id' => Position::where('code', 'TECH')->first()->id,
+                'employee_id' => Employee::where('matricule', 'EMP0002')->first()->id,
+                'old_position_id' => Position::where('code', 'TC')->first()->id,
+                'new_position_id' => Position::where('code', 'CP')->first()->id,
                 'old_status' => 'actif',
                 'new_status' => 'actif',
                 'changed_by' => User::first()->id,
-                'reason' => 'Changement de carrière vers le support technique',
+                'reason' => 'Évolution vers le poste de ChefProjet',
             ],
             [
-                'employee_id' => Employee::where('matricule', 'EMP0006')->first()->id, // Camille Petit
-                'old_position_id' => null,
-                'new_position_id' => Position::where('code', 'ANA')->first()->id,
-                'old_status' => null,
+                'employee_id' => Employee::where('matricule', 'EMP0003')->first()->id,
+                'old_position_id' => Position::where('code', 'TC')->first()->id,
+                'new_position_id' => Position::where('code', 'CP')->first()->id,
+                'old_status' => 'actif',
                 'new_status' => 'actif',
                 'changed_by' => User::first()->id,
-                'reason' => 'Recrutement comme analyste fonctionnel',
+                'reason' => 'Promotion au poste de ChefProjet après expérience',
             ],
             [
-                'employee_id' => Employee::where('matricule', 'EMP0008')->first()->id, // Isabelle Dubois
-                'old_position_id' => null,
-                'new_position_id' => Position::where('code', 'DES')->first()->id,
-                'old_status' => null,
+                'employee_id' => Employee::where('matricule', 'EMP0004')->first()->id,
+                'old_position_id' => Position::where('code', 'TC')->first()->id,
+                'new_position_id' => Position::where('code', 'SUP')->first()->id,
+                'old_status' => 'actif',
                 'new_status' => 'actif',
                 'changed_by' => User::first()->id,
-                'reason' => 'Nouveau designer UI/UX pour l\'équipe',
+                'reason' => 'Promotion au poste de Superviseur',
             ],
         ];
 

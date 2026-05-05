@@ -17,18 +17,18 @@ class NotificationFactory extends Factory
     public function definition(): array
     {
         $types = ['info', 'warning', 'error', 'success'];
-        $notifiableTypes = ['User', 'Employee'];
+        $notifiableTypes = ['App\Models\User', 'App\Models\Employee'];
         
         return [
             'type' => fake()->randomElement($types),
             'notifiable_type' => fake()->randomElement($notifiableTypes),
             'notifiable_id' => fake()->numberBetween(1, 100),
-            'data' => [
+            'data' => json_encode([
                 'title' => fake()->sentence(4),
                 'message' => fake()->sentence(10),
-                'action_url' => fake()->optional(0.5)->url(),
-            ],
-            'read_at' => fake()->optional(0.3)->dateTime(),
+                'action_url' => fake()->url(),
+            ]),
+            'read_at' => fake()->randomElement([null, fake()->dateTime()]),
         ];
     }
 }

@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Models\User;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\PlanningModel>
@@ -17,27 +17,66 @@ class PlanningModelFactory extends Factory
      */
     public function definition(): array
     {
-        $monday = fake()->randomFloat(2, 0, 12);
-        $tuesday = fake()->randomFloat(2, 0, 12);
-        $wednesday = fake()->randomFloat(2, 0, 12);
-        $thursday = fake()->randomFloat(2, 0, 12);
-        $friday = fake()->randomFloat(2, 0, 12);
-        $saturday = fake()->randomFloat(2, 0, 8);
-        $sunday = fake()->randomFloat(2, 0, 8);
+        $models = [
+            [
+                'name' => 'Semaine Standard 40h',
+                'monday_hours' => 8,
+                'tuesday_hours' => 8,
+                'wednesday_hours' => 8,
+                'thursday_hours' => 8,
+                'friday_hours' => 8,
+                'saturday_hours' => 0,
+                'sunday_hours' => 0,
+                'total_hours' => 40,
+            ],
+            [
+                'name' => 'Semaine 35h',
+                'monday_hours' => 7,
+                'tuesday_hours' => 7,
+                'wednesday_hours' => 7,
+                'thursday_hours' => 7,
+                'friday_hours' => 7,
+                'saturday_hours' => 0,
+                'sunday_hours' => 0,
+                'total_hours' => 35,
+            ],
+            [
+                'name' => 'Semaine 45h',
+                'monday_hours' => 9,
+                'tuesday_hours' => 9,
+                'wednesday_hours' => 9,
+                'thursday_hours' => 9,
+                'friday_hours' => 9,
+                'saturday_hours' => 0,
+                'sunday_hours' => 0,
+                'total_hours' => 45,
+            ],
+            [
+                'name' => 'Horaires flexibles',
+                'monday_hours' => 8,
+                'tuesday_hours' => 8,
+                'wednesday_hours' => 8,
+                'thursday_hours' => 8,
+                'friday_hours' => 8,
+                'saturday_hours' => 4,
+                'sunday_hours' => 4,
+                'total_hours' => 48,
+            ],
+        ];
         
-        $total = $monday + $tuesday + $wednesday + $thursday + $friday + $saturday + $sunday;
+        $model = fake()->randomElement($models);
         
         return [
-            'name' => fake()->randomElement(['Semaine Standard 40h', 'Semaine 35h', 'Semaine 45h', 'Horaires flexibles', 'Temps partiel']),
+            'name' => $model['name'],
             'description' => fake()->sentence(10),
-            'monday_hours' => $monday,
-            'tuesday_hours' => $tuesday,
-            'wednesday_hours' => $wednesday,
-            'thursday_hours' => $thursday,
-            'friday_hours' => $friday,
-            'saturday_hours' => $saturday,
-            'sunday_hours' => $sunday,
-            'total_hours' => $total,
+            'monday_hours' => $model['monday_hours'],
+            'tuesday_hours' => $model['tuesday_hours'],
+            'wednesday_hours' => $model['wednesday_hours'],
+            'thursday_hours' => $model['thursday_hours'],
+            'friday_hours' => $model['friday_hours'],
+            'saturday_hours' => $model['saturday_hours'],
+            'sunday_hours' => $model['sunday_hours'],
+            'total_hours' => $model['total_hours'],
             'created_by' => User::factory(),
         ];
     }

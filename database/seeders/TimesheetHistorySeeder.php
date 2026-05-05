@@ -18,53 +18,36 @@ class TimesheetHistorySeeder extends Seeder
         $timesheetHistories = [
             [
                 'timesheet_id' => Timesheet::where('employee_id', function($query) {
-                    $query->select('id')->from('employees')->where('matricule', 'EMP0003');
-                })->where('period_start', '2024-04-01')->first()->id,
-                'employee_id' => Employee::where('matricule', 'EMP0003')->first()->id, // Pierre Durand
-                'old_status' => 'brouillon',
-                'new_status' => 'soumis',
-                'changed_by' => Employee::where('matricule', 'EMP0003')->first()->id,
-                'reason' => 'Soumission de la feuille de temps pour validation',
-            ],
-            [
-                'timesheet_id' => Timesheet::where('employee_id', function($query) {
-                    $query->select('id')->from('employees')->where('matricule', 'EMP0003');
-                })->where('period_start', '2024-04-01')->first()->id,
-                'employee_id' => Employee::where('matricule', 'EMP0003')->first()->id, // Pierre Durand
+                    $query->select('id')->from('employees')->where('matricule', 'EMP0001');
+                })->first()->id,
+                'employee_id' => Employee::where('matricule', 'EMP0001')->first()->id,
                 'old_status' => 'soumis',
                 'new_status' => 'validé',
-                'changed_by' => Employee::where('matricule', 'EMP0004')->first()->id, // Sophie Lefebvre
-                'reason' => 'Validation de la feuille de temps par le superviseur',
+                'changed_by' => Employee::where('matricule', 'EMP0002')->first()->id,
+                'reason' => 'Validation de la feuille de temps',
+                'created_at' => '2024-04-08 10:00:00',
             ],
             [
                 'timesheet_id' => Timesheet::where('employee_id', function($query) {
-                    $query->select('id')->from('employees')->where('matricule', 'EMP0005');
-                })->where('period_start', '2024-04-01')->first()->id,
-                'employee_id' => Employee::where('matricule', 'EMP0005')->first()->id, // Thomas Bernard
+                    $query->select('id')->from('employees')->where('matricule', 'EMP0002');
+                })->first()->id,
+                'employee_id' => Employee::where('matricule', 'EMP0002')->first()->id,
                 'old_status' => 'brouillon',
                 'new_status' => 'soumis',
-                'changed_by' => Employee::where('matricule', 'EMP0005')->first()->id,
-                'reason' => 'Soumission de la feuille de temps pour validation',
+                'changed_by' => Employee::where('matricule', 'EMP0002')->first()->id,
+                'reason' => 'Soumission pour validation',
+                'created_at' => '2024-04-07 16:00:00',
             ],
             [
                 'timesheet_id' => Timesheet::where('employee_id', function($query) {
-                    $query->select('id')->from('employees')->where('matricule', 'EMP0008');
-                })->where('period_start', '2024-04-01')->first()->id,
-                'employee_id' => Employee::where('matricule', 'EMP0008')->first()->id, // Isabelle Dubois
+                    $query->select('id')->from('employees')->where('matricule', 'EMP0004');
+                })->first()->id,
+                'employee_id' => Employee::where('matricule', 'EMP0004')->first()->id,
                 'old_status' => 'brouillon',
-                'new_status' => 'soumis',
-                'changed_by' => Employee::where('matricule', 'EMP0008')->first()->id,
-                'reason' => 'Soumission de la feuille de temps avec congés',
-            ],
-            [
-                'timesheet_id' => Timesheet::where('employee_id', function($query) {
-                    $query->select('id')->from('employees')->where('matricule', 'EMP0008');
-                })->where('period_start', '2024-04-01')->first()->id,
-                'employee_id' => Employee::where('matricule', 'EMP0008')->first()->id, // Isabelle Dubois
-                'old_status' => 'soumis',
                 'new_status' => 'validé',
-                'changed_by' => Employee::where('matricule', 'EMP0002')->first()->id, // Marie Martin
-                'reason' => 'Validation de la feuille de temps avec congés payés',
+                'changed_by' => Employee::where('matricule', 'EMP0001')->first()->id,
+                'reason' => 'Validation directe par le manager',
+                'created_at' => '2024-04-15 09:00:00',
             ],
         ];
 
