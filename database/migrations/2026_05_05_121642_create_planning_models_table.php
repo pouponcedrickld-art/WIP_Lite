@@ -23,7 +23,7 @@ return new class extends Migration {
             $table->decimal('friday_hours', 4, 2)->default(0);
             $table->decimal('saturday_hours', 4, 2)->default(0);
             $table->decimal('sunday_hours', 4, 2)->default(0);
-            $table->decimal('total_hours', 5, 2)->default(0); // Calculé automatiquement[cite: 2]
+            $table->decimal('total_hours', 5, 2)->default(0); 
             $table->foreignId('created_by')->constrained('users');
             $table->timestamps();
         });
