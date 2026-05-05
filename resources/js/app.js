@@ -27,7 +27,7 @@ createInertiaApp({
     theme: {
         preset: Aura
     }
-})
+                })
             .use(ToastService)
             .mount(el);
     },
