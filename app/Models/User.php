@@ -22,6 +22,18 @@ class User extends Authenticatable
      *
      * @return array<string, string>
      */
+
+    protected $fillable = [
+        'email',
+        'password',
+        'role_id',
+        'email_verified_at',
+    ];
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
     protected function casts(): array
     {
         return [
