@@ -11,10 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('positions', function (Blueprint $table) {
+            Schema::create('positions', function (Blueprint $table) {
         $table->id();
-        $table->string('name');
-        $table->string('code')->unique();
+
+        $table->enum('name', ['Ressources Humaines', 'ChefProjet', 'Superviseur', 'Téléconseiller']);
+        $table->enum('code', ['RH', 'CP', 'SUP', 'TC'])->unique();
+
         $table->text('description')->nullable();
         $table->timestamps();
     });
