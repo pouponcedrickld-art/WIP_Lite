@@ -20,6 +20,20 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RoleSeeder::class,
             UserSeeder::class,
+            PositionSeeder::class,
+            EmployeeSeeder::class,
+            CampaignSeeder::class,
+            AssignmentSeeder::class,
+            PlanningModelSeeder::class,
+            PlanningAssignmentSeeder::class,
+            TimesheetSeeder::class,
+            TimesheetEntrySeeder::class,
+            ActivityLogSeeder::class,
+            EmployeeHistorySeeder::class,
+            AssignmentHistorySeeder::class,
+            PlanningHistorySeeder::class,
+            TimesheetHistorySeeder::class,
+            NotificationSeeder::class,
         ]);
     }
 }
