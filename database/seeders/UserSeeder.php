@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Models\Role;
-use App\Models\User;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\User;
+use App\Models\Role;
 
 class UserSeeder extends Seeder
 {
@@ -13,24 +13,37 @@ class UserSeeder extends Seeder
      * Run the database seeds.
      */
     public function run(): void
-{
-    $roles = Role::all();
+    {
+        $users = [
+            [
+                'email' => 'admin@example.com',
+                'password' => bcrypt('password'),
+                'role_id' => Role::where('name', 'admin')->first()->id,
+            ],
+            [
+                'email' => 'jean.dupont@example.com',
+                'password' => bcrypt('password'),
+                'role_id' => Role::where('name', 'cp')->first()->id,
+            ],
+            [
+                'email' => 'marie.martin@example.com',
+                'password' => bcrypt('password'),
+                'role_id' => Role::where('name', 'cp')->first()->id,
+            ],
+            [
+                'email' => 'pierre.durand@example.com',
+                'password' => bcrypt('password'),
+                'role_id' => Role::where('name', 'sup')->first()->id,
+            ],
+            [
+                'email' => 'sophie.lefebvre@example.com',
+                'password' => bcrypt('password'),
+                'role_id' => Role::where('name', 'tc')->first()->id,
+            ],
+        ];
 
-    // 🔥 ADMIN UNIQUE
-    $adminRole = $roles->firstWhere('name', 'admin');
-
-    User::factory()->create([
-        'email' => 'admin@test.com',
-        'role_id' => $adminRole->id,
-    ]);
-
-    // 🔥 autres users SANS admin
-    $otherRoles = $roles->where('name', '!=', 'admin')->values();
-
-    User::factory(199)->create()->each(function ($user) use ($otherRoles) {
-        $user->update([
-            'role_id' => $otherRoles->random()->id,
-        ]);
-    });
-}
+        foreach ($users as $user) {
+            User::create($user);
+        }
+    }
 }
