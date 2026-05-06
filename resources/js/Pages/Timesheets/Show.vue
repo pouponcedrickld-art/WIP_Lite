@@ -30,10 +30,14 @@ const calculateWeekTotals = () => {
     let overtime = 0;
     let plannedTotal = 0;
     
-    Object.values(weekEntries.value).forEach(entry => {
-        total += entry.total_hours || 0;
-        overtime += entry.overtime_hours || 0;
-        plannedTotal += entry.planned_hours || 0;
+    // Forcer la réactivité en utilisant Object.keys
+    Object.keys(weekEntries.value).forEach(dateStr => {
+        const entry = weekEntries.value[dateStr];
+        if (entry) {
+            total += entry.total_hours || 0;
+            overtime += entry.overtime_hours || 0;
+            plannedTotal += entry.planned_hours || 0;
+        }
     });
     
     weekTotal.value = total;
@@ -82,8 +86,12 @@ const calculateHours = (dateStr) => {
         }
     }
     
-    entry.total_hours = totalHours;
-    entry.overtime_hours = overtimeHours;
+    // Forcer la réactivité avec Object.assign
+    weekEntries.value[dateStr] = {
+        ...weekEntries.value[dateStr],
+        total_hours: totalHours,
+        overtime_hours: overtimeHours,
+    };
     calculateWeekTotals();
 };
 
