@@ -1,7 +1,7 @@
 <template>
   <AppLayout title="Détail affectation">
     <div class="p-6 max-w-4xl mx-auto">
-<pre>{{ assignment }}</pre>
+
       <!-- Header -->
       <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold">Détail de l'affectation</h1>
@@ -20,13 +20,17 @@
           <div class="grid grid-cols-2 gap-4">
             <div>
               <p class="text-gray-500 text-sm">Employé</p>
-              <p class="font-semibold">{{ assignment.employee.name }}</p>
-              <p class="text-sm text-gray-400">{{ assignment.employee.matricule }}</p>
+              <p class="font-semibold">{{ assignment.employee?.name }}</p>
+              <p class="text-sm text-gray-400">{{ assignment.employee?.matricule }}</p>
             </div>
             <div>
               <p class="text-gray-500 text-sm">Modèle Planning</p>
-              <p class="font-semibold">{{ assignment.planning_model.name }}</p>
-              <Tag :value="assignment.planning_model.total_hours + 'h/sem'" severity="info" />
+              <p class="font-semibold">{{ assignment.planningModel?.name }}</p>
+              <Tag
+                v-if="assignment.planningModel"
+                :value="assignment.planningModel.total_hours + 'h/sem'"
+                severity="info"
+              />
             </div>
             <div>
               <p class="text-gray-500 text-sm">Date début</p>

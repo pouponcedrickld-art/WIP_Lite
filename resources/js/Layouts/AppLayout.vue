@@ -54,14 +54,14 @@
       <slot />
     </main>
 
-  </div>
-
-  <!-- Toast global pour les notifications -->
-  <Toast />
+    
+    <!-- Toast global pour les notifications -->
+    <Toast />
 
   <!-- ConfirmDialog global -->
   <ConfirmDialog />
-
+  
+</div>
 </template>
 
 <script setup>

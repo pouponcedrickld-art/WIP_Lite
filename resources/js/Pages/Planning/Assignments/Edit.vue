@@ -1,3 +1,44 @@
+<script setup>
+import { computed } from 'vue'
+import { useForm } from '@inertiajs/vue3'
+import AppLayout from '@/Layouts/AppLayout.vue'
+import { Button, Card, Dropdown, DatePicker } from 'primevue'
+
+const props = defineProps({
+  assignment:     Object,
+  employees:      Array,
+  planningModels: Array,
+})
+
+// ✅ Déballe le wrapper "data" de la Resource
+const a = computed(() => props.assignment?.data ?? props.assignment)
+
+const employees = computed(() =>
+  props.employees.map(e => ({
+    id:    e.id,
+    label: `${e.first_name} ${e.last_name} (${e.matricule})`,
+  }))
+)
+
+const planningModels = computed(() =>
+  props.planningModels.map(m => ({
+    id:    m.id,
+    label: `${m.name} — ${m.total_hours}h/sem`,
+  }))
+)
+
+const form = useForm({
+  employee_id:       a.value?.employee?.id,
+  planning_model_id: a.value?.planning_model?.id,
+  start_date:        a.value?.start_date,
+  end_date:          a.value?.end_date,
+})
+
+function submit() {
+  form.put(route('planning-assignments.update', a.value?.id))
+}
+</script>
+
 <template>
   <AppLayout title="Modifier affectation">
     <div class="p-6 max-w-3xl mx-auto">
@@ -72,41 +113,3 @@
     </div>
   </AppLayout>
 </template>
-
-<script setup>
-import { computed } from 'vue'
-import { useForm } from '@inertiajs/vue3'
-import AppLayout from '@/Layouts/AppLayout.vue'
-import { Button, Card, Dropdown, DatePicker } from 'primevue'
-
-const props = defineProps({
-  assignment:     Object,
-  employees:      Array,
-  planningModels: Array,
-})
-
-const employees = computed(() =>
-  props.employees.map(e => ({
-    id:    e.id,
-    label: `${e.first_name} ${e.last_name} (${e.matricule})`,
-  }))
-)
-
-const planningModels = computed(() =>
-  props.planningModels.map(m => ({
-    id:    m.id,
-    label: `${m.name} — ${m.total_hours}h/sem`,
-  }))
-)
-
-const form = useForm({
-  employee_id:       props.assignment.employee.id,
-  planning_model_id: props.assignment.planning_model.id,
-  start_date:        props.assignment.start_date,
-  end_date:          props.assignment.end_date,
-})
-
-function submit() {
-  form.put(route('planning-assignments.update', props.assignment.id))
-}
-</script>

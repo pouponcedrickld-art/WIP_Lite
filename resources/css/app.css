@@ -1,6 +1,6 @@
+/* PrimeVue styles */
+@import 'primeicons/primeicons.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* PrimeVue styles */
-@import 'primeicons/primeicons.css';

@@ -2,12 +2,11 @@
   <AppLayout title="Historique Planning">
     <div class="p-6 max-w-4xl mx-auto">
 
-      <!-- Header -->
       <div class="flex justify-between items-center mb-6">
         <div>
           <h1 class="text-2xl font-bold">Historique des changements</h1>
           <p class="text-gray-500">
-            {{ assignment.employee.name }} — {{ assignment.planning_model.name }}
+            {{ assignment.employee?.name }} — {{ assignment.planning_model?.name }}
           </p>
         </div>
         <Button
@@ -18,7 +17,6 @@
         />
       </div>
 
-      <!-- Timeline -->
       <Card>
         <template #content>
           <DataTable :value="histories" stripedRows>

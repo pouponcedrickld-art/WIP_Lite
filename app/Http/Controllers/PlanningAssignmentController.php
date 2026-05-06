@@ -14,23 +14,19 @@ use Inertia\Inertia;
 
 class PlanningAssignmentController extends Controller
 {
-    // Liste toutes les affectations
     public function index()
     {
-        $assignments = PlanningAssignment::with([
+        $planningAssignments = PlanningAssignment::with([
             'employee',
             'planningModel',
             'validator'
-        ])
-            ->latest()
-            ->paginate(10);
+        ])->latest()->paginate(10);
 
         return Inertia::render('Planning/Assignments/Index', [
-            'assignments' => PlanningAssignmentResource::collection($assignments),
+            'assignments' => PlanningAssignmentResource::collection($planningAssignments),
         ]);
     }
 
-    // Formulaire création
     public function create()
     {
         return Inertia::render('Planning/Assignments/Create', [
@@ -41,18 +37,15 @@ class PlanningAssignmentController extends Controller
         ]);
     }
 
-    // Enregistrer une affectation
     public function store(StorePlanningAssignmentRequest $request)
     {
-        // Vérifier si l'employé a déjà un planning actif sur cette période
         $conflict = PlanningAssignment::where('employee_id', $request->employee_id)
             ->whereIn('status', ['en attente', 'validé'])
             ->where(function ($query) use ($request) {
                 $query->whereBetween('start_date', [$request->start_date, $request->end_date ?? '9999-12-31'])
                     ->orWhereBetween('end_date', [$request->start_date, $request->end_date ?? '9999-12-31'])
                     ->orWhereNull('end_date');
-            })
-            ->exists();
+            })->exists();
 
         if ($conflict) {
             return back()->with('error', 'Cet employé a déjà un planning actif sur cette période.');
@@ -65,15 +58,10 @@ class PlanningAssignmentController extends Controller
             ->with('success', 'Affectation créée avec succès.');
     }
 
-    // Détail d'une affectation
-
     public function show(PlanningAssignment $planningAssignment)
     {
-        $planningAssignment->load([
-            'employee',
-            'planningModel',
-            'validator',
-        ]);
+        // ✅ Relations chargées
+        $planningAssignment->load(['employee', 'planningModel', 'validator']);
 
         return Inertia::render('Planning/Assignments/Show', [
             'assignment' => new PlanningAssignmentResource($planningAssignment),
@@ -81,9 +69,11 @@ class PlanningAssignmentController extends Controller
         ]);
     }
 
-    // Formulaire édition
     public function edit(PlanningAssignment $planningAssignment)
     {
+        // ✅ Relations chargées (manquaient dans l'ancien code)
+        $planningAssignment->load(['employee', 'planningModel', 'validator']);
+
         return Inertia::render('Planning/Assignments/Edit', [
             'assignment' => new PlanningAssignmentResource($planningAssignment),
             'employees' => Employee::select('id', 'first_name', 'last_name', 'matricule')
@@ -93,10 +83,8 @@ class PlanningAssignmentController extends Controller
         ]);
     }
 
-    // Mettre à jour une affectation
     public function update(UpdatePlanningAssignmentRequest $request, PlanningAssignment $planningAssignment)
     {
-        // Bloquer la modification si déjà validé
         if ($planningAssignment->status === 'validé') {
             return back()->with('error', 'Impossible de modifier une affectation déjà validée.');
         }
@@ -108,7 +96,6 @@ class PlanningAssignmentController extends Controller
             ->with('success', 'Affectation mise à jour avec succès.');
     }
 
-    // Supprimer une affectation
     public function destroy(PlanningAssignment $planningAssignment)
     {
         if ($planningAssignment->status === 'validé') {
@@ -122,93 +109,85 @@ class PlanningAssignmentController extends Controller
             ->with('success', 'Affectation supprimée avec succès.');
     }
 
-    // -----------------------------------------------
-    // ACTIONS SPÉCIALES
-    // -----------------------------------------------
-
-    // Valider une affectation
-    public function validateAssignment(PlanningAssignment $assignment)
+    public function validateAssignment(PlanningAssignment $planningAssignment)
     {
-        if ($assignment->status !== 'en attente') {
+        if ($planningAssignment->status !== 'en attente') {
             return back()->with('error', 'Seules les affectations en attente peuvent être validées.');
         }
 
-        $oldStatus = $assignment->status;
+        $oldStatus = $planningAssignment->status;
 
-        $assignment->update([
+        $planningAssignment->update([
             'status' => 'validé',
             'validated_by' => auth()->user()->employee->id,
             'validated_at' => now(),
         ]);
 
-        // Historique
         PlanningHistory::create([
-            'planning_assignment_id' => $assignment->id,
+            'planning_assignment_id' => $planningAssignment->id,
             'old_status' => $oldStatus,
             'new_status' => 'validé',
             'changed_by' => auth()->user()->id,
-            'reason' => 'Validation de l\'affectation',
+            'reason' => "Validation de l'affectation",
         ]);
 
         return back()->with('success', 'Affectation validée avec succès.');
     }
 
-    // Suspendre une affectation
-    public function suspend(PlanningAssignment $assignment)
+    public function suspend(PlanningAssignment $planningAssignment)
     {
-        if ($assignment->status !== 'validé') {
+        if ($planningAssignment->status !== 'validé') {
             return back()->with('error', 'Seules les affectations validées peuvent être suspendues.');
         }
 
-        $oldStatus = $assignment->status;
+        $oldStatus = $planningAssignment->status;
 
-        $assignment->update(['status' => 'suspendu']);
+        $planningAssignment->update(['status' => 'suspendu']);
 
-        // Historique
         PlanningHistory::create([
-            'planning_assignment_id' => $assignment->id,
+            'planning_assignment_id' => $planningAssignment->id,
             'old_status' => $oldStatus,
             'new_status' => 'suspendu',
             'changed_by' => auth()->user()->id,
-            'reason' => request('reason') ?? 'Suspension de l\'affectation',
+            'reason' => request('reason') ?? "Suspension de l'affectation",
         ]);
 
         return back()->with('success', 'Affectation suspendue avec succès.');
     }
 
-    // Terminer une affectation
-    public function terminate(PlanningAssignment $assignment)
+    public function terminate(PlanningAssignment $planningAssignment)
     {
-        if ($assignment->status === 'terminé') {
+        if ($planningAssignment->status === 'terminé') {
             return back()->with('error', 'Cette affectation est déjà terminée.');
         }
 
-        $oldStatus = $assignment->status;
+        $oldStatus = $planningAssignment->status;
 
-        $assignment->update([
+        $planningAssignment->update([
             'status' => 'terminé',
             'end_date' => now()->toDateString(),
         ]);
 
-        // Historique
         PlanningHistory::create([
-            'planning_assignment_id' => $assignment->id,
+            'planning_assignment_id' => $planningAssignment->id,
             'old_status' => $oldStatus,
             'new_status' => 'terminé',
             'changed_by' => auth()->user()->id,
-            'reason' => request('reason') ?? 'Fin de l\'affectation',
+            'reason' => request('reason') ?? "Fin de l'affectation",
         ]);
 
         return back()->with('success', 'Affectation terminée avec succès.');
     }
 
-    // Historique d'une affectation
-    public function history(PlanningAssignment $assignment)
+    public function history(PlanningAssignment $planningAssignment)
     {
-        $histories = $assignment->histories()->with('user')->latest()->get();
+        // ✅ Relations chargées (manquaient dans l'ancien code)
+        $planningAssignment->load(['employee', 'planningModel', 'validator']);
+
+        $histories = $planningAssignment->histories()->with('user')->latest()->get();
 
         return Inertia::render('Planning/Assignments/History', [
-            'assignment' => new PlanningAssignmentResource($assignment),
+            'assignment' => new PlanningAssignmentResource($planningAssignment),
             'histories' => PlanningHistoryResource::collection($histories),
         ]);
     }

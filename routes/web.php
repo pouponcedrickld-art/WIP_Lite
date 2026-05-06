@@ -31,38 +31,31 @@ Route::middleware('auth')->group(function () {
 
     ///////////////////////Routes CEDRIC ////////////////////////////////////////////////
     // --- Modèles de planning ---
-    Route::resource('planning-models', PlanningModelController::class);
+    Route::resource('planning-models', PlanningModelController::class)->parameters(['planning-models' => 'planningModel']);
 
     // --- Affectations ---
-    Route::resource('planning-assignments', PlanningAssignmentController::class);
+    Route::resource('planning-assignments', PlanningAssignmentController::class)->parameters(['planning-assignments' => 'planningAssignment']);
 
     // --- Actions spéciales sur une affectation ---
-    Route::patch(
-        'planning-assignments/{assignment}/validate',
-        [PlanningAssignmentController::class, 'validateAssignment']
-    )->name('planning-assignments.validate');
+    Route::patch('planning-assignments/{planningAssignment}/validate',[PlanningAssignmentController::class, 'validateAssignment'])->name('planning-assignments.validate');
 
-    Route::patch(
-        'planning-assignments/{assignment}/suspend',
-        [PlanningAssignmentController::class, 'suspend']
-    )->name('planning-assignments.suspend');
+    Route::patch('planning-assignments/{planningAssignment}/suspend',[PlanningAssignmentController::class, 'suspend'])->name('planning-assignments.suspend');
 
-    Route::patch(
-        'planning-assignments/{assignment}/terminate',
-        [PlanningAssignmentController::class, 'terminate']
-    )->name('planning-assignments.terminate');
+    Route::patch('planning-assignments/{planningAssignment}/terminate',[PlanningAssignmentController::class, 'terminate'])->name('planning-assignments.terminate');
+
 
     // --- Historique ---
     Route::get(
-        'planning-assignments/{assignment}/history',
+        'planning-assignments/{planningAssignment}/history',
         [PlanningAssignmentController::class, 'history']
     )->name('planning-assignments.history');
+    
+
+
 });
 
 
 
-// planning - assignments . edit
-// planning - assignments . show  il manque ces routes 
 ///////////////////////Routes STEVEN ////////////////////////////////////////////////
 
 

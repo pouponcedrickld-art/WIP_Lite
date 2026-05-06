@@ -1,3 +1,68 @@
+<script setup>
+
+import { useConfirm } from 'primevue/useconfirm'
+import { useForm } from '@inertiajs/vue3'
+import AppLayout from '@/Layouts/AppLayout.vue'
+import { Button, DataTable, Column, Tag, Message, ConfirmDialog } from 'primevue'
+
+const props = defineProps({
+  assignments: Object,
+})
+
+const confirm = useConfirm()
+
+function statusSeverity(status) {
+  const map = {
+    'en attente': 'warning',
+    'validé':     'success',
+    'suspendu':   'danger',
+    'terminé':    'secondary',
+  }
+  return map[status] ?? 'info'
+}
+
+function valider(assignment) {
+  confirm.require({
+    message: `Valider le planning de "${assignment.employee.name}" ?`,
+    header: 'Confirmation',
+    icon: 'pi pi-check-circle',
+    acceptLabel: 'Valider',
+    rejectLabel: 'Annuler',
+    accept: () => {
+      useForm({}).patch(route('planning-assignments.validate', assignment.id))
+    },
+  })
+}
+
+function suspendre(assignment) {
+  confirm.require({
+    message: `Suspendre le planning de "${assignment.employee.name}" ?`,
+    header: 'Confirmation',
+    icon: 'pi pi-pause',
+    acceptLabel: 'Suspendre',
+    rejectLabel: 'Annuler',
+    acceptClass: 'p-button-warning',
+    accept: () => {
+      useForm({}).patch(route('planning-assignments.suspend', assignment.id))
+    },
+  })
+}
+
+function terminer(assignment) {
+  confirm.require({
+    message: `Terminer le planning de "${assignment.employee.name}" ? Cette action est irréversible.`,
+    header: 'Confirmation',
+    icon: 'pi pi-exclamation-triangle',
+    acceptLabel: 'Terminer',
+    rejectLabel: 'Annuler',
+    acceptClass: 'p-button-danger',
+    accept: () => {
+      useForm({}).patch(route('planning-assignments.terminate', assignment.id))
+    },
+  })
+}
+</script>
+
 <template>
   <AppLayout title="Affectations Planning">
     <div class="p-6">
@@ -128,70 +193,6 @@
 
     </div>
 
-    <ConfirmDialog />
   </AppLayout>
 </template>
 
-<script setup>
-import { useConfirm } from 'primevue/useconfirm'
-import { useForm } from '@inertiajs/vue3'
-import AppLayout from '@/Layouts/AppLayout.vue'
-import { Button, DataTable, Column, Tag, Message, ConfirmDialog } from 'primevue'
-
-const props = defineProps({
-  assignments: Object,
-})
-
-const confirm = useConfirm()
-
-function statusSeverity(status) {
-  const map = {
-    'en attente': 'warning',
-    'validé':     'success',
-    'suspendu':   'danger',
-    'terminé':    'secondary',
-  }
-  return map[status] ?? 'info'
-}
-
-function valider(assignment) {
-  confirm.require({
-    message: `Valider le planning de "${assignment.employee.name}" ?`,
-    header: 'Confirmation',
-    icon: 'pi pi-check-circle',
-    acceptLabel: 'Valider',
-    rejectLabel: 'Annuler',
-    accept: () => {
-      useForm({}).patch(route('planning-assignments.validate', assignment.id))
-    },
-  })
-}
-
-function suspendre(assignment) {
-  confirm.require({
-    message: `Suspendre le planning de "${assignment.employee.name}" ?`,
-    header: 'Confirmation',
-    icon: 'pi pi-pause',
-    acceptLabel: 'Suspendre',
-    rejectLabel: 'Annuler',
-    acceptClass: 'p-button-warning',
-    accept: () => {
-      useForm({}).patch(route('planning-assignments.suspend', assignment.id))
-    },
-  })
-}
-
-function terminer(assignment) {
-  confirm.require({
-    message: `Terminer le planning de "${assignment.employee.name}" ? Cette action est irréversible.`,
-    header: 'Confirmation',
-    icon: 'pi pi-exclamation-triangle',
-    acceptLabel: 'Terminer',
-    rejectLabel: 'Annuler',
-    acceptClass: 'p-button-danger',
-    accept: () => {
-      useForm({}).patch(route('planning-assignments.terminate', assignment.id))
-    },
-  })
-}
-</script>

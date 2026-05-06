@@ -3,9 +3,14 @@ import SUPLayout from '@/Layouts/SUPLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import DataTable from 'primevue/datatable';
 import Column from 'primevue/column';
+import Button from 'primevue/button';
 
 defineOptions({ layout: SUPLayout });
 defineProps({ pending_tasks: Array }); // Données envoyées par le controller
+
+const validateTask = (task) => {
+    console.log('Validation de la tâche:', task);
+};
 </script>
 
 <template>
@@ -16,8 +21,8 @@ defineProps({ pending_tasks: Array }); // Données envoyées par le controller
             <Column field="name" header="Tâche"></Column>
             <Column field="assignee" header="Assigné à"></Column>
             <Column header="Action">
-                <template #body>
-                    <Button label="Valider" class="p-button-success p-button-sm" />
+                <template #body="slotProps">
+                    <Button label="Valider" class="p-button-success p-button-sm" @click.stop="validateTask(slotProps.data)" />
                 </template>
             </Column>
         </DataTable>

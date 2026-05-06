@@ -1,5 +1,6 @@
 import '../css/app.css';
 import 'primeicons/primeicons.css';
+import Tooltip from 'primevue/tooltip'
 // import './bootstrap';
 
 import { createInertiaApp } from '@inertiajs/vue3';
@@ -32,6 +33,7 @@ createInertiaApp({
             })
             .use(ToastService)
             .use(ConfirmationService)
+            .directive('tooltip', Tooltip)
             .mount(el);
     },
     progress: {
