@@ -2,25 +2,27 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Assignment;
-use App\Models\Campaign;
-use App\Models\Employee;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Notification;
+use App\Models\Employee;
+use App\Models\Campaign;
+use App\Models\Assignment;
+use App\Models\User;
 
-
-class AdminController extends Controller
+class DashboardController extends Controller
 {
-
-    public function index()
+    /**
+     * Handle the incoming request.
+     */
+    public function __invoke(Request $request)
     {
-        return Inertia::render('Dashboard/AdminDashboard', [
+       return Inertia::render('Dashboard/AdminDashboard', [
         'stats' => [
             'employees_count' => Employee::count(),
             'campaigns_count' => Campaign::where('status', 'active')->count(), // Ajuste selon tes colonnes
             'pending_count'   => Employee::whereDoesntHave('assignments')->count(), // Ceux qui n'ont pas de mission
-            'alerts_count'    => 5, // Tu pourras lier ça à une logique d'erreurs plus tard
+            'alerts_count'    => Notification::count(), // Tu pourras lier ça à une logique d'erreurs plus tard
         ],
         'recent_assignments' => Assignment::with(['employee', 'campaign'])
             ->latest()
