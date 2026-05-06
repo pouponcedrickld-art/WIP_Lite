@@ -351,13 +351,13 @@ const weekDays = computed(() => {
                                 <tr>
                                     <td colspan="4" class="px-6 py-4 text-right font-medium text-gray-900">Total semaine :</td>
                                     <td class="px-4 py-4 text-right font-medium text-gray-600">
-                                        {{ weekPlannedTotal.toFixed(2) }}h
+                                        {{ (weekPlannedTotal.value || 0).toFixed(2) }}h
                                     </td>
                                     <td class="px-4 py-4 text-right font-medium text-gray-900">
-                                        {{ weekTotal.toFixed(2) }}h
+                                        {{ (weekTotal.value || 0).toFixed(2) }}h
                                     </td>
-                                    <td class="px-4 py-4 text-right font-medium" :class="weekOvertime > 0 ? 'text-green-600' : weekOvertime < 0 ? 'text-red-600' : 'text-gray-600'">
-                                        {{ weekOvertime > 0 ? '+' : '' }}{{ weekOvertime.toFixed(2) }}h
+                                    <td class="px-4 py-4 text-right font-medium" :class="(weekOvertime.value || 0) > 0 ? 'text-green-600' : (weekOvertime.value || 0) < 0 ? 'text-red-600' : 'text-gray-600'">
+                                        {{ (weekOvertime.value || 0) > 0 ? '+' : '' }}{{ (weekOvertime.value || 0).toFixed(2) }}h
                                     </td>
                                     <td colspan="2"></td>
                                 </tr>

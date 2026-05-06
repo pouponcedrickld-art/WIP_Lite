@@ -147,8 +147,8 @@ class TimesheetController extends Controller
         if ($planningAssignment) {
             $model = $planningAssignment->planningModel;
             $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-            foreach ($days as $day) {
-                $date = $startDate->copy()->startOfWeek()->modify($day);
+            foreach ($days as $index => $day) {
+                $date = $startDate->copy()->addDays($index);
                 $planningHours[$date->format('Y-m-d')] = $model->{$day . '_hours'};
             }
         }
