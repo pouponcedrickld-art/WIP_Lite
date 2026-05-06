@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue';
+import DropdownLink from '@/Components/DropdownLink.vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import OverlayPanel from 'primevue/overlaypanel';
 import Button from 'primevue/button';
@@ -68,6 +69,13 @@ const isActive = (route) => page.url.startsWith(route);
       <header class="h-16 bg-white/80 backdrop-blur-md sticky top-0 z-10 flex items-center justify-between px-8 border-b border-slate-200">
         <h2 class="font-bold text-slate-800 tracking-tight">Administration</h2>
         
+                                                <DropdownLink
+                                            :href="route('logout')"
+                                            method="post"
+                                            as="button"
+                                        >
+                                            Log Out
+                                        </DropdownLink>
         <div class="flex items-center gap-3">
           <!-- Notification Button -->
           <Button 

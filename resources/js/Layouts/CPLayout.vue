@@ -46,7 +46,7 @@ const isActive = (route) => page.url.startsWith(route);
       <div class="p-4 border-t border-emerald-900/50">
          <div class="bg-emerald-900/40 p-3 rounded-xl flex items-center gap-3">
             <div class="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center text-white font-bold text-xs uppercase">
-               {{ $page.props.auth.user.name.substring(0,2) }}
+               {{ $page.props.auth.user.name }}
             </div>
             <div class="overflow-hidden">
                <p class="text-xs font-bold text-white truncate">{{ $page.props.auth.user.name }}</p>
@@ -65,7 +65,7 @@ const isActive = (route) => page.url.startsWith(route);
           <Button type="button" icon="pi pi-bell" @click="(e) => op.toggle(e)" 
                   v-badge.danger="$page.props.auth.notifications.length || null" text plain />
           <div class="h-8 w-[1px] bg-slate-200"></div>
-          <Link href="/logout" method="post" as="button" class="text-xs font-bold text-rose-500 hover:text-rose-700">DÉCONNEXION</Link>
+          <Link :href="route('logout')" method="post" as="button" class="text-xs font-bold text-rose-500 hover:text-rose-700">DÉCONNEXION</Link>
         </div>
       </header>
 
