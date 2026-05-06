@@ -27,13 +27,27 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
+
+    private function getDashboardRoute($role): string
+    {
+        return match ($role) {
+            'admin' => 'admin.dashboard',
+            'cp' => 'cp.dashboard',
+            'sup' => 'sup.dashboard',
+            'tc' => 'tc.dashboard',
+            default => abort(403),
+        };
+    }
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
-
         $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        $user = auth()->user();
+
+        $route = $this->getDashboardRoute($user->role?->name);
+// dd($route);
+        return redirect()->intended(route($route));
     }
 
     /**

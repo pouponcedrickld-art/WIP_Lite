@@ -11,17 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-    Schema::create('notifications', function (Blueprint $table) { // Note: Laravel a son propre format, mais voici le vôtre
-    $table->id();
-    $table->string('type');
-    $table->string('notifiable_type');
-    $table->unsignedBigInteger('notifiable_id');
-    $table->json('data');
-    $table->timestamp('read_at')->nullable();
-    $table->timestamps();
+    Schema::create('notifications', function (Blueprint $table) {
+        // Remplace $table->id() par $table->uuid('id')->primary()
+        $table->uuid('id')->primary(); 
+        $table->string('type');
+        $table->string('notifiable_type');
+        $table->unsignedBigInteger('notifiable_id');
+        $table->json('data');
+        $table->timestamp('read_at')->nullable();
+        $table->timestamps();
     });
     }
-
     /**
      * Reverse the migrations.
      */

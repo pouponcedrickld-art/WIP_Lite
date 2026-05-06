@@ -5,6 +5,8 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Notification;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class NotificationSeeder extends Seeder
 {
@@ -15,6 +17,7 @@ class NotificationSeeder extends Seeder
     {
         $notifications = [
             [
+                'id' => Str::uuid()->toString(), // Ajoute cette ligne !
                 'type' => 'info',
                 'notifiable_type' => 'App\Models\User',
                 'notifiable_id' => 1,
@@ -26,6 +29,7 @@ class NotificationSeeder extends Seeder
                 'read_at' => null,
             ],
             [
+                'id' => Str::uuid()->toString(), // Ajoute cette ligne !
                 'type' => 'warning',
                 'notifiable_type' => 'App\Models\Employee',
                 'notifiable_id' => 2,
@@ -37,6 +41,7 @@ class NotificationSeeder extends Seeder
                 'read_at' => '2024-04-08 10:30:00',
             ],
             [
+                'id' => Str::uuid()->toString(), // Ajoute cette ligne !
                 'type' => 'success',
                 'notifiable_type' => 'App\Models\User',
                 'notifiable_id' => 1,
@@ -48,6 +53,7 @@ class NotificationSeeder extends Seeder
                 'read_at' => '2024-04-01 09:15:00',
             ],
             [
+                'id' => Str::uuid()->toString(), // Ajoute cette ligne !
                 'type' => 'error',
                 'notifiable_type' => 'App\Models\Employee',
                 'notifiable_id' => 3,
@@ -59,6 +65,7 @@ class NotificationSeeder extends Seeder
                 'read_at' => null,
             ],
             [
+                'id' => Str::uuid()->toString(), // Ajoute cette ligne !
                 'type' => 'info',
                 'notifiable_type' => 'App\Models\User',
                 'notifiable_id' => 2,
@@ -70,6 +77,7 @@ class NotificationSeeder extends Seeder
                 'read_at' => '2024-03-15 14:20:00',
             ],
             [
+                'id' => Str::uuid()->toString(), // Ajoute cette ligne !
                 'type' => 'warning',
                 'notifiable_type' => 'App\Models\Employee',
                 'notifiable_id' => 4,
@@ -81,9 +89,13 @@ class NotificationSeeder extends Seeder
                 'read_at' => null,
             ],
         ];
-
-        foreach ($notifications as $notification) {
-            Notification::create($notification);
-        }
+        
+foreach ($notifications as $notification) {
+    // On utilise DB::table au lieu du Model Notification
+    \Illuminate\Support\Facades\DB::table('notifications')->insert(array_merge($notification, [
+        'created_at' => now(),
+        'updated_at' => now(),
+    ]));
+}
     }
 }
