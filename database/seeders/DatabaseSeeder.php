@@ -29,7 +29,6 @@ class DatabaseSeeder extends Seeder
             AssignmentHistorySeeder::class,
             PlanningHistorySeeder::class,
             TimesheetHistorySeeder::class,
-            NotificationSeeder::class,
         ]);
     }
 }
