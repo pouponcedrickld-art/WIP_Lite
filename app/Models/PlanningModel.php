@@ -7,6 +7,17 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PlanningModel extends Model
 {
+    protected $casts = [
+        'monday_hours' => 'float',
+        'tuesday_hours' => 'float',
+        'wednesday_hours' => 'float',
+        'thursday_hours' => 'float',
+        'friday_hours' => 'float',
+        'saturday_hours' => 'float',
+        'sunday_hours' => 'float',
+        'total_hours' => 'float',
+        'created_by' => 'integer',
+    ];
     protected $fillable = [
         'name',
         'description',

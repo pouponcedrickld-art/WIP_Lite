@@ -15,7 +15,6 @@ class TimesheetHistory extends Model
     public function timesheet() {
         return $this->belongsTo(Timesheet::class);
     }
-
     
     public function author() {
         return $this->belongsTo(Employee::class, 'changed_by');
