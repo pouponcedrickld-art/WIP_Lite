@@ -1,7 +1,7 @@
 <template>
   <AppLayout title="Détail affectation">
     <div class="p-6 max-w-4xl mx-auto">
-
+<pre>{{ assignment }}</pre>
       <!-- Header -->
       <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold">Détail de l'affectation</h1>

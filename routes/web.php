@@ -61,6 +61,8 @@ Route::middleware('auth')->group(function () {
 
 
 
+// planning - assignments . edit
+// planning - assignments . show  il manque ces routes 
 ///////////////////////Routes STEVEN ////////////////////////////////////////////////
 
 

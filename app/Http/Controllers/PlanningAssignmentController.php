@@ -66,13 +66,18 @@ class PlanningAssignmentController extends Controller
     }
 
     // Détail d'une affectation
+
     public function show(PlanningAssignment $planningAssignment)
     {
-        $planningAssignment->load('employee', 'planningModel', 'validator', 'histories');
+        $planningAssignment->load([
+            'employee',
+            'planningModel',
+            'validator',
+        ]);
 
         return Inertia::render('Planning/Assignments/Show', [
             'assignment' => new PlanningAssignmentResource($planningAssignment),
-            'histories' => PlanningHistoryResource::collection($planningAssignment->histories),
+            'histories' => [],
         ]);
     }
 

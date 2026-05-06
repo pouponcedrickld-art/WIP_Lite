@@ -6,7 +6,7 @@
 
       <!-- Logo / Titre -->
       <div class="flex items-center gap-3">
-        <span class="text-xl font-bold text-blue-700">MiniWIP</span>
+        <span class="text-xl font-bold text-blue-700">WIP_lite </span>
       </div>
 
       <!-- Menu navigation -->
