@@ -29,6 +29,8 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+
+        $user = $request->user();
         return [
             ...parent::share($request),
             'auth' => [
@@ -37,7 +39,33 @@ class HandleInertiaRequests extends Middleware
                 ? $request->user()->unreadNotifications 
                 : [],
 
+                'role' => $request->user()?->role?->name,
             ],
+
+            'menu' => $user ? match ($user->role->name) {
+                'admin' => [
+                    ['name' => 'Dashboard', 'route' => 'admin.dashboard'],
+                    ['name' => 'Users', 'route' => 'users.index'],
+                ],
+                'cp' => [
+                    ['name' => 'Dashboard', 'route' => 'cp.dashboard'],
+                ],
+                'sup' => [
+                    ['name' => 'Dashboard', 'route' => 'sup.dashboard'],
+                ],
+                'tc' => [
+                    ['name' => 'Dashboard', 'route' => 'tc.dashboard'],
+                ],
+                default => [],
+            } : [],
+
+            'defaultRoute' => $user ? match ($user->role?->name) {
+                'admin' => 'admin.dashboard',
+                'cp' => 'cp.dashboard',
+                'sup' => 'sup.dashboard',
+                'tc' => 'tc.dashboard',
+                default => 'login',
+            } : 'login',
         ];
     }
 }
