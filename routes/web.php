@@ -9,30 +9,37 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+
 Route::get('/', function () {
-    // if (Auth::check()) {
-    //     $user = Auth::user();
+    if (!auth()->check()) {
+        return redirect()->route('login');
+    }
 
-    //     return match ($user->role->name) {
-    //         'admin' => redirect()->route('admin.dashboard'),
-    //         'cp' => redirect()->route('cp.dashboard'),
-    //         'sup' => redirect()->route('sup.dashboard'),
-    //         'tc' => redirect()->route('tc.dashboard'),
-    //         default => abort(403),
-    //     };
-    // }
+    $user = auth()->user();
 
-    return Inertia::render('Auth/Login', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
+    $route = match ($user->role->name) {
+        'admin' => 'admin.dashboard',
+        'cp' => 'cp.dashboard',
+        'sup' => 'sup.dashboard',
+        'tc' => 'tc.dashboard',
+        default => abort(403),
+    };
+
+    return redirect()->route($route);
 });
 
-// Route::get('/dashboard', function () {
-//     return Inertia::render('Dashboard');
-// })->middleware(['auth', 'verified'])->name('dashboard');
+
+// 2. Routes accessibles uniquement aux invités (non-connectés)
+Route::middleware('guest')->group(function () {
+    Route::get('/login', function () {
+        return Inertia::render('Auth/Login', [
+            'canLogin' => Route::has('login'),
+            'canRegister' => Route::has('register'),
+            'laravelVersion' => Application::VERSION,
+            'phpVersion' => PHP_VERSION,
+        ]);
+    })->name('login');
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -73,7 +80,7 @@ Route::middleware(['auth', 'sup'])->group(function () {
         ->name('sup.dashboard');
 });
 
-Route::middleware(['auth','tc'])->group(function () {
+Route::middleware(['auth', 'tc'])->group(function () {
 
     Route::get('/tc/dashboard', [TcController::class, 'index'])
         ->name('tc.dashboard');
