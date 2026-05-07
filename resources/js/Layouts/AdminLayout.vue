@@ -5,6 +5,22 @@ import { Link, usePage } from "@inertiajs/vue3";
 import OverlayPanel from "primevue/overlaypanel";
 import Button from "primevue/button";
 import { computed } from "vue";
+import { onMounted } from 'vue';
+
+
+import { useToast } from 'primevue/usetoast';
+import Toast from 'primevue/toast';
+const toast = useToast();
+
+onMounted(() => {
+    toast.add({
+        severity: 'success',
+        summary: 'Bienvenue 👋',
+        detail: 'Heureux de vous revoir sur votre tableau de bord !',
+        life: 4000
+    });
+});
+
 
 const op = ref();
 const page = usePage();
@@ -21,6 +37,8 @@ const isActive = (route) => page.url.startsWith(route);
 </script>
 
 <template>
+   <Toast position="top-right" />
+
     <div
         class="min-h-screen bg-slate-50 flex font-sans antialiased text-slate-900"
     >
@@ -161,6 +179,9 @@ const isActive = (route) => page.url.startsWith(route);
             <header
                 class="h-16 bg-white/80 backdrop-blur-md sticky top-0 z-10 flex items-center justify-between px-8 border-b border-slate-200"
             >
+                        <div>
+
+            </div>
                 <h2 class="font-bold text-slate-800 tracking-tight">
                     Administration
                 </h2>
@@ -189,7 +210,9 @@ const isActive = (route) => page.url.startsWith(route);
                         <i class="pi pi-cog text-slate-400"></i>
                     </button>
                 </div>
+
             </header>
+
 
             <!-- OverlayPanel épuré -->
             <OverlayPanel

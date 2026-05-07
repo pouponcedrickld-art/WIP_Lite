@@ -3,7 +3,6 @@ import { onMounted } from "vue";
 import { Link, usePage, Head, router } from "@inertiajs/vue3";
 import { useToast } from "primevue/usetoast";
 import AdminLayout from "@/Layouts/AdminLayout.vue";
-import { Link, Head, router } from "@inertiajs/vue3";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Button from "primevue/button";
 import Card from "primevue/card";

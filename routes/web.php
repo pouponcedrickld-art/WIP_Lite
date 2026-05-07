@@ -168,11 +168,11 @@ Route::get('/test-notif', function () {
 // })->middleware(['auth'])->name('admin.dashboard');
 
 
-// Route::get('/notifications', function () {
-//     return Inertia::render('Notifications/Index', [
-//         'allNotifications' => auth()->user()->notifications // Récupère tout l'historique
-//     ]);
-// })->middleware(['auth']);
+Route::get('/notifications', function () {
+    return Inertia::render('Notifications/Index', [
+        'allNotifications' => auth()->user()->notifications // Récupère tout l'historique
+    ]);
+})->middleware(['auth']);
 
 
 use App\Http\Controllers\DashboardController;

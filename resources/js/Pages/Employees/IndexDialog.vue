@@ -1,7 +1,7 @@
 <script setup>
 import { ref, watch, onMounted } from "vue";
 import { Link, router, Head, useForm, usePage } from "@inertiajs/vue3";
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import AdminLayout from "@/Layouts/AdminLayout.vue";
 import EmployeeForm from "@/Components/EmployeeForm.vue";
 import Button from "primevue/button";
 import Column from "primevue/column";
@@ -210,8 +210,8 @@ const executeStatusChange = () => {
 <template>
     <Head title="Employés" />
 
-    <AuthenticatedLayout>
-        <template #header>
+    <AdminLayout>
+
             <div class="flex justify-between items-center">
                 <h2 class="text-xl font-semibold leading-tight text-gray-800">
                     Gestion des Employés
@@ -232,7 +232,6 @@ const executeStatusChange = () => {
                     />
                 </div>
             </div>
-        </template>
 
         <div class="h-screen flex flex-col p-4 overflow-hidden">
             <div class="bg-white overflow-hidden shadow-sm rounded-lg flex flex-col flex-1 w-full">
@@ -493,5 +492,5 @@ const executeStatusChange = () => {
                 />
             </template>
         </Dialog>
-    </AuthenticatedLayout>
+    </AdminLayout>
 </template>

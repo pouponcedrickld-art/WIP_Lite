@@ -1,7 +1,4 @@
 <script setup>
-import { ref, watch, onMounted } from "vue";
-import { Link, router, usePage, Head } from "@inertiajs/vue3";
-import { useToast } from "primevue/usetoast";
 import { ref, watch } from "vue";
 import { Link, router, Head } from "@inertiajs/vue3";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
