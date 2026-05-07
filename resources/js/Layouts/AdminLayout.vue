@@ -43,135 +43,108 @@ const isActive = (route) => page.url.startsWith(route);
         class="min-h-screen bg-slate-50 flex font-sans antialiased text-slate-900"
     >
         <!-- Sidebar -->
-        <aside
-            class="w-64 bg-slate-900 text-slate-300 flex-shrink-0 hidden md:flex flex-col border-r border-slate-800"
-        >
-            <div class="h-16 flex items-center px-6 border-b border-slate-800">
-                <span class="text-white font-black tracking-tighter text-xl"
-                    >WIP<span class="text-indigo-500">LITE</span></span
-                >
-            </div>
-
-            <nav class="flex-1 p-4 space-y-1">
-                <p
-                    class="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-4 px-3"
-                >
-                    Menu Principal
-                </p>
-
-                <Link
-                    href="/admin/dashboard"
-                    :class="[
-                        isActive('/admin/dashboard')
-                            ? 'bg-slate-800 text-white'
-                            : 'hover:bg-slate-800 hover:text-white',
-                    ]"
-                    class="flex items-center p-3 rounded-xl transition-all duration-200 group"
-                >
-                    <i
-                        class="pi pi-home mr-3 text-lg"
-                        :class="
-                            isActive('/admin/dashboard')
-                                ? 'text-indigo-400'
-                                : 'text-slate-500 group-hover:text-indigo-400'
-                        "
-                    ></i>
-                    <span class="font-medium">Dashboard</span>
-                </Link>
-
-<Link
-    :href="route('employees.index')"
-    :class="[
-        isActive('employees.index')
-            ? 'bg-slate-800 text-white'
-            : 'hover:bg-slate-800 hover:text-white',
-    ]"
-    class="flex items-center p-3 rounded-xl transition-all duration-200 group"
+<!-- Sidebar -->
+<aside
+    class="w-64 bg-slate-900 text-slate-300 flex-shrink-0 hidden md:flex flex-col border-r border-slate-800"
 >
-    <i
-        class="pi pi-users mr-3 text-lg"
-        :class="
-            isActive('employees.index')
-                ? 'text-indigo-400'
-                : 'text-slate-500 group-hover:text-indigo-400'
-        "
-    ></i>
+    <!-- Logo -->
+    <div class="h-16 flex items-center px-6 border-b border-slate-800">
+        <span class="text-white font-black tracking-tighter text-xl">
+            WIP<span class="text-indigo-500">LITE</span>
+        </span>
+    </div>
 
-    <span class="font-medium">Employés</span>
-</Link>
-                <Link
-                    href="/admin/campaigns"
-                    :class="[
-                        isActive('/admin/campaigns')
-                            ? 'bg-slate-800 text-white'
-                            : 'hover:bg-slate-800 hover:text-white',
-                    ]"
-                    class="flex items-center p-3 rounded-xl transition-all duration-200 group"
-                >
-                    <i
-                        class="pi pi-flag mr-3 text-lg"
-                        :class="
-                            isActive('/admin/campaigns')
-                                ? 'text-indigo-400'
-                                : 'text-slate-500 group-hover:text-indigo-400'
-                        "
-                    ></i>
-                    <span class="font-medium">Campagnes</span>
-                </Link>
-                <Link
-                    href="/admin/no_users"
-                    :class="[
-                        isActive('/admin/campaigns')
-                            ? 'bg-slate-800 text-white'
-                            : 'hover:bg-slate-800 hover:text-white',
-                    ]"
-                    class="flex items-center p-3 rounded-xl transition-all duration-200 group"
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke-width="1.5"
-                        stroke="currentColor"
-                        class="w-6 h-6"
-                    >
-                        <path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z"
-                        />
-                    </svg>
-                    <span class="font-medium">Activation des comptes</span>
-                </Link>
+    <!-- Navigation -->
+    <nav class="flex-1 p-4 space-y-1">
 
-                <Link :href="route('reporting.index')" 
-      :class="[route().current('reporting.index') ? 'bg-indigo-600 text-white' : 'text-indigo-100 hover:bg-indigo-700']"
-      class="flex items-center p-3 rounded-xl transition-all group">
-    <i class="pi pi-chart-bar mr-3"></i>
-    <span class="font-medium">Reporting Global</span>
-</Link>
-            </nav>
+        <p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-4 px-3">
+            Menu Principal
+        </p>
 
-            <div class="p-4 border-t border-slate-800">
-                <div
-                    class="bg-slate-800/50 p-3 rounded-xl flex items-center gap-3"
-                >
-                    <div
-                        class="w-8 h-8 rounded-lg bg-indigo-500 flex items-center justify-center text-white font-bold text-xs"
-                    >
-                        AD
-                    </div>
-                    <div class="overflow-hidden">
-                        <p class="text-xs font-bold text-white truncate">
-                            Administrateur
-                        </p>
-                        <p class="text-[10px] text-slate-500 truncate">
-                            admin@wiplite.com
-                        </p>
-                    </div>
-                </div>
+        <!-- Dashboard -->
+        <Link href="/admin/dashboard"
+            :class="[isActive('/admin/dashboard') ? 'bg-slate-800 text-white' : 'hover:bg-slate-800 hover:text-white']"
+            class="flex items-center p-3 rounded-xl transition-all duration-200 group">
+            <i class="pi pi-home mr-3 text-lg"
+                :class="isActive('/admin/dashboard') ? 'text-indigo-400' : 'text-slate-500 group-hover:text-indigo-400'"/>
+            <span class="font-medium">Dashboard</span>
+        </Link>
+
+        <!-- Employees -->
+        <Link href="/admin/employees"
+            :class="[isActive('/admin/employees') ? 'bg-slate-800 text-white' : 'hover:bg-slate-800 hover:text-white']"
+            class="flex items-center p-3 rounded-xl transition-all duration-200 group">
+            <i class="pi pi-users mr-3 text-lg"
+                :class="isActive('/admin/employees') ? 'text-indigo-400' : 'text-slate-500 group-hover:text-indigo-400'"/>
+            <span class="font-medium">Employés</span>
+        </Link>
+
+        <!-- Employees route name -->
+        <Link :href="route('employees.index')"
+            :class="[route().current('employees.index') ? 'bg-slate-800 text-white' : 'hover:bg-slate-800 hover:text-white']"
+            class="flex items-center p-3 rounded-xl transition-all duration-200 group">
+            <i class="pi pi-users mr-3 text-lg"
+                :class="route().current('employees.index') ? 'text-indigo-400' : 'text-slate-500 group-hover:text-indigo-400'"/>
+            <span class="font-medium">Employés (Route)</span>
+        </Link>
+
+        <!-- Campaigns -->
+        <Link href="/admin/campaigns"
+            :class="[isActive('/admin/campaigns') ? 'bg-slate-800 text-white' : 'hover:bg-slate-800 hover:text-white']"
+            class="flex items-center p-3 rounded-xl transition-all duration-200 group">
+            <i class="pi pi-flag mr-3 text-lg"
+                :class="isActive('/admin/campaigns') ? 'text-indigo-400' : 'text-slate-500 group-hover:text-indigo-400'"/>
+            <span class="font-medium">Campagnes</span>
+        </Link>
+
+        <!-- Planning Models -->
+        <Link href="/planning-models"
+            :class="[isActive('/planning-models') ? 'bg-slate-800 text-white' : 'hover:bg-slate-800 hover:text-white']"
+            class="flex items-center p-3 rounded-xl transition-all duration-200 group">
+            <i class="pi pi-table mr-3 text-lg"
+                :class="isActive('/planning-models') ? 'text-indigo-400' : 'text-slate-500 group-hover:text-indigo-400'"/>
+            <span class="font-medium">Modèles Planning</span>
+        </Link>
+
+        <!-- Planning Assignments -->
+        <Link href="/planning-assignments"
+            :class="[isActive('/planning-assignments') ? 'bg-slate-800 text-white' : 'hover:bg-slate-800 hover:text-white']"
+            class="flex items-center p-3 rounded-xl transition-all duration-200 group">
+            <i class="pi pi-users mr-3 text-lg"
+                :class="isActive('/planning-assignments') ? 'text-indigo-400' : 'text-slate-500 group-hover:text-indigo-400'"/>
+            <span class="font-medium">Affectations</span>
+        </Link>
+
+        <!-- Activation comptes -->
+        <Link href="/admin/no_users"
+            class="flex items-center p-3 rounded-xl hover:bg-slate-800 hover:text-white transition-all duration-200 group">
+            <i class="pi pi-user-plus mr-3 text-lg text-slate-500 group-hover:text-indigo-400"></i>
+            <span class="font-medium">Activation des comptes</span>
+        </Link>
+
+        <!-- Reporting -->
+        <Link :href="route('reporting.index')"
+            :class="[route().current('reporting.index') ? 'bg-indigo-600 text-white' : 'hover:bg-slate-800 hover:text-white']"
+            class="flex items-center p-3 rounded-xl transition-all group">
+            <i class="pi pi-chart-bar mr-3"></i>
+            <span class="font-medium">Reporting Global</span>
+        </Link>
+
+    </nav>
+
+    <!-- User Card -->
+    <div class="p-4 border-t border-slate-800">
+        <div class="bg-slate-800/50 p-3 rounded-xl flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-indigo-500 flex items-center justify-center text-white font-bold text-xs">
+                AD
             </div>
-        </aside>
+            <div>
+                <p class="text-xs font-bold text-white">Administrateur</p>
+                <p class="text-[10px] text-slate-500">admin@wiplite.com</p>
+            </div>
+        </div>
+    </div>
+</aside>
 
         <!-- Main Content -->
         <div class="flex-1 flex flex-col">

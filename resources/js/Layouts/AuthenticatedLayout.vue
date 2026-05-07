@@ -136,6 +136,26 @@ watch(
                                     Dashboard
                                 </NavLink>
                             </div>
+<div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+    <NavLink
+        :href="route('dashboard')"
+        :active="route().current('dashboard')"
+    >
+        Dashboard
+    </NavLink>
+    <NavLink
+        :href="route('planning-models.index')"
+        :active="route().current('planning-models.*')"
+    >
+        Modèles Planning
+    </NavLink>
+    <NavLink
+        :href="route('planning-assignments.index')"
+        :active="route().current('planning-assignments.*')"
+    >
+        Affectations
+    </NavLink>
+</div>
                         </div>
 
                         <div class="hidden sm:ms-6 sm:flex sm:items-center">
