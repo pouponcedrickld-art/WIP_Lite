@@ -1,12 +1,39 @@
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted, watch } from "vue";
 import DropdownLink from "@/Components/DropdownLink.vue";
 import { Link, usePage } from "@inertiajs/vue3";
 import OverlayPanel from "primevue/overlaypanel";
 import Button from "primevue/button";
+import Toast from "primevue/toast";
+import { useToast } from "primevue/usetoast";
 
 const op = ref();
 const page = usePage();
+const toast = useToast();
+
+// Surveiller les messages flash de Laravel (Inertia)
+watch(
+    () => page.props.flash,
+    (flash) => {
+        if (flash?.success) {
+            toast.add({
+                severity: "success",
+                summary: "Succès",
+                detail: flash.success,
+                life: 4000,
+            });
+        }
+        if (flash?.error) {
+            toast.add({
+                severity: "error",
+                summary: "Erreur",
+                detail: flash.error,
+                life: 9000,
+            });
+        }
+    },
+    { deep: true, immediate: true }
+);
 
 const markAsRead = (id) => {
     // Logique router.post ici plus tard
@@ -18,6 +45,7 @@ const isActive = (route) => page.url.startsWith(route);
 </script>
 
 <template>
+    <Toast position="top-center" />
     <div
         class="min-h-screen bg-slate-50 flex font-sans antialiased text-slate-900"
     >
