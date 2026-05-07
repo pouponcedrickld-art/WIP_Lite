@@ -7,42 +7,50 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Cp\CpController;
 use App\Http\Controllers\Sup\SupController;
 use App\Http\Controllers\Tc\TcController;
+use App\Http\Controllers\EmployeeController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+
 Route::get('/', function () {
-    // if (Auth::check()) {
-    //     $user = Auth::user();
+    if (!auth()->check()) {
+        return redirect()->route('login');
+    }
 
-    //     return match ($user->role->name) {
-    //         'admin' => redirect()->route('admin.dashboard'),
-    //         'cp' => redirect()->route('cp.dashboard'),
-    //         'sup' => redirect()->route('sup.dashboard'),
-    //         'tc' => redirect()->route('tc.dashboard'),
-    //         default => abort(403),
-    //     };
-    // }
+    $user = auth()->user();
 
-    return Inertia::render('Auth/Login', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
+    $route = match ($user->role->name) {
+        'admin' => 'admin.dashboard',
+        'cp' => 'cp.dashboard',
+        'sup' => 'sup.dashboard',
+        'tc' => 'tc.dashboard',
+        default => abort(403),
+    };
+
+    return redirect()->route($route);
 });
 
-// Route::get('/dashboard', function () {
-//     return Inertia::render('Dashboard');
-// })->middleware(['auth', 'verified'])->name('dashboard');
+
+// 2. Routes accessibles uniquement aux invités (non-connectés)
+Route::middleware('guest')->group(function () {
+    Route::get('/login', function () {
+        return Inertia::render('Auth/Login', [
+            'canLogin' => Route::has('login'),
+            'canRegister' => Route::has('register'),
+            'laravelVersion' => Application::VERSION,
+            'phpVersion' => PHP_VERSION,
+        ]);
+    })->name('login');
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
-
-
+    
+    
+    
 
 ///////////////////////Routes STEVEN ////////////////////////////////////////////////
 
@@ -69,6 +77,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     Route::get('/admin/dashboard', [AdminController::class, 'index'])
         ->name('admin.dashboard');
+
+    Route::post('/admin/no_users', [AdminController::class, 'no_users'])->name('no_users');
 });
 
 Route::middleware(['auth', 'cp'])->group(function () {
@@ -83,7 +93,7 @@ Route::middleware(['auth', 'sup'])->group(function () {
         ->name('sup.dashboard');
 });
 
-Route::middleware(['auth','tc'])->group(function () {
+Route::middleware(['auth', 'tc'])->group(function () {
 
     Route::get('/tc/dashboard', [TcController::class, 'index'])
         ->name('tc.dashboard');
@@ -96,6 +106,13 @@ Route::middleware(['auth','tc'])->group(function () {
 
 
 ///////////////////////Routes OTHITHI ////////////////////////////////////////////////
+// Routes pour la gestion des employés
+Route::resource('employees', EmployeeController::class);
+Route::patch('/employees/{employee}/status', [EmployeeController::class, 'changeStatus'])
+    ->name('employees.changeStatus');
+Route::get('/employees/{employee}/history', [EmployeeController::class, 'history'])
+    ->name('employees.history');
+});
 
 
 
@@ -163,7 +180,7 @@ use App\Notifications\NewEmployeeAdded;
 
 Route::get('/test-sidebar', function () {
     $user = auth()->user(); // L'utilisateur connecté (toi)
-    
+
     // On envoie la notification à toi-même pour tester
     $user->notify(new NewEmployeeAdded("Marc-Antoine"));
 
@@ -189,4 +206,4 @@ Route::get('/test-sidebar', function () {
 // })->middleware(['auth'])->name('cp.dashboard');
 
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

@@ -2,6 +2,7 @@
 import { ref } from "vue";
 import { useForm, Head, Link } from "@inertiajs/vue3";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import AdminLayout from "@/Layouts/AdminLayout.vue";
 import Dialog from "primevue/dialog";
 import InputText from "primevue/inputtext";
 import Textarea from "primevue/textarea";
@@ -73,229 +74,223 @@ const deleteCampaign = (id) => {
 <template>
     <Head title="Campagnes | WIP_Lite" />
 
-    <AuthenticatedLayout>
-        <template #header>
-            <div class="flex justify-between items-center py-2">
-                <h2
-                    class="text-xl font-bold text-slate-800 tracking-tight uppercase"
-                >
-                    Vos Campagnes
-                </h2>
-                <button @click="openNew" class="btn-primary">
-                    <i class="pi pi-plus mr-2 text-[10px]"></i> NOUVELLE
-                    CAMPAGNE
+    <AdminLayout>
+        
+            <div class="flex justify-between items-center max-w-6xl mx-auto">
+                <div class="flex items-center gap-3">
+                    <div class="w-2 h-8 bg-[#FF7A1A] rounded-full"></div>
+                    <h2 class="text-xl font-black text-slate-800 tracking-tighter uppercase">
+                        Gestion des Campagnes
+                    </h2>
+                </div>
+                <button @click="openNew" class="btn-primary flex items-center shadow-sm">
+                    <i class="pi pi-plus mr-2 text-[9px]"></i> NOUVELLE CAMPAGNE
                 </button>
             </div>
-        </template>
+        
 
-        <div class="py-10 bg-slate-50 min-h-screen">
+        <div class="py-12 bg-[#F8FAFC]">
             <div class="max-w-6xl mx-auto px-4">
-                <div class="grid gap-3">
+                <!-- Grid system pour un rendu plus aéré -->
+                <div class="grid grid-cols-1 gap-4">
                     <div
                         v-for="campaign in campaigns"
                         :key="campaign.id"
-                        class="bg-white p-5 rounded-xl border border-slate-200 flex items-center justify-between shadow-sm hover:shadow-md transition-all"
+                        class="group bg-white p-6 rounded-2xl border border-slate-100 flex items-center justify-between hover:border-[#FF7A1A]/30 hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300"
                     >
-                        <div class="flex items-center gap-5">
-                            <!-- Retour du contraste Orange (#FF7A1A) -->
-                            <div
-                                :class="[
-                                    'w-1.5 h-12 rounded-full',
-                                    campaign.status === 'active'
-                                        ? 'bg-[#FF7A1A]'
-                                        : 'bg-slate-300',
-                                ]"
-                            ></div>
-                            <div>
-                                <h3
-                                    class="font-bold text-slate-800 uppercase text-sm"
+                        <div class="flex items-center gap-6">
+                            <!-- Indicateur de statut stylisé -->
+                            <div class="relative flex items-center justify-center">
+                                <div 
+                                    :class="[
+                                        'w-12 h-12 rounded-xl flex items-center justify-center transition-colors',
+                                        campaign.status === 'active' ? 'bg-orange-50 text-[#FF7A1A]' : 'bg-slate-50 text-slate-400'
+                                    ]"
                                 >
+                                    <i :class="campaign.status === 'active' ? 'pi pi-bolt' : 'pi pi-pause-circle'"></i>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h3 class="font-black text-slate-800 uppercase text-[13px] tracking-tight group-hover:text-[#FF7A1A] transition-colors">
                                     {{ campaign.name }}
                                 </h3>
-                                <p
-                                    class="text-slate-500 text-xs mt-1 leading-relaxed"
-                                >
-                                    {{
-                                        campaign.description ||
-                                        "Pas de description."
-                                    }}
+                                <p class="text-slate-400 text-xs mt-1 max-w-md line-clamp-1">
+                                    {{ campaign.description || "Aucune description fournie pour cette campagne." }}
                                 </p>
                             </div>
                         </div>
-                        <div class="flex items-center gap-8">
-                            <div
-                                class="text-[11px] font-bold text-slate-400 text-right"
-                            >
-                                <span
-                                    class="block opacity-50 uppercase text-[9px]"
-                                    >Période</span
-                                >
-                                {{ campaign.start_date }} —
-                                {{ campaign.end_date }}
+
+                        <div class="flex items-center gap-12">
+                            <!-- Section Date épurée -->
+                            <div class="hidden md:flex flex-col items-end">
+                                <span class="text-[9px] font-black text-slate-300 uppercase tracking-widest mb-1">Calendrier</span>
+                                <div class="text-[11px] font-bold text-slate-500 bg-slate-50 px-3 py-1 rounded-full border border-slate-100">
+                                    {{ campaign.start_date }} <i class="pi pi-arrow-right text-[8px] mx-1 opacity-50"></i> {{ campaign.end_date }}
+                                </div>
                             </div>
-                            <div class="flex gap-1">
+
+                            <!-- Actions avec effet hover -->
+                            <div class="flex items-center gap-2">
                                 <Link
                                     :href="route('campaigns.show', campaign.id)"
-                                    class="btn-icon text-slate-400 hover:text-slate-800"
+                                    class="action-btn hover:bg-slate-900 hover:text-white"
+                                    title="Voir les détails"
                                 >
-                                    <i class="pi pi-eye text-sm"></i>
+                                    <i class="pi pi-arrow-up-right text-[12px]"></i>
                                 </Link>
                                 <button
                                     @click="editCampaign(campaign)"
-                                    class="btn-icon text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+                                    class="action-btn hover:bg-blue-50 hover:text-blue-600"
+                                    title="Modifier"
                                 >
-                                    <i class="pi pi-pencil text-sm"></i>
+                                    <i class="pi pi-pencil text-[12px]"></i>
                                 </button>
                                 <button
                                     @click="deleteCampaign(campaign.id)"
-                                    class="btn-icon text-slate-300 hover:bg-red-50 hover:text-red-500"
+                                    class="action-btn hover:bg-red-50 hover:text-red-500"
+                                    title="Supprimer"
                                 >
-                                    <i class="pi pi-trash text-sm"></i>
+                                    <i class="pi pi-trash text-[12px]"></i>
                                 </button>
                             </div>
                         </div>
                     </div>
+                </div>
+
+                <!-- Empty State -->
+                <div v-if="campaigns.length === 0" class="text-center py-20 bg-white rounded-3xl border-2 border-dashed border-slate-100">
+                    <i class="pi pi-folder-open text-slate-200 text-5xl mb-4"></i>
+                    <p class="text-slate-400 font-medium italic">Aucune campagne n'a encore été créée.</p>
                 </div>
             </div>
         </div>
 
+        <!-- Dialog révisé pour un aspect "Modern Card" -->
         <Dialog
             v-model:visible="displayDialog"
             modal
             :header="isEditing ? 'MODIFIER LA CAMPAGNE' : 'NOUVELLE CAMPAGNE'"
-            :style="{ width: '420px' }"
-            class="white-dialog-fixed"
+            :style="{ width: '450px' }"
+            class="modern-dialog"
         >
-            <div class="flex flex-col gap-5 pt-4 bg-white">
-                <div class="flex flex-col gap-1.5">
-                    <label class="label-style">Nom du projet</label>
+            <div class="space-y-6 pt-6">
+                <div class="space-y-2">
+                    <label class="label-style">Désignation du projet</label>
                     <InputText
                         v-model="form.name"
-                        class="p-input-custom"
-                        placeholder="Nom..."
+                        class="w-full p-input-modern"
+                        placeholder="Ex: Récolte Maïs 2024"
                     />
                 </div>
 
-                <div class="flex flex-col gap-1.5">
-                    <label class="label-style">Description</label>
+                <div class="space-y-2">
+                    <label class="label-style">Objectifs & Notes</label>
                     <Textarea
                         v-model="form.description"
                         rows="3"
-                        class="p-input-custom"
-                        placeholder="Détails..."
+                        class="w-full p-input-modern"
+                        placeholder="Précisez les objectifs de la campagne..."
                     />
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
-                    <div class="flex flex-col gap-1.5">
-                        <label class="label-style">Début</label>
-                        <InputText
-                            type="date"
-                            v-model="form.start_date"
-                            class="p-input-custom"
-                        />
+                    <div class="space-y-2">
+                        <label class="label-style italic">Date de lancement</label>
+                        <InputText type="date" v-model="form.start_date" class="w-full p-input-modern" />
                     </div>
-                    <div class="flex flex-col gap-1.5">
-                        <label class="label-style">Fin</label>
-                        <InputText
-                            type="date"
-                            v-model="form.end_date"
-                            class="p-input-custom"
-                        />
+                    <div class="space-y-2">
+                        <label class="label-style italic">Clôture prévue</label>
+                        <InputText type="date" v-model="form.end_date" class="w-full p-input-modern" />
                     </div>
                 </div>
 
-                <div class="flex flex-col gap-1.5">
-                    <label class="label-style">Statut</label>
+                <div class="space-y-2">
+                    <label class="label-style">État actuel</label>
                     <Select
                         v-model="form.status"
                         :options="statuses"
                         optionLabel="label"
                         optionValue="value"
-                        class="p-input-custom"
+                        class="w-full p-input-modern"
                     />
                 </div>
             </div>
 
             <template #footer>
-                <div
-                    class="flex items-center justify-end gap-3 pt-6 bg-white border-t border-slate-50"
-                >
+                <div class="flex items-center justify-between w-full pt-8 border-t border-slate-50 mt-4">
                     <button
                         @click="displayDialog = false"
-                        class="text-[10px] font-bold text-slate-400 hover:text-slate-600 uppercase tracking-widest px-4"
+                        class="text-[10px] font-black text-slate-400 hover:text-red-500 uppercase tracking-[0.2em] transition-colors"
                     >
                         Annuler
                     </button>
                     <button
                         @click="saveCampaign"
-                        class="btn-save"
+                        class="btn-save-modern flex items-center gap-2"
                         :disabled="form.processing"
                     >
-                        {{ isEditing ? "METTRE À JOUR" : "CRÉER" }}
+                        <span v-if="form.processing" class="pi pi-spin pi-spinner text-[10px]"></span>
+                        {{ isEditing ? "VALIDER LES MODIFICATIONS" : "LANCER LA CAMPAGNE" }}
                     </button>
                 </div>
             </template>
         </Dialog>
-    </AuthenticatedLayout>
+    </AdminLayout>
 </template>
 
-<style>
-/* STYLE GLOBAL : Écrase le mode sombre et restaure le thème orange */
-
-.white-dialog-fixed.p-dialog {
-    background: #ffffff !important;
-    border: 1px solid #f1f5f9 !important;
-    border-radius: 12px !important;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1) !important;
-}
-
-.white-dialog-fixed .p-dialog-header,
-.white-dialog-fixed .p-dialog-content,
-.white-dialog-fixed .p-dialog-footer {
-    background: #ffffff !important;
+<style scoped>
+/* Dialog Customization */
+:deep(.modern-dialog.p-dialog) {
+    border-radius: 24px !important;
     border: none !important;
-    color: #334155 !important;
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15) !important;
 }
 
-/* Forçage des éléments de formulaire en blanc pur */
-.p-input-custom.p-inputtext,
-.p-input-custom.p-textarea,
-.p-input-custom.p-select {
-    background: #ffffff !important;
-    border: 1px solid #e2e8f0 !important;
-    color: #334155 !important;
-    box-shadow: none !important;
-    border-radius: 8px !important;
+:deep(.p-dialog-header) {
+    background: #0f172a !important; /* Ardoise foncé */
+    color: white !important;
+    padding: 1.5rem 2rem !important;
 }
 
-.p-input-custom.p-select .p-select-label {
-    color: #334155 !important;
+:deep(.p-dialog-title) {
+    font-size: 11px !important;
+    font-weight: 900 !important;
+    letter-spacing: 0.15em !important;
 }
 
-/* Accentuation Orange lors du focus */
-.p-input-custom.p-inputtext:focus,
-.p-input-custom.p-select.p-focus {
-    border-color: #ff7a1a !important;
+:deep(.p-dialog-content) {
+    padding: 0 2rem 1rem 2rem !important;
 }
 
-/* Boutons WIP_Lite avec accentuation orange au survol */
+/* Inputs Modern */
+.p-input-modern {
+    @apply border-slate-200 bg-slate-50 text-slate-700 text-sm py-3 px-4 rounded-xl transition-all duration-200 border-none ring-1 ring-slate-200 focus:ring-2 focus:ring-[#FF7A1A] focus:bg-white outline-none;
+}
+
+/* Buttons */
 .btn-primary {
-    @apply bg-slate-900 text-white text-[10px] font-black px-6 py-2.5 rounded hover:bg-[#FF7A1A] transition-all tracking-widest;
-}
-.btn-save {
-    @apply bg-slate-800 text-white text-[10px] font-bold px-8 py-3 rounded hover:bg-[#FF7A1A] transition-all tracking-widest shadow-lg;
-}
-.btn-icon {
-    @apply w-9 h-9 flex items-center justify-center rounded-lg transition-all;
-}
-.label-style {
-    @apply text-[10px] font-black text-slate-400 uppercase tracking-widest;
+    @apply bg-slate-900 text-white text-[10px] font-black px-6 py-3 rounded-xl hover:bg-[#FF7A1A] transition-all tracking-widest duration-300;
 }
 
-/* Masque de fond léger */
-.p-component-overlay {
-    background-color: rgba(15, 23, 42, 0.1) !important;
-    backdrop-filter: blur(4px) !important;
+.btn-save-modern {
+    @apply bg-[#FF7A1A] text-white text-[10px] font-black px-8 py-4 rounded-xl hover:bg-slate-900 transition-all tracking-widest shadow-lg shadow-orange-200 hover:shadow-slate-200 duration-300;
+}
+
+.action-btn {
+    @apply w-10 h-10 flex items-center justify-center rounded-xl bg-white border border-slate-100 text-slate-400 transition-all duration-200;
+}
+
+.label-style {
+    @apply text-[9px] font-black text-slate-400 uppercase tracking-widest block ml-1;
+}
+
+/* PrimeVue Overrides */
+:deep(.p-select) {
+    @apply shadow-none !important;
+}
+:deep(.p-select-label) {
+    @apply py-3 px-1 !important;
 }
 </style>
