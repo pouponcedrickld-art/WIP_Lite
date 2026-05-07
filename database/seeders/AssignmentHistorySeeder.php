@@ -17,44 +17,49 @@ class AssignmentHistorySeeder extends Seeder
      */
     public function run(): void
     {
+        // Récupérer les premières données créées
+        $assignments = Assignment::limit(10)->get();
+        $employees = Employee::limit(10)->get();
+        $campaigns = Campaign::limit(10)->get();
+        $users = User::limit(10)->get();
+        
+        if ($assignments->count() < 1 || $employees->count() < 2 || $campaigns->count() < 1 || $users->count() < 1) {
+            $this->command->error('Pas assez de données pour créer les assignment histories');
+            return;
+        }
+        
         $assignmentHistories = [
             [
-                'assignment_id' => Assignment::where('employee_id', function($query) {
-                    $query->select('id')->from('employees')->where('matricule', 'EMP0001');
-                })->first()->id,
-                'employee_id' => Employee::where('matricule', 'EMP0001')->first()->id,
+                'assignment_id' => $assignments[0]->id,
+                'employee_id' => $employees[0]->id,
                 'old_manager_id' => null,
-                'new_manager_id' => Employee::where('matricule', 'EMP0002')->first()->id,
+                'new_manager_id' => $employees[1]->id,
                 'old_campaign_id' => null,
-                'new_campaign_id' => Campaign::where('name', 'Refonte Site E-commerce')->first()->id,
+                'new_campaign_id' => $campaigns[0]->id,
                 'action_type' => 'assign',
-                'changed_by' => User::first()->id,
+                'changed_by' => $users[0]->id,
                 'reason' => 'Affectation initiale projet e-commerce',
             ],
             [
-                'assignment_id' => Assignment::where('employee_id', function($query) {
-                    $query->select('id')->from('employees')->where('matricule', 'EMP0003');
-                })->first()->id,
-                'employee_id' => Employee::where('matricule', 'EMP0003')->first()->id,
-                'old_manager_id' => Employee::where('matricule', 'EMP0002')->first()->id,
-                'new_manager_id' => Employee::where('matricule', 'EMP0004')->first()->id,
-                'old_campaign_id' => Campaign::where('name', 'Refonte Site E-commerce')->first()->id,
-                'new_campaign_id' => Campaign::where('name', 'Application Mobile Banking')->first()->id,
+                'assignment_id' => $assignments[1]->id,
+                'employee_id' => $employees[2]->id,
+                'old_manager_id' => $employees[1]->id,
+                'new_manager_id' => $employees[3]->id,
+                'old_campaign_id' => $campaigns[0]->id,
+                'new_campaign_id' => $campaigns[1]->id,
                 'action_type' => 'transfer',
-                'changed_by' => User::first()->id,
+                'changed_by' => $users[0]->id,
                 'reason' => 'Changement de projet et manager',
             ],
             [
-                'assignment_id' => Assignment::where('employee_id', function($query) {
-                    $query->select('id')->from('employees')->where('matricule', 'EMP0004');
-                })->first()->id,
-                'employee_id' => Employee::where('matricule', 'EMP0004')->first()->id,
+                'assignment_id' => $assignments[2]->id,
+                'employee_id' => $employees[3]->id,
                 'old_manager_id' => null,
-                'new_manager_id' => Employee::where('matricule', 'EMP0002')->first()->id,
+                'new_manager_id' => $employees[1]->id,
                 'old_campaign_id' => null,
-                'new_campaign_id' => Campaign::where('name', 'CRM Integration')->first()->id,
+                'new_campaign_id' => $campaigns[2]->id,
                 'action_type' => 'assign',
-                'changed_by' => User::first()->id,
+                'changed_by' => $users[0]->id,
                 'reason' => 'Nouvelle affectation au projet CRM',
             ],
         ];

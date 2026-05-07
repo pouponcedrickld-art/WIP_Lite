@@ -15,37 +15,46 @@ class PlanningAssignmentSeeder extends Seeder
      */
     public function run(): void
     {
+        // Récupérer les premiers employés créés
+        $employees = Employee::limit(10)->get();
+        $planningModel = PlanningModel::where('name', 'Semaine Standard 40h')->first();
+        
+        if (!$planningModel || $employees->count() < 2) {
+            $this->command->error('Planning model ou employés non trouvés');
+            return;
+        }
+        
         $planningAssignments = [
             [
-                'planning_model_id' => PlanningModel::where('name', 'Semaine Standard 40h')->first()->id,
-                'employee_id' => Employee::where('matricule', 'EMP0001')->first()->id,
+                'planning_model_id' => $planningModel->id,
+                'employee_id' => $employees[0]->id,
                 'start_date' => '2024-01-01',
                 'end_date' => '2024-12-31',
                 'status' => 'validé',
-                'validated_by' => Employee::where('matricule', 'EMP0002')->first()->id,
+                'validated_by' => $employees[1]->id,
                 'validated_at' => '2024-01-01 09:00:00',
             ],
             [
-                'planning_model_id' => PlanningModel::where('name', 'Semaine Standard 40h')->first()->id,
-                'employee_id' => Employee::where('matricule', 'EMP0002')->first()->id,
+                'planning_model_id' => $planningModel->id,
+                'employee_id' => $employees[1]->id,
                 'start_date' => '2024-01-01',
                 'end_date' => '2024-12-31',
                 'status' => 'validé',
-                'validated_by' => Employee::where('matricule', 'EMP0001')->first()->id,
+                'validated_by' => $employees[0]->id,
                 'validated_at' => '2024-01-01 10:00:00',
             ],
             [
                 'planning_model_id' => PlanningModel::where('name', 'Semaine 35h')->first()->id,
-                'employee_id' => Employee::where('matricule', 'EMP0003')->first()->id,
+                'employee_id' => $employees[2]->id,
                 'start_date' => '2024-02-15',
                 'end_date' => '2024-12-31',
                 'status' => 'validé',
-                'validated_by' => Employee::where('matricule', 'EMP0004')->first()->id,
+                'validated_by' => $employees[0]->id,
                 'validated_at' => '2024-02-15 11:00:00',
             ],
             [
                 'planning_model_id' => PlanningModel::where('name', 'Horaires flexibles')->first()->id,
-                'employee_id' => Employee::where('matricule', 'EMP0004')->first()->id,
+                'employee_id' => $employees[3]->id,
                 'start_date' => '2024-03-01',
                 'end_date' => '2024-12-31',
                 'status' => 'en attente',
@@ -54,11 +63,11 @@ class PlanningAssignmentSeeder extends Seeder
             ],
             [
                 'planning_model_id' => PlanningModel::where('name', 'Temps partiel 20h')->first()->id,
-                'employee_id' => Employee::where('matricule', 'EMP0001')->first()->id,
+                'employee_id' => $employees[4]->id,
                 'start_date' => '2024-04-01',
                 'end_date' => '2024-09-30',
                 'status' => 'suspendu',
-                'validated_by' => Employee::where('matricule', 'EMP0002')->first()->id,
+                'validated_by' => $employees[1]->id,
                 'validated_at' => '2024-04-01 14:00:00',
             ],
         ];

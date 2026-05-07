@@ -14,12 +14,18 @@ class TimesheetEntrySeeder extends Seeder
      */
     public function run(): void
     {
+        // Récupérer les premiers timesheets créés
+        $timesheets = Timesheet::limit(10)->get();
+        
+        if ($timesheets->count() < 1) {
+            $this->command->error('Pas de timesheets trouvés pour créer les entries');
+            return;
+        }
+        
         $timesheetEntries = [
-            // Entries for first timesheet (EMP0001)
+            // Entries for first timesheet
             [
-                'timesheet_id' => Timesheet::where('employee_id', function($query) {
-                    $query->select('id')->from('employees')->where('matricule', 'EMP0001');
-                })->first()->id,
+                'timesheet_id' => $timesheets[0]->id,
                 'date' => '2024-04-01',
                 'check_in' => '08:30:00',
                 'check_out' => '17:30:00',
@@ -30,9 +36,7 @@ class TimesheetEntrySeeder extends Seeder
                 'comment' => null,
             ],
             [
-                'timesheet_id' => Timesheet::where('employee_id', function($query) {
-                    $query->select('id')->from('employees')->where('matricule', 'EMP0001');
-                })->first()->id,
+                'timesheet_id' => $timesheets[0]->id,
                 'date' => '2024-04-02',
                 'check_in' => '08:45:00',
                 'check_out' => '18:15:00',
@@ -43,9 +47,7 @@ class TimesheetEntrySeeder extends Seeder
                 'comment' => 'Réunion client prolongée',
             ],
             [
-                'timesheet_id' => Timesheet::where('employee_id', function($query) {
-                    $query->select('id')->from('employees')->where('matricule', 'EMP0001');
-                })->first()->id,
+                'timesheet_id' => $timesheets[0]->id,
                 'date' => '2024-04-03',
                 'check_in' => null,
                 'check_out' => null,
@@ -56,11 +58,9 @@ class TimesheetEntrySeeder extends Seeder
                 'absence_type' => 'congé',
                 'comment' => 'Congé payé',
             ],
-            // Entries for second timesheet (EMP0002)
+            // Entries for second timesheet
             [
-                'timesheet_id' => Timesheet::where('employee_id', function($query) {
-                    $query->select('id')->from('employees')->where('matricule', 'EMP0002');
-                })->first()->id,
+                'timesheet_id' => $timesheets[1]->id,
                 'date' => '2024-04-01',
                 'check_in' => '09:00:00',
                 'check_out' => '17:00:00',
@@ -71,9 +71,7 @@ class TimesheetEntrySeeder extends Seeder
                 'comment' => null,
             ],
             [
-                'timesheet_id' => Timesheet::where('employee_id', function($query) {
-                    $query->select('id')->from('employees')->where('matricule', 'EMP0002');
-                })->first()->id,
+                'timesheet_id' => $timesheets[1]->id,
                 'date' => '2024-04-02',
                 'check_in' => '08:30:00',
                 'check_out' => '19:30:00',
@@ -83,11 +81,9 @@ class TimesheetEntrySeeder extends Seeder
                 'overtime_hours' => 1.50,
                 'comment' => 'Heures supplémentaires',
             ],
-            // Entries for fourth timesheet (EMP0004)
+            // Entries for fourth timesheet
             [
-                'timesheet_id' => Timesheet::where('employee_id', function($query) {
-                    $query->select('id')->from('employees')->where('matricule', 'EMP0004');
-                })->first()->id,
+                'timesheet_id' => $timesheets[3]->id,
                 'date' => '2024-04-08',
                 'check_in' => '08:15:00',
                 'check_out' => '16:45:00',
