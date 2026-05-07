@@ -343,11 +343,11 @@ const weekDays = computed(() => {
                                         <span class="text-sm font-medium text-gray-600">{{ weekEntries[day.date]?.planned_hours || 0 }}h</span>
                                     </td>
                                     <td class="px-4 py-4 whitespace-nowrap text-center">
-                                        <span class="text-sm font-medium text-gray-900">{{ (weekEntries[day.date]?.total_hours || 0).toFixed(2) }}h</span>
+                                        <span class="text-sm font-medium text-gray-900">{{ Number(weekEntries[day.date]?.total_hours || 0).toFixed(2) }}h</span>
                                     </td>
                                     <td class="px-4 py-4 whitespace-nowrap text-center">
                                         <span :class="'text-sm font-medium ' + ((weekEntries[day.date]?.overtime_hours || 0) < 0 ? 'text-red-600' : (weekEntries[day.date]?.overtime_hours || 0) > 0 ? 'text-green-600' : 'text-gray-600')">
-                                            {{ (weekEntries[day.date]?.overtime_hours || 0) > 0 ? '+' : '' }}{{ (weekEntries[day.date]?.overtime_hours || 0).toFixed(2) }}h
+                                            {{ Number(weekEntries[day.date]?.overtime_hours || 0) > 0 ? '+' : '' }}{{ Number(weekEntries[day.date]?.overtime_hours || 0).toFixed(2) }}h
                                         </span>
                                     </td>
                                     <td class="px-4 py-4 whitespace-nowrap text-center">
