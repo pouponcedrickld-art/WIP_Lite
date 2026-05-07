@@ -34,9 +34,9 @@ const calculateWeekTotals = () => {
     Object.keys(weekEntries.value).forEach(dateStr => {
         const entry = weekEntries.value[dateStr];
         if (entry) {
-            total += entry.total_hours || 0;
-            overtime += entry.overtime_hours || 0;
-            plannedTotal += entry.planned_hours || 0;
+           total += Number(entry.total_hours || 0);
+            overtime += Number(entry.overtime_hours || 0);
+            plannedTotal += Number(entry.planned_hours || 0);
         }
     });
     
@@ -61,14 +61,25 @@ const initializeEntries = () => {
         weekEntries.value[dateStr] = {
             check_in: entry?.check_in || '',
             check_out: entry?.check_out || '',
-            break_duration: entry?.break_duration || 0,
-            planned_hours: props.planningHours[dateStr] || 0,
-            total_hours: entry?.total_hours || 0,
-            overtime_hours: entry?.overtime_hours || 0,
+            break_duration: Number(entry?.break_duration || 0),
+            planned_hours: Number(props.planningHours[dateStr] || 0), // <--- Ici
+            total_hours: Number(entry?.total_hours || 0),            // <--- Ici
+            overtime_hours: Number(entry?.overtime_hours || 0),
             absence_type: entry?.absence_type || '',
             comment: entry?.comment || '',
         };
     }
+};
+
+const formatDisplayHours = (decimalHours) => {
+    if (decimalHours === undefined || decimalHours === null || isNaN(decimalHours)) return "0h 00";
+    
+    const absoluteValue = Math.abs(decimalHours);
+    const h = Math.floor(absoluteValue);
+    const m = Math.round((absoluteValue - h) * 60);
+    
+    const sign = decimalHours < 0 ? "-" : "";
+    return `${sign}${h}h ${m.toString().padStart(2, '0')}`;
 };
 
 const calculateHours = (dateStr) => {
@@ -315,82 +326,89 @@ const weekDays = computed(() => {
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
-                                <tr v-for="day in weekDays" :key="day.date" class="hover:bg-gray-50">
-                                                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <div class="text-sm font-medium text-gray-900">
-                                            {{ day.name }}
-                                        </div>
-                                        <div class="text-xs text-gray-500">
-                                            {{ new Date(day.date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }) }}
-                                        </div>
-                                    </td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-center">
-                                        <input type="time" 
-                                               v-model="weekEntries[day.date].check_in"
-                                               @change="calculateHours(day.date)"
-                                               :disabled="isFormDisabled"
-                                               class="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed">
-                                    </td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-center">
-                                        <input type="time" 
-                                               v-model="weekEntries[day.date].check_out"
-                                               @change="calculateHours(day.date)"
-                                               :disabled="isFormDisabled"
-                                               class="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed">
-                                    </td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-center">
-                                        <input type="number" 
-                                               v-model="weekEntries[day.date].break_duration"
-                                               @change="calculateHours(day.date)"
-                                               :disabled="isFormDisabled"
-                                               min="0"
-                                               class="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed">
-                                    </td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-center">
-                                        <span class="text-sm font-medium text-gray-600">{{ weekEntries[day.date]?.planned_hours || 0 }}h</span>
-                                    </td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-center">
-                                        <span class="text-sm font-medium text-gray-900">{{ Number(weekEntries[day.date]?.total_hours || 0).toFixed(2) }}h</span>
-                                    </td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-center">
-                                        <span :class="'text-sm font-medium ' + ((weekEntries[day.date]?.overtime_hours || 0) < 0 ? 'text-red-600' : (weekEntries[day.date]?.overtime_hours || 0) > 0 ? 'text-green-600' : 'text-gray-600')">
-                                            {{ Number(weekEntries[day.date]?.overtime_hours || 0) > 0 ? '+' : '' }}{{ Number(weekEntries[day.date]?.overtime_hours || 0).toFixed(2) }}h
-                                        </span>
-                                    </td>
-                                    <td class="px-4 py-4 whitespace-nowrap text-center">
-                                        <select v-model="weekEntries[day.date].absence_type" 
-                                                :disabled="isFormDisabled"
-                                                class="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed">
-                                            <option value="">-</option>
-                                            <option value="maladie">Maladie</option>
-                                            <option value="congé">Congé</option>
-                                            <option value="RTT">RTT</option>
-                                        </select>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap">
-                                        <input type="text" 
-                                               v-model="weekEntries[day.date].comment"
-                                               :disabled="isFormDisabled"
-                                               placeholder="Commentaire..."
-                                               class="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed">
-                                    </td>
-                                </tr>
-                            </tbody>
+    <tr v-for="day in weekDays" :key="day.date" class="hover:bg-gray-50">
+        <td class="px-6 py-4 whitespace-nowrap">
+            <div class="text-sm font-medium text-gray-900">
+                {{ day.name }}
+            </div>
+            <div class="text-xs text-gray-500">
+                {{ new Date(day.date).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }) }}
+            </div>
+        </td>
+        <td class="px-4 py-4 whitespace-nowrap text-center">
+            <input type="time" 
+                   v-model="weekEntries[day.date].check_in"
+                   @change="calculateHours(day.date)"
+                   :disabled="isFormDisabled"
+                   class="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed">
+        </td>
+        <td class="px-4 py-4 whitespace-nowrap text-center">
+            <input type="time" 
+                   v-model="weekEntries[day.date].check_out"
+                   @change="calculateHours(day.date)"
+                   :disabled="isFormDisabled"
+                   class="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed">
+        </td>
+        <td class="px-4 py-4 whitespace-nowrap text-center">
+            <input type="number" 
+                   v-model="weekEntries[day.date].break_duration"
+                   @change="calculateHours(day.date)"
+                   :disabled="isFormDisabled"
+                   min="0"
+                   class="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed">
+        </td>
+        <td class="px-4 py-4 whitespace-nowrap text-center">
+            <span class="text-sm font-medium text-gray-600">
+                {{ formatDisplayHours(weekEntries[day.date]?.planned_hours) }}
+            </span>
+        </td>
+        <td class="px-4 py-4 whitespace-nowrap text-center">
+            <span class="text-sm font-medium text-gray-900">
+                {{ formatDisplayHours(weekEntries[day.date]?.total_hours) }}
+            </span>
+        </td>
+        <td class="px-4 py-4 whitespace-nowrap text-center">
+            <span :class="'text-sm font-medium ' + ((weekEntries[day.date]?.overtime_hours || 0) < 0 ? 'text-red-600' : (weekEntries[day.date]?.overtime_hours || 0) > 0 ? 'text-green-600' : 'text-gray-600')">
+                {{ formatDisplayHours(weekEntries[day.date]?.overtime_hours) }}
+            </span>
+        </td>
+        <td class="px-4 py-4 whitespace-nowrap text-center">
+            <select v-model="weekEntries[day.date].absence_type" 
+                    :disabled="isFormDisabled"
+                    class="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed">
+                <option value="">-</option>
+                <option value="maladie">Maladie</option>
+                <option value="congé">Congé</option>
+                <option value="RTT">RTT</option>
+            </select>
+        </td>
+        <td class="px-6 py-4 whitespace-nowrap">
+            <input type="text" 
+                   v-model="weekEntries[day.date].comment"
+                   :disabled="isFormDisabled"
+                   placeholder="Commentaire..."
+                   class="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed">
+        </td>
+    </tr>
+</tbody>
                             <tfoot class="bg-gray-50 border-t">
-                                <tr>
-                                    <td colspan="4" class="px-6 py-4 text-right font-medium text-gray-900">Total semaine :</td>
-                                    <td class="px-4 py-4 text-right font-medium text-gray-600">
-                                        {{ (weekPlannedTotal.value || 0).toFixed(2) }}h
-                                    </td>
-                                    <td class="px-4 py-4 text-right font-medium text-gray-900">
-                                        {{ (weekTotal.value || 0).toFixed(2) }}h
-                                    </td>
-                                    <td class="px-4 py-4 text-right font-medium" :class="(weekOvertime.value || 0) > 0 ? 'text-green-600' : (weekOvertime.value || 0) < 0 ? 'text-red-600' : 'text-gray-600'">
-                                        {{ (weekOvertime.value || 0) > 0 ? '+' : '' }}{{ (weekOvertime.value || 0).toFixed(2) }}h
-                                    </td>
-                                    <td colspan="2"></td>
-                                </tr>
-                            </tfoot>
+    <tr>
+        <td colspan="4" class="px-6 py-4 text-right font-medium text-gray-900">
+            Total semaine :
+        </td>
+        <td class="px-4 py-4 text-right font-medium text-gray-600">
+            {{ formatDisplayHours(weekPlannedTotal) }}
+        </td>
+        <td class="px-4 py-4 text-right font-medium text-gray-900">
+            {{ formatDisplayHours(weekTotal) }}
+        </td>
+        <td class="px-4 py-4 text-right font-medium" 
+            :class="weekOvertime > 0 ? 'text-green-600' : (weekOvertime < 0 ? 'text-red-600' : 'text-gray-600')">
+            {{ formatDisplayHours(weekOvertime) }}
+        </td>
+        <td colspan="2"></td>
+    </tr>
+</tfoot>
                         </table>
                     </div>
                 </div>

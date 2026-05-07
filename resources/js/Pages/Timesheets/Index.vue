@@ -44,6 +44,15 @@ const weekDays = computed(() => {
     return days;
 });
 
+const formatDisplayHours = (decimalHours) => {
+    if (decimalHours === undefined || decimalHours === null || isNaN(decimalHours)) return "0h 00";
+    const absoluteValue = Math.abs(decimalHours);
+    const h = Math.floor(absoluteValue);
+    const m = Math.round((absoluteValue - h) * 60);
+    const sign = decimalHours < 0 ? "-" : "";
+    return `${sign}${h}h ${m.toString().padStart(2, '0')}`;
+};
+
 const weekOptions = computed(() => {
     const options = [];
     // On part d'aujourd'hui
@@ -109,38 +118,51 @@ const getStatusBadge = (status) => {
 };
 
 const getHoursForDay = (employee, date) => {
-    // Utiliser la timesheet de la période spécifique
     const timesheet = employee.timesheet_for_period;
     if (!timesheet || !timesheet.entries) return '-';
     
-    // Chercher l'entrée pour cette date
     const entry = timesheet.entries.find(e => e.date === date);
     if (!entry) {
-        // Afficher les heures prévues si aucune entrée
-        const plannedHours = employee.planning_hours?.[date] || 0;
-        return plannedHours > 0 ? `<span class="text-gray-400">${plannedHours}h prévues</span>` : '-';
+        const plannedHours = parseFloat(employee.planning_hours?.[date]) || 0;
+        return plannedHours > 0 ? `<span class="text-gray-400">${formatDisplayHours(plannedHours)} prévues</span>` : '-';
     }
     
-    const hours = entry.total_hours || 0;
-    const planned = entry.planned_hours || employee.planning_hours?.[date] || 0;
-    const overtime = entry.overtime_hours || 0; // Peut être négatif
+    const hours = parseFloat(entry.total_hours) || 0;
+    const overtime = parseFloat(entry.overtime_hours) || 0;
     
-    // Afficher les heures avec l'écart
     if (overtime > 0) {
-        return `<span class="text-green-600 font-medium">${hours}h (+${overtime})</span>`;
+        return `<span class="text-green-600 font-medium">${formatDisplayHours(hours)} (+${formatDisplayHours(overtime)})</span>`;
     } else if (overtime < 0) {
-        return `<span class="text-red-600 font-medium">${hours}h (${overtime})</span>`;
+        // Le signe "-" est déjà géré par formatDisplayHours
+        return `<span class="text-red-600 font-medium">${formatDisplayHours(hours)} (${formatDisplayHours(overtime)})</span>`;
     } else {
-        return `${hours}h`;
+        return formatDisplayHours(hours);
     }
 };
 
 const getTotalHours = (employee) => {
     const timesheet = employee.timesheet_for_period;
-    if (!timesheet || !timesheet.entries) return '0h';
+    if (!timesheet || !timesheet.entries) return '0h 00';
     
-    const total = timesheet.entries.reduce((sum, entry) => sum + (entry.total_hours || 0), 0);
-    return `${total}h`;
+    // On calcule le cumul des heures réelles ET des écarts
+    const totals = timesheet.entries.reduce((acc, entry) => {
+        acc.real += parseFloat(entry.total_hours) || 0;
+        acc.overtime += parseFloat(entry.overtime_hours) || 0;
+        return acc;
+    }, { real: 0, overtime: 0 });
+    
+    const formattedReal = formatDisplayHours(totals.real);
+    const formattedOvertime = formatDisplayHours(totals.overtime);
+
+    // Affichage conditionnel selon si l'écart est positif, négatif ou nul
+    if (totals.overtime > 0) {
+        return `<span class="font-medium">${formattedReal}</span> <span class="text-green-600 text-xs">(+${formattedOvertime})</span>`;
+    } else if (totals.overtime < 0) {
+        // Le signe "-" est déjà inclus dans formattedOvertime
+        return `<span class="font-medium">${formattedReal}</span> <span class="text-red-600 text-xs">(${formattedOvertime})</span>`;
+    } else {
+        return `<span class="font-medium">${formattedReal}</span>`;
+    }
 };
 
 const getTimesheetStatus = (employee) => {
@@ -278,8 +300,7 @@ const getHeaderText = () => {
 
                                 <!-- Total -->
                                 <td class="px-6 py-4 whitespace-nowrap text-center">
-                                    <div class="text-sm font-medium text-gray-900">
-                                        {{ getTotalHours(employee) }}
+                                    <div class="text-sm text-gray-900" v-html="getTotalHours(employee)">
                                     </div>
                                 </td>
 
