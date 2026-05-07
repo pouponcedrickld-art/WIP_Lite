@@ -11,6 +11,10 @@ import Aura from '@primevue/themes/aura';
 import ToastService from 'primevue/toastservice';
 import ConfirmationService from 'primevue/confirmationservice';
 
+
+
+const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+
 createInertiaApp({
     title: (title) => `${title} - My App`,
     resolve: (name) => resolvePageComponent(`./Pages/${name}.vue`, import.meta.glob('./Pages/**/*.vue')),
