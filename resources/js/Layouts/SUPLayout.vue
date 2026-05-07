@@ -49,7 +49,7 @@ const isActive = (route) => page.url.startsWith(route);
                {{ $page.props.auth.user?.name?.substring(0, 2) || 'SUP' }}
             </div>
             <div class="overflow-hidden">
-               <p class="text-xs font-bold text-white truncate">{{ $page.props.auth.user.name }}</p>
+               <p class="text-xs font-bold text-white truncate">{{ $page.props.auth.user.email }}</p>
                <span class="text-[9px] bg-sky-900 text-sky-300 px-1.5 py-0.5 rounded font-bold uppercase tracking-tighter">Superviseur</span>
             </div>
          </div>

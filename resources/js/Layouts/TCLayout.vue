@@ -59,8 +59,8 @@ const isActive = (route) => page.url.startsWith(route);
           
           <div class="flex items-center gap-3">
              <div class="text-right hidden sm:block">
-                <p class="text-xs font-bold text-slate-800">{{ $page.props.auth.user?.name }}</p>
-                <p class="text-[10px] text-amber-600 font-medium">Collaborateur</p>
+                <p class="text-xs font-bold text-slate-800">{{ $page.props.auth.user?.email }}</p>
+                <p class="text-[10px] text-amber-600 font-medium">Téléconseiller</p>
              </div>
              <div class="w-10 h-10 rounded-full bg-amber-100 border-2 border-white shadow-sm flex items-center justify-center font-bold text-amber-700">
                 {{ $page.props.auth.user?.name?.charAt(0) || '?' }}
