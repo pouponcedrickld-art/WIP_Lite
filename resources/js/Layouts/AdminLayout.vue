@@ -4,6 +4,7 @@ import DropdownLink from "@/Components/DropdownLink.vue";
 import { Link, usePage } from "@inertiajs/vue3";
 import OverlayPanel from "primevue/overlaypanel";
 import Button from "primevue/button";
+import { computed } from "vue";
 
 const op = ref();
 const page = usePage();
@@ -12,6 +13,8 @@ const markAsRead = (id) => {
     // Logique router.post ici plus tard
     console.log("Marqué comme lu :", id);
 };
+// On utilise une computed property pour que le badge soit réactif
+const notifications = computed(() => page.props.auth.notifications);
 
 // Fonction pour gérer la classe active des liens
 const isActive = (route) => page.url.startsWith(route);
@@ -58,26 +61,26 @@ const isActive = (route) => page.url.startsWith(route);
                     <span class="font-medium">Dashboard</span>
                 </Link>
 
-                <Link
-                    href="/admin/employees"
-                    :class="[
-                        isActive('/admin/employees')
-                            ? 'bg-slate-800 text-white'
-                            : 'hover:bg-slate-800 hover:text-white',
-                    ]"
-                    class="flex items-center p-3 rounded-xl transition-all duration-200 group"
-                >
-                    <i
-                        class="pi pi-users mr-3 text-lg"
-                        :class="
-                            isActive('/admin/employees')
-                                ? 'text-indigo-400'
-                                : 'text-slate-500 group-hover:text-indigo-400'
-                        "
-                    ></i>
-                    <span class="font-medium">Employés</span>
-                </Link>
+<Link
+    :href="route('employees.index')"
+    :class="[
+        isActive('employees.index')
+            ? 'bg-slate-800 text-white'
+            : 'hover:bg-slate-800 hover:text-white',
+    ]"
+    class="flex items-center p-3 rounded-xl transition-all duration-200 group"
+>
+    <i
+        class="pi pi-users mr-3 text-lg"
+        :class="
+            isActive('employees.index')
+                ? 'text-indigo-400'
+                : 'text-slate-500 group-hover:text-indigo-400'
+        "
+    ></i>
 
+    <span class="font-medium">Employés</span>
+</Link>
                 <Link
                     href="/admin/campaigns"
                     :class="[
@@ -122,6 +125,13 @@ const isActive = (route) => page.url.startsWith(route);
                     </svg>
                     <span class="font-medium">Activation des comptes</span>
                 </Link>
+
+                <Link :href="route('reporting.index')" 
+      :class="[route().current('reporting.index') ? 'bg-indigo-600 text-white' : 'text-indigo-100 hover:bg-indigo-700']"
+      class="flex items-center p-3 rounded-xl transition-all group">
+    <i class="pi pi-chart-bar mr-3"></i>
+    <span class="font-medium">Reporting Global</span>
+</Link>
             </nav>
 
             <div class="p-4 border-t border-slate-800">
@@ -160,17 +170,16 @@ const isActive = (route) => page.url.startsWith(route);
                 </DropdownLink>
                 <div class="flex items-center gap-3">
                     <!-- Notification Button -->
-                    <Button
-                        type="button"
-                        icon="pi pi-bell"
-                        @click="(event) => op.toggle(event)"
-                        v-badge.danger="
-                            $page.props.auth.notifications.length || null
-                        "
-                        text
-                        plain
-                        class="!p-2 !w-10 !h-10 !rounded-full hover:!bg-slate-100 transition-colors"
-                    />
+<!-- Un seul bouton propre qui porte le badge et l'événement -->
+    <Button
+        type="button"
+        icon="pi pi-bell"
+        @click="(event) => op.toggle(event)"
+        v-badge.danger="notifications.length || null"
+        text
+        plain
+        class="!p-2 !w-10 !h-10 !rounded-full hover:!bg-slate-100 transition-colors"
+    />
 
                     <div class="h-8 w-[1px] bg-slate-200 mx-2"></div>
 
@@ -221,18 +230,15 @@ const isActive = (route) => page.url.startsWith(route);
                                     >
                                         {{ notif.data.message }}
                                     </p>
-                                    <p
-                                        class="text-[11px] text-slate-400 flex items-center italic"
-                                    >
-                                        <i
-                                            class="pi pi-clock mr-1 text-[10px]"
-                                        ></i>
-                                        {{
-                                            new Date(
-                                                notif.created_at,
-                                            ).toLocaleDateString()
-                                        }}
-                                    </p>
+<div class="text-[10px] text-slate-400 italic mt-1 flex items-center gap-1">
+    <i class="pi pi-clock text-[9px]"></i>
+    {{ new Date(notif.created_at).toLocaleString('fr-FR', { 
+        day: '2-digit', 
+        month: '2-digit', 
+        hour: '2-digit', 
+        minute: '2-digit' 
+    }) }}
+</div>
                                 </div>
                             </div>
                         </div>

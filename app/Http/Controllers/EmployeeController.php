@@ -6,6 +6,7 @@ use App\Http\Requests\StoreEmployeeRequest;
 use App\Http\Requests\UpdateEmployeeRequest;
 use App\Models\Employee;
 use App\Models\Position;
+use App\Notifications\EmployeeCreatedNotification;
 use App\Services\EmployeeService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -70,6 +71,7 @@ class EmployeeController extends Controller
     public function store(StoreEmployeeRequest $request): RedirectResponse
     {
         $employee = $this->employeeService->create($request->validated());
+        auth()->user()->notify(new EmployeeCreatedNotification($employee));
 
         return redirect()->route('employees.index')
             ->with('success', 'Employé créé avec succès');

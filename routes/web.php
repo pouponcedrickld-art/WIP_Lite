@@ -180,20 +180,18 @@ Route::get('/test-sidebar', function () {
 
 
 
-// Route::get('/cp/dashboard', function () {
-//     return Inertia::render('CP/Dashboard', [
-//         // On envoie des données de test pour remplir tes composants
-//         'stats' => [
-//             'teams_count' => 12,
-//             'pending_plannings' => 4
-//         ],
-//         'my_teams' => [
-//             ['id' => 1, 'name' => 'Alice Martin', 'initials' => 'AM', 'campaign' => 'Project Alpha'],
-//             ['id' => 2, 'name' => 'Kevin Durand', 'initials' => 'KD', 'campaign' => 'Project Beta'],
-//             ['id' => 3, 'name' => 'Sara Ben', 'initials' => 'SB', 'campaign' => 'Project Alpha'],
-//         ]
-//     ]);
-// })->middleware(['auth'])->name('cp.dashboard');
+use App\Http\Controllers\ReportingController;
+
+Route::middleware(['auth'])->group(function () {
+    // Route pour voir la liste des rapports
+    Route::get('/reporting', [ReportingController::class, 'index'])->name('reporting.index');
+    
+    // Route pour afficher le formulaire de création (si tu ne fais pas de modal)
+    Route::get('/reporting/create', [ReportingController::class, 'create'])->name('reporting.create');
+    
+    // Route pour enregistrer un nouveau rapport
+    Route::post('/reporting', [ReportingController::class, 'store'])->name('reporting.store');
+});
 
 
 require __DIR__ . '/auth.php';

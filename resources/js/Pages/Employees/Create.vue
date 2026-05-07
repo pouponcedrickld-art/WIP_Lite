@@ -2,7 +2,7 @@
 import { ref, onMounted } from "vue";
 import { Link, useForm, usePage, Head, router } from "@inertiajs/vue3";
 import { useToast } from "primevue/usetoast";
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import AdminLayout from "@/Layouts/AdminLayout.vue";
 import Button from "primevue/button";
 import InputText from "primevue/inputtext";
 import Dropdown from "primevue/dropdown";
@@ -131,7 +131,7 @@ const cancel = () => {
 <template>
     <Head title="Créer un Employé" />
 
-    <AuthenticatedLayout>
+    <AdminLayout>
         <template #header>
             <div class="flex justify-between items-center">
                 <h2 class="text-xl font-semibold leading-tight text-gray-800">
@@ -489,5 +489,5 @@ const cancel = () => {
                 />
             </template>
         </Dialog>
-    </AuthenticatedLayout>
+    </AdminLayout>
 </template>

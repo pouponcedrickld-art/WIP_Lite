@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from "vue";
 import InputText from "primevue/inputtext";
-import Dropdown from "primevue/dropdown";
+import Select from "primevue/dropdown";
 import Calendar from "primevue/calendar";
 import InputNumber from "primevue/inputnumber";
 import Textarea from "primevue/textarea";
@@ -226,7 +226,7 @@ const getError = (field) => {
                     >
                         Poste <span class="text-red-500">*</span>
                     </label>
-                    <Dropdown
+                    <Select
                         id="position_id"
                         :modelValue="modelValue.position_id"
                         @update:modelValue="
@@ -278,7 +278,7 @@ const getError = (field) => {
                     >
                         Statut <span class="text-red-500">*</span>
                     </label>
-                    <Dropdown
+                    <Select
                         id="status"
                         :modelValue="modelValue.status"
                         @update:modelValue="

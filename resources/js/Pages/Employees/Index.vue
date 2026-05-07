@@ -2,7 +2,6 @@
 import { ref, watch, onMounted } from "vue";
 import { Link, router, usePage, Head } from "@inertiajs/vue3";
 import { useToast } from "primevue/usetoast";
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Button from "primevue/button";
 import Column from "primevue/column";
 import DataTable from "primevue/datatable";
@@ -11,6 +10,9 @@ import Dropdown from "primevue/dropdown";
 import Tag from "primevue/tag";
 import Dialog from "primevue/dialog";
 import Toolbar from "primevue/toolbar";
+import AdminLayout from "@/Layouts/AdminLayout.vue";
+
+
 
 // Props depuis le contrôleur
 const props = defineProps({
@@ -223,8 +225,8 @@ const executeStatusChange = () => {
 <template>
     <Head title="Employés" />
 
-    <AuthenticatedLayout>
-        <template #header>
+    <AdminLayout>
+
             <div class="flex justify-between items-center">
                 <h2 class="text-xl font-semibold leading-tight text-gray-800">
                     Gestion des Employés
@@ -237,7 +239,7 @@ const executeStatusChange = () => {
                     />
                 </Link>
             </div>
-        </template>
+
 
         <div class="py-6">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -505,5 +507,5 @@ const executeStatusChange = () => {
                 />
             </template>
         </Dialog>
-    </AuthenticatedLayout>
+    </AdminLayout>
 </template>

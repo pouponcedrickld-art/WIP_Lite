@@ -2,7 +2,7 @@
 import { onMounted } from "vue";
 import { Link, usePage, Head, router } from "@inertiajs/vue3";
 import { useToast } from "primevue/usetoast";
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import AdminLayout from "@/Layouts/AdminLayout.vue";
 import Button from "primevue/button";
 import Card from "primevue/card";
 import Tag from "primevue/tag";
@@ -152,8 +152,8 @@ const confirmAndDelete = () => {
 <template>
     <Head title="Détails de l'Employé" />
 
-    <AuthenticatedLayout>
-        <template #header>
+    <AdminLayout>
+
             <div class="flex justify-between items-center">
                 <h2 class="text-xl font-semibold leading-tight text-gray-800">
                     Détails de l'Employé : {{ employee.first_name }}
@@ -184,7 +184,6 @@ const confirmAndDelete = () => {
                     </Link>
                 </div>
             </div>
-        </template>
 
         <div class="py-6">
             <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
@@ -439,5 +438,5 @@ const confirmAndDelete = () => {
                 </Card>
             </div>
         </div>
-    </AuthenticatedLayout>
+    </AdminLayout>
 </template>
