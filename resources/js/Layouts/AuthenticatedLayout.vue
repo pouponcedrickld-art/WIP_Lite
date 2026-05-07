@@ -108,7 +108,7 @@ watch(
              position="top-right" : affichage en haut à droite de l'écran -->
         <Toast position="top-right" />
 
-        <div class="min-h-screen bg-gray-100">
+        <div class="min-h-screen bg-gray-100 flex flex-col">
             <nav
                 class="border-b border-gray-100 bg-white"
             >
@@ -286,7 +286,7 @@ watch(
             </header>
 
             <!-- Page Content -->
-            <main>
+            <main class="flex-1 overflow-hidden">
                 <slot />
             </main>
         </div>
