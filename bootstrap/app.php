@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\CpMiddleware;
+use App\Http\Middleware\RoleMiddleware;
 use App\Http\Middleware\SupMiddleware;
 use App\Http\Middleware\TcMiddleware;
 use Illuminate\Foundation\Application;
