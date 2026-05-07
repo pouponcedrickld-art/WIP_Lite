@@ -5,6 +5,7 @@ import { usePage } from '@inertiajs/vue3';
 
 const props = defineProps({
     employees: Array,
+    auth_employee_id: Number, // Ajoutez ceci
     startDate: String,
     endDate: String,
     role: String,
@@ -305,12 +306,26 @@ const getHeaderText = () => {
                                 </td>
 
                                 <!-- Actions -->
-                                <td class="px-6 py-4 whitespace-nowrap text-center">
-                                    <Link :href="`/timesheets/${employee.id}?week=${selectedWeek}`" 
-                                          class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
-                                        {{ role === 'tc' ? 'Consulter' : 'Saisir' }}
-                                    </Link>
-                                </td>
+<td class="px-6 py-4 whitespace-nowrap text-center">
+    <template v-if="employee.id === props.auth_employee_id">
+        <Link v-if="getTimesheetStatus(employee) !== 'Non débuté'"
+              :href="`/timesheets/${employee.id}?week=${selectedWeek}`" 
+              class="inline-flex items-center px-3 py-1 border border-blue-600 text-xs font-medium rounded-md text-blue-600 hover:bg-blue-50 transition-colors">
+            Consulter ma fiche
+        </Link>
+        <span v-else class="text-xs text-gray-400 italic">Aucune donnée</span>
+    </template>
+    
+    <template v-else>
+        <Link :href="`/timesheets/${employee.id}?week=${selectedWeek}`" 
+              :class="[
+                  'inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded-md text-white transition-colors',
+                  getTimesheetStatus(employee) === 'validé' ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-600 hover:bg-blue-700'
+              ]">
+            {{ (getTimesheetStatus(employee) === 'validé' || props.role === 'tc') ? 'Consulter' : 'Saisir' }}
+        </Link>
+    </template>
+</td>
                             </tr>
                         </tbody>
                     </table>

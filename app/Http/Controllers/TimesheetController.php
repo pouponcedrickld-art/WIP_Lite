@@ -16,58 +16,48 @@ use Inertia\Inertia;
 
 class TimesheetController extends Controller
 {
-    public function index(Request $request)
+public function index(Request $request)
 {
     $user = Auth::user();
-
-    // 1. On récupère la semaine. Si vide, on prend la semaine actuelle au format ISO (ex: 2024-W18)
     $week = $request->get('week', now()->format('Y-\WW'));
+    $formattedWeek = (strpos($week, 'W') === false) ? str_replace('-', '-W', $week) : $week;
 
-    // Sécurité : Si le format reçu est "2024-18" au lieu de "2024-W18", on rajoute le W
-    $formattedWeek = (strpos($week, 'W') === false) 
-        ? str_replace('-', '-W', $week) 
-        : $week;
-
-    // 2. Calcul précis du début et de la fin de semaine
     try {
-        // Carbon::parse sur un format ISO (YYYY-Www) donne toujours le Lundi
         $startDate = Carbon::parse($formattedWeek)->startOfWeek();
     } catch (\Exception $e) {
         $startDate = Carbon::now()->startOfWeek();
     }
-    
     $endDate = $startDate->copy()->endOfWeek();
 
-    // Logique d'accès selon le rôle
-    $employees = [];
     $role = $user->role->name;
+    $query = Employee::query();
 
+    // Logique de filtrage selon le rôle
     if ($role === 'sup') {
-        $employees = Employee::whereHas('assignments', function($query) use ($user) {
-            $query->where('manager_id', $user->employee->id)
-                  ->where('status', 'actif');
-        })->whereHas('position', function($query) {
-            $query->where('code', 'TC');
-        })->with(['position'])->get(); // On retire timesheets.entries d'ici pour le charger proprement après
-
+        $query->whereHas('assignments', function($q) use ($user) {
+            $q->where('manager_id', $user->employee->id)->where('status', 'actif');
+        })->whereHas('position', function($q) {
+            $q->where('code', 'TC');
+        });
     } elseif ($role === 'cp') {
-        $employees = Employee::whereHas('assignments', function($query) use ($user) {
-            $query->where('manager_id', $user->employee->id)
-                  ->where('status', 'actif');
-        })->whereHas('position', function($query) {
-            $query->where('code', 'SUP');
-        })->with(['position'])->get();
-
-    } elseif ($role === 'tc') {
-        $employees = collect([$user->employee])->map(function($employee) {
-            $employee->load(['position']);
-            return $employee;
+        $query->whereHas('assignments', function($q) use ($user) {
+            $q->where('manager_id', $user->employee->id)->where('status', 'actif');
+        })->whereHas('position', function($q) {
+            $q->where('code', 'SUP');
         });
     }
 
-    // 3. Charger les timesheets et les heures de planning pour chaque employé
+    // Récupération des subordonnés
+    $subordinates = ($role === 'tc') ? collect() : $query->with(['position'])->get();
+
+    // AJOUT DE SOI-MÊME : On récupère l'employé connecté
+    $self = $user->employee->load('position');
+    
+    // On fusionne : Soi-même d'abord, puis les subordonnés
+    $employees = collect([$self])->concat($subordinates);
+
+    // Charger les timesheets et les heures de planning (votre logique existante)
     $employees->each(function($employee) use ($startDate, $endDate) {
-        // Charger la timesheet pour la période
         $timesheet = Timesheet::where('employee_id', $employee->id)
             ->where('period_start', $startDate->format('Y-m-d'))
             ->where('period_end', $endDate->format('Y-m-d'))
@@ -76,7 +66,6 @@ class TimesheetController extends Controller
 
         $employee->timesheet_for_period = $timesheet;
         
-        // Charger les heures de planning de référence
         $planningAssignment = PlanningAssignment::where('employee_id', $employee->id)
             ->where('start_date', '<=', $startDate)
             ->where('end_date', '>=', $endDate)
@@ -88,21 +77,21 @@ class TimesheetController extends Controller
         if ($planningAssignment) {
             $model = $planningAssignment->planningModel;
             $days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
-            foreach ($days as $day) {
-                $date = $startDate->copy()->startOfWeek()->modify($day);
+            foreach ($days as $index => $day) {
+                $date = $startDate->copy()->addDays($index);
                 $planningHours[$date->format('Y-m-d')] = $model->{$day . '_hours'};
             }
         }
-        
         $employee->planning_hours = $planningHours;
     });
 
     return Inertia::render('Timesheets/Index', [
         'employees' => $employees,
+        'auth_employee_id' => $user->employee->id, // On passe l'ID pour le comparer en Vue
         'startDate' => $startDate->format('Y-m-d'),
         'endDate' => $endDate->format('Y-m-d'),
         'role' => $role,
-        'currentWeek' => $week, // On renvoie la semaine d'origine pour le sélecteur
+        'currentWeek' => $week,
     ]);
 }
     
