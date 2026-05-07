@@ -234,42 +234,42 @@ const executeStatusChange = () => {
             </div>
         </template>
 
-        <div class="py-6">
-            <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <Toolbar class="mb-4">
-                        <template #start>
-                            <div class="flex gap-2 items-center">
-                                <span class="p-input-icon-left">
-                                    <i class="pi pi-search" />
-                                    <InputText
-                                        v-model="search"
-                                        placeholder="Rechercher..."
-                                        class="w-64"
-                                    />
-                                </span>
-
-                                <Dropdown
-                                    v-model="status"
-                                    :options="statusOptions"
-                                    optionLabel="label"
-                                    optionValue="value"
-                                    placeholder="Statut"
-                                    class="w-40"
+        <div class="h-screen flex flex-col p-4 overflow-hidden">
+            <div class="bg-white overflow-hidden shadow-sm rounded-lg flex flex-col flex-1 w-full">
+                <Toolbar class="mb-4 p-4 border-b">
+                    <template #start>
+                        <div class="flex gap-2 items-center flex-wrap">
+                            <span class="p-input-icon-left">
+                                <i class="pi pi-search" />
+                                <InputText
+                                    v-model="search"
+                                    placeholder="Rechercher..."
+                                    class="w-48"
                                 />
+                            </span>
 
-                                <Dropdown
-                                    v-model="position_id"
-                                    :options="positionOptions"
-                                    optionLabel="label"
-                                    optionValue="value"
-                                    placeholder="Poste"
-                                    class="w-40"
-                                />
-                            </div>
-                        </template>
-                    </Toolbar>
+                            <Dropdown
+                                v-model="status"
+                                :options="statusOptions"
+                                optionLabel="label"
+                                optionValue="value"
+                                placeholder="Statut"
+                                class="w-40"
+                            />
 
+                            <Dropdown
+                                v-model="position_id"
+                                :options="positionOptions"
+                                optionLabel="label"
+                                optionValue="value"
+                                placeholder="Poste"
+                                class="w-40"
+                            />
+                        </div>
+                    </template>
+                </Toolbar>
+
+                <div class="flex-1 overflow-auto">
                     <DataTable
                         :value="employees.data"
                         :paginator="true"
@@ -280,7 +280,7 @@ const executeStatusChange = () => {
                         @page="onPage"
                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                         currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} employés"
-                        class="p-datatable-sm"
+                        class="p-datatable-sm w-full"
                         stripedRows
                         responsiveLayout="scroll"
                     >
