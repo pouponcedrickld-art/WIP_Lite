@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\AssignmentController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\CampaignController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -29,7 +31,15 @@ Route::middleware('auth')->group(function () {
 ///////////////////////Routes STEVEN ////////////////////////////////////////////////
 
 
-
+Route::middleware(['auth', 'verified'])->group(function () {
+    // Cette ligne génère automatiquement : campaigns.index, campaigns.store, campaigns.update, campaigns.destroy
+    Route::resource('campaigns', CampaignController::class);
+});
+Route::middleware(['auth'])->group(function () {
+    Route::get('/assignments', [AssignmentController::class, 'index'])->name('assignments.index');
+    Route::post('/assignments', [AssignmentController::class, 'store'])->name('assignments.store');
+    Route::delete('/assignments/{assignment}', [AssignmentController::class, 'release'])->name('assignments.release');
+});
 
 
 
