@@ -61,7 +61,7 @@ const handleCancel = () => {
 </script>
 
 <template>
-    <form @submit.prevent="handleSubmit" class="space-y-6">
+    <form @submit.prevent="handleSubmit" class="space-y-6 bg-white p-6 rounded-lg">
         <div class="space-y-4">
             <h3 class="text-lg font-medium text-gray-900 mb-4">
                 Informations Personnelles

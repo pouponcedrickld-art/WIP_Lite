@@ -389,6 +389,7 @@ const executeStatusChange = () => {
             header="Créer un Nouvel Employé"
             :modal="true"
             class="p-fluid"
+            :contentStyle="{ backgroundColor: '#ffffff' }"
         >
             <EmployeeForm
                 :employee="null"
@@ -405,6 +406,7 @@ const executeStatusChange = () => {
             header="Modifier l'Employé"
             :modal="true"
             class="p-fluid"
+            :contentStyle="{ backgroundColor: '#ffffff' }"
         >
             <EmployeeForm
                 v-if="employeeToEdit"
