@@ -2,7 +2,7 @@
 
 import { useConfirm } from 'primevue/useconfirm'
 import { useForm } from '@inertiajs/vue3'
-import AppLayout from '@/Layouts/AppLayout.vue'
+import AppLayout from '@/Layouts/AdminLayout.vue'
 import { Button, DataTable, Column, Tag, Message, ConfirmDialog } from 'primevue'
 
 const props = defineProps({

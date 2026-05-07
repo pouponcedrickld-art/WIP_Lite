@@ -47,7 +47,7 @@
 </template>
 
 <script setup>
-import AppLayout from '@/Layouts/AppLayout.vue'
+import AppLayout from '@/Layouts/AdminLayout.vue'
 import { Button, Card, Tag, DataTable, Column } from 'primevue'
 
 const props = defineProps({

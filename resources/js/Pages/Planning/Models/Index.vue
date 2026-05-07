@@ -73,7 +73,7 @@
 import { Button, DataTable, Column, Tag, Message } from 'primevue'
 import { useConfirm } from 'primevue/useconfirm'
 import { router } from '@inertiajs/vue3'
-import AppLayout from '@/Layouts/AppLayout.vue'
+import AppLayout from '@/Layouts/AdminLayout.vue'
 import { ConfirmDialog } from 'primevue'
 
 const props = defineProps({

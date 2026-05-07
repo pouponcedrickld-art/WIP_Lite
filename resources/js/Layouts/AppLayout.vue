@@ -41,7 +41,6 @@
           @click="logout"
         />
       </div>
-
     </nav>
 
     <!-- Titre de la page -->
