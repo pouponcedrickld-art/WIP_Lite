@@ -160,6 +160,7 @@ const hasPlanning = computed(() => {
 });
 
 const weekDays = computed(() => {
+    // Utiliser la même logique que initializeEntries pour garantir la cohérence
     const start = new Date(props.startDate);
     const dayOfWeek = start.getDay();
     const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
@@ -172,8 +173,24 @@ const weekDays = computed(() => {
     for (let i = 0; i < 7; i++) {
         const date = new Date(monday);
         date.setDate(monday.getDate() + i);
+        const dateStr = date.toISOString().split('T')[0];
+        
+        // S'assurer que l'entrée existe dans weekEntries
+        if (!weekEntries.value[dateStr]) {
+            weekEntries.value[dateStr] = {
+                check_in: '',
+                check_out: '',
+                break_duration: 0,
+                planned_hours: props.planningHours[dateStr] || 0,
+                total_hours: 0,
+                overtime_hours: 0,
+                absence_type: '',
+                comment: '',
+            };
+        }
+        
         days.push({
-            date: date.toISOString().split('T')[0],
+            date: dateStr,
             name: dayNames[i],
             dayNumber: date.getDate(),
         });
@@ -292,8 +309,7 @@ const weekDays = computed(() => {
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
                                 <tr v-for="day in weekDays" :key="day.date" class="hover:bg-gray-50">
-                                <template v-if="weekEntries[day.date]">
-                                    <td class="px-6 py-4 whitespace-nowrap">
+                                                                    <td class="px-6 py-4 whitespace-nowrap">
                                         <div class="text-sm font-medium text-gray-900">
                                             {{ day.name }}
                                         </div>
@@ -351,8 +367,6 @@ const weekDays = computed(() => {
                                                placeholder="Commentaire..."
                                                class="w-full border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed">
                                     </td>
-                                </template>
-                                    
                                 </tr>
                             </tbody>
                             <tfoot class="bg-gray-50 border-t">
