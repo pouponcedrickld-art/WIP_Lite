@@ -189,46 +189,59 @@ public function store(Request $request, Employee $employee)
     
     $entries = $request->get('entries', []);
     
-    foreach ($entries as $date => $data) {
+   foreach ($entries as $date => $data) {
     $totalHours = 0;
-    $overtimeHours = 0;
     $plannedHours = isset($data['planned_hours']) ? (float)$data['planned_hours'] : 0;
 
+    // 1. On vérifie si on a bien les deux heures
     if (!empty($data['check_in']) && !empty($data['check_out'])) {
-        // On crée les objets Carbon en s'assurant qu'ils sont sur la même date
-        // pour que la différence ne concerne QUE l'heure
-        $checkIn = Carbon::createFromFormat('H:i', substr($data['check_in'], 0, 5));
-        $checkOut = Carbon::createFromFormat('H:i', substr($data['check_out'], 0, 5));
-        
-        $breakMinutes = (int)($data['break_duration'] ?? 0);
+        try {
+            // Nettoyage de la chaîne (on ne garde que HH:mm même si on reçoit HH:mm:ss)
+            $timeIn = substr($data['check_in'], 0, 5);
+            $timeOut = substr($data['check_out'], 0, 5);
 
-        // Si le check_out est avant le check_in, on considère que c'est le lendemain
-        if ($checkOut->lt($checkIn)) {
-            $checkOut->addDay();
+            $checkIn = Carbon::createFromFormat('H:i', $timeIn);
+            $checkOut = Carbon::createFromFormat('H:i', $timeOut);
+
+            // Gestion de la pause (s'assurer que c'est un entier)
+            $breakMinutes = isset($data['break_duration']) ? (int)$data['break_duration'] : 0;
+
+            // Calcul de la différence brute en minutes
+            $diffInMinutes = $checkIn->diffInMinutes($checkOut, false); 
+            
+            // Si le résultat est négatif, c'est que le départ est le lendemain
+            if ($diffInMinutes < 0) {
+                $diffInMinutes += 1440; // On ajoute 24h en minutes
+            }
+
+            // Total heures = (Minutes travaillées - pause) / 60
+            $totalHours = ($diffInMinutes - $breakMinutes) / 60;
+
+        } catch (\Exception $e) {
+            // En cas d'erreur de format, on laisse à 0 pour éviter le crash
+            $totalHours = 0;
         }
-
-        $diffMinutes = $checkOut->diffInMinutes($checkIn);
-        $totalHours = ($diffMinutes - $breakMinutes) / 60;
     }
 
-    // Sécurité finale
-    $totalHours = max(0, $totalHours);
+    // 2. Calcul de l'écart (Overtime)
+    // Ici, on ne met PAS de max(0) sur le total_hours avant le calcul
+    // car on veut que l'absence soit visible si les heures sont vides
     $overtimeHours = $totalHours - $plannedHours;
 
-        TimesheetEntry::updateOrCreate([
-            'timesheet_id' => $timesheet->id,
-            'date' => $date,
-        ], [
-            'check_in' => $data['check_in'] ?: null,
-            'check_out' => $data['check_out'] ?: null,
-            'break_duration' => $data['break_duration'] ?? 0,
-            'total_hours' => round($totalHours, 2),
-            'planned_hours' => $plannedHours,
-            'overtime_hours' => round($overtimeHours, 2),
-            'absence_type' => $data['absence_type'] ?: null,
-            'comment' => $data['comment'] ?: null,
-        ]);
-    }
+    TimesheetEntry::updateOrCreate([
+        'timesheet_id' => $timesheet->id,
+        'date' => $date,
+    ], [
+        'check_in' => $data['check_in'] ?: null,
+        'check_out' => $data['check_out'] ?: null,
+        'break_duration' => $data['break_duration'] ?? 0,
+        'total_hours' => round($totalHours, 2),
+        'planned_hours' => $plannedHours,
+        'overtime_hours' => round($overtimeHours, 2),
+        'absence_type' => $data['absence_type'] ?: null,
+        'comment' => $data['comment'] ?: null,
+    ]);
+}
     
     $action = $request->get('action');
     $timesheet->status = ($action === 'submit') ? 'soumis' : 'brouillon';
