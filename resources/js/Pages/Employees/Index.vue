@@ -1,7 +1,12 @@
+<template>
+  <div>
+    <p>Page Employés - À compléter</p>
+  </div>
+</template>
+
 <script setup>
-import { ref, watch, onMounted } from "vue";
-import { Link, router, usePage, Head } from "@inertiajs/vue3";
-import { useToast } from "primevue/usetoast";
+import { ref, watch } from "vue";
+import { Link, router, Head } from "@inertiajs/vue3";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Button from "primevue/button";
 import Column from "primevue/column";
@@ -11,6 +16,9 @@ import Dropdown from "primevue/dropdown";
 import Tag from "primevue/tag";
 import Dialog from "primevue/dialog";
 import Toolbar from "primevue/toolbar";
+import AdminLayout from "@/Layouts/AdminLayout.vue";
+
+
 
 // Props depuis le contrôleur
 const props = defineProps({
@@ -19,22 +27,22 @@ const props = defineProps({
     filters: Object,
 });
 
-// État réactif
-const toast = useToast();
+// État réactif pour les dialogues de confirmation
 const deleteDialog = ref(false);
 const employeeToDelete = ref(null);
 const statusChangeDialog = ref(false);
 const statusChangeData = ref({ employee: null, newStatus: "" });
 
-// Filtres
+// Filtres de recherche et de tri
 const search = ref(props.filters.search || "");
 const status = ref(props.filters.status || "");
 const position_id = ref(props.filters.position_id || "");
+
 // Pagination (synchronisée avec la pagination Laravel)
 const page = ref(props.employees.current_page || 1);
 const rows = ref(props.employees.per_page || 10);
 
-// Options pour les filtres
+// Options pour les filtres de statut
 const statusOptions = [
     { label: "Tous les statuts", value: "" },
     { label: "Actif", value: "actif" },
@@ -42,6 +50,7 @@ const statusOptions = [
     { label: "Suspendu", value: "suspendu" },
 ];
 
+// Options pour les filtres de poste
 const positionOptions = [
     { label: "Tous les postes", value: "" },
     ...props.positions.map((position) => ({
@@ -50,42 +59,7 @@ const positionOptions = [
     })),
 ];
 
-// Afficher les messages flash
-onMounted(() => {
-    const page = usePage();
-
-    // Afficher les messages de succès
-    if (page.props.flash?.success) {
-        toast.add({
-            severity: "success",
-            summary: "Succès",
-            detail: page.props.flash.success,
-            life: 3000,
-        });
-    }
-
-    // Afficher les messages d'erreur
-    if (page.props.flash?.error) {
-        toast.add({
-            severity: "error",
-            summary: "Erreur",
-            detail: page.props.flash.error,
-            life: 3000,
-        });
-    }
-
-    // Afficher les messages d'information
-    if (page.props.flash?.info) {
-        toast.add({
-            severity: "info",
-            summary: "Information",
-            detail: page.props.flash.info,
-            life: 3000,
-        });
-    }
-});
-
-// Appliquer les filtres (page et per_page)
+// Appliquer les filtres avec pagination
 const applyFilters = (p = 1, perPage = rows.value) => {
     page.value = p;
     rows.value = perPage;
@@ -106,22 +80,21 @@ const applyFilters = (p = 1, perPage = rows.value) => {
     );
 };
 
-// Handler pour le composant DataTable (PrimeVue) qui émet un event { first, rows, page }
+// Handler pour la pagination du DataTable PrimeVue
 const onPage = (event) => {
     const newPage =
-        event && typeof event.page === "number" ? event.page + 1 : 1; // PrimeVue page is 0-based
+        event && typeof event.page === "number" ? event.page + 1 : 1; // PrimeVue utilise un index 0
     const newRows =
         event && typeof event.rows === "number" ? event.rows : rows.value;
     applyFilters(newPage, newRows);
 };
 
-// Watch pour appliquer les filtres automatiquement
+// Surveiller les changements de filtres et revenir à la première page
 watch([search, status, position_id], () => {
-    // quand on change les filtres, revenir à la première page
     applyFilters(1);
 });
 
-// Obtenir la couleur du statut
+// Obtenir la couleur du tag selon le statut
 const getStatusColor = (status) => {
     switch (status) {
         case "actif":
@@ -135,7 +108,7 @@ const getStatusColor = (status) => {
     }
 };
 
-// Obtenir le libellé du statut
+// Obtenir le libellé du statut en français
 const getStatusLabel = (status) => {
     switch (status) {
         case "actif":
@@ -149,33 +122,20 @@ const getStatusLabel = (status) => {
     }
 };
 
-// Confirmer la suppression
+// Confirmer la suppression d'un employé
 const confirmDelete = (employee) => {
     employeeToDelete.value = employee;
     deleteDialog.value = true;
 };
 
-// Supprimer un employé
+// Supprimer un employé (les toasts sont gérés par le layout via les messages flash)
 const deleteEmployee = () => {
     if (employeeToDelete.value) {
         router.delete(route("employees.destroy", employeeToDelete.value.id), {
-            onSuccess: () => {
+            onFinish: () => {
+                // Fermer le dialogue après la requête
                 deleteDialog.value = false;
                 employeeToDelete.value = null;
-                toast.add({
-                    severity: "success",
-                    summary: "Succès",
-                    detail: "Employé supprimé avec succès",
-                    life: 3000,
-                });
-            },
-            onError: () => {
-                toast.add({
-                    severity: "error",
-                    summary: "Erreur",
-                    detail: "Une erreur est survenue lors de la suppression",
-                    life: 3000,
-                });
             },
         });
     }
@@ -187,7 +147,7 @@ const confirmStatusChange = (employee, newStatus) => {
     statusChangeDialog.value = true;
 };
 
-// Exécuter le changement de statut
+// Exécuter le changement de statut (les toasts sont gérés par le layout)
 const executeStatusChange = () => {
     const { employee, newStatus } = statusChangeData.value;
 
@@ -195,25 +155,10 @@ const executeStatusChange = () => {
         route("employees.changeStatus", employee.id),
         { status: newStatus },
         {
-            onSuccess: () => {
+            onFinish: () => {
+                // Fermer le dialogue après la requête
                 statusChangeDialog.value = false;
                 statusChangeData.value = { employee: null, newStatus: "" };
-                toast.add({
-                    severity: "success",
-                    summary: "Succès",
-                    detail: `Statut mis à jour : ${getStatusLabel(newStatus)}`,
-                    life: 3000,
-                });
-            },
-            onError: () => {
-                statusChangeDialog.value = false;
-                statusChangeData.value = { employee: null, newStatus: "" };
-                toast.add({
-                    severity: "error",
-                    summary: "Erreur",
-                    detail: "Une erreur est survenue lors de la mise à jour du statut",
-                    life: 3000,
-                });
             },
         },
     );
@@ -223,21 +168,30 @@ const executeStatusChange = () => {
 <template>
     <Head title="Employés" />
 
-    <AuthenticatedLayout>
-        <template #header>
+    <AdminLayout>
+
             <div class="flex justify-between items-center">
                 <h2 class="text-xl font-semibold leading-tight text-gray-800">
                     Gestion des Employés
                 </h2>
-                <Link :href="route('employees.create')">
-                    <Button
-                        label="Nouvel Employé"
-                        icon="pi pi-plus"
-                        class="p-button-primary"
-                    />
-                </Link>
+                <div class="flex gap-2">
+                    <Link :href="route('employees.trash')">
+                        <Button
+                            label="Employés Supprimés"
+                            icon="pi pi-trash"
+                            class="p-button-warning"
+                        />
+                    </Link>
+                    <Link :href="route('employees.create')">
+                        <Button
+                            label="Nouvel Employé"
+                            icon="pi pi-plus"
+                            class="p-button-primary"
+                        />
+                    </Link>
+                </div>
             </div>
-        </template>
+
 
         <div class="py-6">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -505,5 +459,5 @@ const executeStatusChange = () => {
                 />
             </template>
         </Dialog>
-    </AuthenticatedLayout>
+    </AdminLayout>
 </template>

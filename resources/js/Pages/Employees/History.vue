@@ -2,7 +2,7 @@
 import { onMounted } from "vue";
 import { Link, usePage, Head } from "@inertiajs/vue3";
 import { useToast } from "primevue/usetoast";
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import AdminLayout from "@/Layouts/AdminLayout.vue";
 import Button from "primevue/button";
 import Card from "primevue/card";
 import DataTable from "primevue/datatable";
@@ -65,7 +65,7 @@ const getStatusLabel = (s) => {
 <template>
     <Head :title="`Historique - ${props.employee.first_name} ${props.employee.last_name}`" />
 
-    <AuthenticatedLayout>
+    <AdminLayout>
         <template #header>
             <div class="flex justify-between items-center">
                 <h2 class="text-xl font-semibold leading-tight text-gray-800">
@@ -138,5 +138,5 @@ const getStatusLabel = (s) => {
                 </div>
             </div>
         </div>
-    </AuthenticatedLayout>
+    </AdminLayout>
 </template>

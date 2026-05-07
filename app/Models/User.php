@@ -10,10 +10,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+
+
 // #[Fillable(['name', 'email', 'password'])]
 // #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
+    use Notifiable;
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
@@ -45,5 +48,10 @@ class User extends Authenticatable
     public function role()
     {
         return $this->belongsTo(Role::class);
+
+    }
+
+    public function employee (){
+        return $this ->hasOne(Employee::class);
     }
 }
