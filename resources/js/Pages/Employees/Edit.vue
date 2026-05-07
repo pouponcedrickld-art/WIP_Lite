@@ -1,6 +1,6 @@
 <script setup>
-import { ref, onMounted } from "vue";
-import { Link, useForm, usePage, Head, router } from "@inertiajs/vue3";
+import { ref } from "vue";
+import { Link, useForm, Head, router } from "@inertiajs/vue3";
 import { useToast } from "primevue/usetoast";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Button from "primevue/button";
@@ -50,66 +50,23 @@ const positionOptions = props.positions.map((position) => ({
     value: position.id,
 }));
 
-// Afficher les messages flash
-onMounted(() => {
-    const page = usePage();
-
-    // Afficher les messages de succès
-    if (page.props.flash?.success) {
-        toast.add({
-            severity: "success",
-            summary: "Succès",
-            detail: page.props.flash.success,
-            life: 3000,
-        });
-    }
-
-    // Afficher les messages d'erreur
-    if (page.props.flash?.error) {
-        toast.add({
-            severity: "error",
-            summary: "Erreur",
-            detail: page.props.flash.error,
-            life: 3000,
-        });
-    }
-
-    // Afficher les messages d'information
-    if (page.props.flash?.info) {
-        toast.add({
-            severity: "info",
-            summary: "Information",
-            detail: page.props.flash.info,
-            life: 3000,
-        });
-    }
-});
-
 // Confirmer la soumission
 const confirmSubmit = () => {
     submitDialog.value = true;
 };
 
 // Soumettre le formulaire
+// Les toasts de succès sont gérés automatiquement par le layout via les messages flash
 const submit = () => {
     submitDialog.value = false;
-    console.log("Données envoyées:", form.data());
     form.put(route("employees.update", props.employee.id), {
-        onSuccess: () => {
-            toast.add({
-                severity: "success",
-                summary: "Succès",
-                detail: "Employé mis à jour avec succès",
-                life: 3000,
-            });
-        },
         onError: (errors) => {
-            console.error("Erreurs de validation:", errors);
+            // Afficher un toast d'erreur pour les erreurs de validation
             toast.add({
                 severity: "error",
-                summary: "Erreur",
+                summary: "Erreur de validation",
                 detail: "Veuillez corriger les erreurs dans le formulaire",
-                life: 3000,
+                life: 4000,
             });
         },
     });
@@ -129,7 +86,7 @@ const cancel = () => {
     router.get(route("employees.index"));
 };
 
-// Obtenir la couleur du statut
+// Obtenir la couleur du statut pour les tags PrimeVue
 const getStatusColor = (status) => {
     switch (status) {
         case "actif":
@@ -143,7 +100,7 @@ const getStatusColor = (status) => {
     }
 };
 
-// Obtenir le libellé du statut
+// Obtenir le libellé du statut en français
 const getStatusLabel = (status) => {
     switch (status) {
         case "actif":
