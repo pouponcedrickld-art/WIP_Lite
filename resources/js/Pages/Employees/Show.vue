@@ -3,6 +3,8 @@ import { onMounted } from "vue";
 import { Link, usePage, Head, router } from "@inertiajs/vue3";
 import { useToast } from "primevue/usetoast";
 import AdminLayout from "@/Layouts/AdminLayout.vue";
+import { Link, Head, router } from "@inertiajs/vue3";
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
 import Button from "primevue/button";
 import Card from "primevue/card";
 import Tag from "primevue/tag";
@@ -14,45 +16,7 @@ const props = defineProps({
     employee: Object,
 });
 
-// État réactif
-const toast = useToast();
-
-// Afficher les messages flash
-onMounted(() => {
-    const page = usePage();
-
-    // Afficher les messages de succès
-    if (page.props.flash?.success) {
-        toast.add({
-            severity: "success",
-            summary: "Succès",
-            detail: page.props.flash.success,
-            life: 3000,
-        });
-    }
-
-    // Afficher les messages d'erreur
-    if (page.props.flash?.error) {
-        toast.add({
-            severity: "error",
-            summary: "Erreur",
-            detail: page.props.flash.error,
-            life: 3000,
-        });
-    }
-
-    // Afficher les messages d'information
-    if (page.props.flash?.info) {
-        toast.add({
-            severity: "info",
-            summary: "Information",
-            detail: page.props.flash.info,
-            life: 3000,
-        });
-    }
-});
-
-// Obtenir la couleur du statut
+// Obtenir la couleur du tag selon le statut
 const getStatusColor = (status) => {
     switch (status) {
         case "actif":
@@ -66,7 +30,7 @@ const getStatusColor = (status) => {
     }
 };
 
-// Obtenir le libellé du statut
+// Obtenir le libellé du statut en français
 const getStatusLabel = (status) => {
     switch (status) {
         case "actif":
@@ -80,7 +44,7 @@ const getStatusLabel = (status) => {
     }
 };
 
-// Formater la date
+// Formater la date en français
 const formatDate = (date) => {
     if (!date) return "-";
     return new Date(date).toLocaleDateString("fr-FR", {
@@ -90,7 +54,7 @@ const formatDate = (date) => {
     });
 };
 
-// Formater le montant en devise
+// Formater le montant en devise (Franc CFA)
 const formatCurrency = (amount) => {
     return new Intl.NumberFormat("fr-FR", {
         style: "currency",
@@ -98,52 +62,24 @@ const formatCurrency = (amount) => {
     }).format(amount);
 };
 
-// Changer le statut avec notification
+// Changer le statut de l'employé
+// Les toasts sont gérés automatiquement par le layout via les messages flash
 const changeStatus = (newStatus) => {
     router.patch(
         route("employees.changeStatus", props.employee.id),
         { status: newStatus },
-        {
-            onSuccess: () => {
-                toast.add({
-                    severity: "success",
-                    summary: "Succès",
-                    detail: `Statut mis à jour : ${getStatusLabel(newStatus)}`,
-                    life: 3000,
-                });
-            },
-            onError: () => {
-                toast.add({
-                    severity: "error",
-                    summary: "Erreur",
-                    detail: "Une erreur est survenue lors de la mise à jour du statut",
-                    life: 3000,
-                });
-            },
-        },
     );
 };
 
+// Confirmer et supprimer l'employé
+// Les toasts sont gérés automatiquement par le layout via les messages flash
 const confirmAndDelete = () => {
     if (!confirm("Êtes-vous sûr de vouloir supprimer cet employé ?")) return;
 
     router.delete(route("employees.destroy", props.employee.id), {
         onSuccess: () => {
-            toast.add({
-                severity: "success",
-                summary: "Succès",
-                detail: "Employé supprimé",
-                life: 3000,
-            });
+            // Rediriger vers la liste après suppression
             router.get(route("employees.index"));
-        },
-        onError: () => {
-            toast.add({
-                severity: "error",
-                summary: "Erreur",
-                detail: "Une erreur est survenue lors de la suppression",
-                life: 3000,
-            });
         },
     });
 };

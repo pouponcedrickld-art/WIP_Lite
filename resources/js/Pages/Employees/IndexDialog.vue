@@ -1,10 +1,8 @@
 <script setup>
 import { ref, watch, onMounted } from "vue";
-import { Link, router, usePage, Head } from "@inertiajs/vue3";
-import { useToast } from "primevue/usetoast";
-import { ref, watch } from "vue";
-import { Link, router, Head } from "@inertiajs/vue3";
+import { Link, router, Head, useForm, usePage } from "@inertiajs/vue3";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import EmployeeForm from "@/Components/EmployeeForm.vue";
 import Button from "primevue/button";
 import Column from "primevue/column";
 import DataTable from "primevue/datatable";
@@ -13,33 +11,33 @@ import Dropdown from "primevue/dropdown";
 import Tag from "primevue/tag";
 import Dialog from "primevue/dialog";
 import Toolbar from "primevue/toolbar";
-import AdminLayout from "@/Layouts/AdminLayout.vue";
 
-
-
-// Props depuis le contrôleur
 const props = defineProps({
     employees: Object,
     positions: Array,
     filters: Object,
 });
 
-// État réactif pour les dialogues de confirmation
+const page = usePage();
+
+const createDialog = ref(false);
+const editDialog = ref(false);
 const deleteDialog = ref(false);
-const employeeToDelete = ref(null);
 const statusChangeDialog = ref(false);
+
+const employeeToEdit = ref(null);
+const employeeToDelete = ref(null);
 const statusChangeData = ref({ employee: null, newStatus: "" });
 
-// Filtres de recherche et de tri
 const search = ref(props.filters.search || "");
 const status = ref(props.filters.status || "");
 const position_id = ref(props.filters.position_id || "");
 
-// Pagination (synchronisée avec la pagination Laravel)
-const page = ref(props.employees.current_page || 1);
+const page_num = ref(props.employees.current_page || 1);
 const rows = ref(props.employees.per_page || 10);
 
-// Options pour les filtres de statut
+const isFormLoading = ref(false);
+
 const statusOptions = [
     { label: "Tous les statuts", value: "" },
     { label: "Actif", value: "actif" },
@@ -47,7 +45,6 @@ const statusOptions = [
     { label: "Suspendu", value: "suspendu" },
 ];
 
-// Options pour les filtres de poste
 const positionOptions = [
     { label: "Tous les postes", value: "" },
     ...props.positions.map((position) => ({
@@ -56,9 +53,23 @@ const positionOptions = [
     })),
 ];
 
-// Appliquer les filtres avec pagination
+onMounted(() => {
+    if (page.props.flash?.openCreateDialog) {
+        createDialog.value = true;
+    }
+
+    if (page.props.flash?.editEmployeeId) {
+        const employeeId = page.props.flash.editEmployeeId;
+        const employee = props.employees.data.find(e => e.id === employeeId);
+        if (employee) {
+            employeeToEdit.value = employee;
+            editDialog.value = true;
+        }
+    }
+});
+
 const applyFilters = (p = 1, perPage = rows.value) => {
-    page.value = p;
+    page_num.value = p;
     rows.value = perPage;
 
     router.get(
@@ -77,35 +88,18 @@ const applyFilters = (p = 1, perPage = rows.value) => {
     );
 };
 
-// Handler pour la pagination du DataTable PrimeVue
 const onPage = (event) => {
     const newPage =
-        event && typeof event.page === "number" ? event.page + 1 : 1; // PrimeVue utilise un index 0
+        event && typeof event.page === "number" ? event.page + 1 : 1;
     const newRows =
         event && typeof event.rows === "number" ? event.rows : rows.value;
     applyFilters(newPage, newRows);
 };
 
-// Surveiller les changements de filtres et revenir à la première page
 watch([search, status, position_id], () => {
     applyFilters(1);
 });
 
-// Obtenir la couleur du tag selon le statut
-const getStatusColor = (status) => {
-    switch (status) {
-        case "actif":
-            return "success";
-        case "inactif":
-            return "secondary";
-        case "suspendu":
-            return "danger";
-        default:
-            return "info";
-    }
-};
-
-// Obtenir le libellé du statut en français
 const getStatusLabel = (status) => {
     switch (status) {
         case "actif":
@@ -119,18 +113,72 @@ const getStatusLabel = (status) => {
     }
 };
 
-// Confirmer la suppression d'un employé
+const getStatusColor = (status) => {
+    switch (status) {
+        case "actif":
+            return "success";
+        case "inactif":
+            return "secondary";
+        case "suspendu":
+            return "danger";
+        default:
+            return "info";
+    }
+};
+
+const openCreateDialog = () => {
+    createDialog.value = true;
+};
+
+const closeCreateDialog = () => {
+    createDialog.value = false;
+};
+
+const openEditDialog = (employee) => {
+    employeeToEdit.value = employee;
+    editDialog.value = true;
+};
+
+const closeEditDialog = () => {
+    editDialog.value = false;
+    employeeToEdit.value = null;
+};
+
+const handleCreateSubmit = (form) => {
+    isFormLoading.value = true;
+    form.post(route("employees.store"), {
+        onFinish: () => {
+            isFormLoading.value = false;
+            closeCreateDialog();
+        },
+        onError: () => {
+            isFormLoading.value = false;
+        },
+    });
+};
+
+const handleEditSubmit = (form) => {
+    isFormLoading.value = true;
+    form.put(route("employees.update", employeeToEdit.value.id), {
+        onFinish: () => {
+            isFormLoading.value = false;
+            closeEditDialog();
+        },
+        onError: () => {
+            isFormLoading.value = false;
+        },
+    });
+};
+
 const confirmDelete = (employee) => {
     employeeToDelete.value = employee;
     deleteDialog.value = true;
 };
 
-// Supprimer un employé (les toasts sont gérés par le layout via les messages flash)
 const deleteEmployee = () => {
     if (employeeToDelete.value) {
         router.delete(route("employees.destroy", employeeToDelete.value.id), {
             onFinish: () => {
-                // Fermer le dialogue après la requête
                 deleteDialog.value = false;
                 employeeToDelete.value = null;
             },
@@ -138,13 +186,11 @@ const deleteEmployee = () => {
     }
 };
 
-// Confirmer le changement de statut
 const confirmStatusChange = (employee, newStatus) => {
     statusChangeData.value = { employee, newStatus };
     statusChangeDialog.value = true;
 };
 
-// Exécuter le changement de statut (les toasts sont gérés par le layout)
 const executeStatusChange = () => {
     const { employee, newStatus } = statusChangeData.value;
 
@@ -153,7 +199,6 @@ const executeStatusChange = () => {
         { status: newStatus },
         {
             onFinish: () => {
-                // Fermer le dialogue après la requête
                 statusChangeDialog.value = false;
                 statusChangeData.value = { employee: null, newStatus: "" };
             },
@@ -165,8 +210,8 @@ const executeStatusChange = () => {
 <template>
     <Head title="Employés" />
 
-    <AdminLayout>
-
+    <AuthenticatedLayout>
+        <template #header>
             <div class="flex justify-between items-center">
                 <h2 class="text-xl font-semibold leading-tight text-gray-800">
                     Gestion des Employés
@@ -179,21 +224,19 @@ const executeStatusChange = () => {
                             class="p-button-warning"
                         />
                     </Link>
-                    <Link :href="route('employees.create')">
-                        <Button
-                            label="Nouvel Employé"
-                            icon="pi pi-plus"
-                            class="p-button-primary"
-                        />
-                    </Link>
+                    <Button
+                        label="Nouvel Employé"
+                        icon="pi pi-plus"
+                        class="p-button-primary"
+                        @click="openCreateDialog"
+                    />
                 </div>
             </div>
-
+        </template>
 
         <div class="py-6">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                    <!-- Filtres -->
                     <Toolbar class="mb-4">
                         <template #start>
                             <div class="flex gap-2 items-center">
@@ -227,12 +270,11 @@ const executeStatusChange = () => {
                         </template>
                     </Toolbar>
 
-                    <!-- Tableau des employés -->
                     <DataTable
                         :value="employees.data"
                         :paginator="true"
                         :rows="rows"
-                        :first="(page - 1) * rows"
+                        :first="(page_num - 1) * rows"
                         :totalRecords="employees.total"
                         :lazy="true"
                         @page="onPage"
@@ -244,23 +286,18 @@ const executeStatusChange = () => {
                     >
                         <Column field="matricule" header="Matricule" sortable>
                             <template #body="{ data }">
-                                <span class="font-mono text-sm">{{
-                                    data.matricule
-                                }}</span>
+                                <span class="font-mono text-sm">{{ data.matricule }}</span>
                             </template>
                         </Column>
 
                         <Column field="full_name" header="Nom complet" sortable>
                             <template #body="{ data }">
-                                <div class="flex items-center">
-                                    <div>
-                                        <div class="font-medium">
-                                            {{ data.first_name }}
-                                            {{ data.last_name }}
-                                        </div>
-                                        <div class="text-sm text-gray-500">
-                                            {{ data.email }}
-                                        </div>
+                                <div>
+                                    <div class="font-medium">
+                                        {{ data.first_name }} {{ data.last_name }}
+                                    </div>
+                                    <div class="text-sm text-gray-500">
+                                        {{ data.email }}
                                     </div>
                                 </div>
                             </template>
@@ -300,16 +337,10 @@ const executeStatusChange = () => {
                             </template>
                         </Column>
 
-                        <Column
-                            header="Actions"
-                            :exportable="false"
-                            style="min-width: 8rem"
-                        >
+                        <Column header="Actions" :exportable="false" style="min-width: 8rem">
                             <template #body="{ data }">
                                 <div class="flex gap-2 items-center">
-                                    <Link
-                                        :href="route('employees.show', data.id)"
-                                    >
+                                    <Link :href="route('employees.show', data.id)">
                                         <Button
                                             label="Voir"
                                             icon="pi pi-eye"
@@ -317,37 +348,23 @@ const executeStatusChange = () => {
                                         />
                                     </Link>
 
-                                    <Link
-                                        :href="route('employees.edit', data.id)"
-                                    >
-                                        <Button
-                                            label="Modifier"
-                                            icon="pi pi-pencil"
-                                            class="p-button-outlined p-button-warning"
-                                        />
-                                    </Link>
+                                    <Button
+                                        label="Modifier"
+                                        icon="pi pi-pencil"
+                                        class="p-button-outlined p-button-warning"
+                                        @click="openEditDialog(data)"
+                                    />
 
                                     <Dropdown
                                         :modelValue="data.status"
                                         :options="[
                                             { label: 'Actif', value: 'actif' },
-                                            {
-                                                label: 'Inactif',
-                                                value: 'inactif',
-                                            },
-                                            {
-                                                label: 'Suspendu',
-                                                value: 'suspendu',
-                                            },
+                                            { label: 'Inactif', value: 'inactif' },
+                                            { label: 'Suspendu', value: 'suspendu' },
                                         ]"
                                         optionLabel="label"
                                         optionValue="value"
-                                        @change="
-                                            confirmStatusChange(
-                                                data,
-                                                $event.value,
-                                            )
-                                        "
+                                        @change="confirmStatusChange(data, $event.value)"
                                         class="w-32"
                                         size="small"
                                     />
@@ -366,7 +383,41 @@ const executeStatusChange = () => {
             </div>
         </div>
 
-        <!-- Dialog de confirmation de suppression -->
+        <Dialog
+            v-model:visible="createDialog"
+            :style="{ width: '90vw', maxWidth: '800px' }"
+            header="Créer un Nouvel Employé"
+            :modal="true"
+            class="p-fluid"
+            :contentStyle="{ backgroundColor: '#ffffff' }"
+        >
+            <EmployeeForm
+                :employee="null"
+                :positions="positions"
+                :isLoading="isFormLoading"
+                @submit="handleCreateSubmit"
+                @cancel="closeCreateDialog"
+            />
+        </Dialog>
+
+        <Dialog
+            v-model:visible="editDialog"
+            :style="{ width: '90vw', maxWidth: '800px' }"
+            header="Modifier l'Employé"
+            :modal="true"
+            class="p-fluid"
+            :contentStyle="{ backgroundColor: '#ffffff' }"
+        >
+            <EmployeeForm
+                v-if="employeeToEdit"
+                :employee="employeeToEdit"
+                :positions="positions"
+                :isLoading="isFormLoading"
+                @submit="handleEditSubmit"
+                @cancel="closeEditDialog"
+            />
+        </Dialog>
+
         <Dialog
             v-model:visible="deleteDialog"
             :style="{ width: '450px' }"
@@ -380,14 +431,8 @@ const executeStatusChange = () => {
                 />
                 <span v-if="employeeToDelete">
                     Êtes-vous sûr de vouloir supprimer l'employé
-                    <b
-                        >{{ employeeToDelete.first_name }}
-                        {{ employeeToDelete.last_name }}</b
-                    >
-                    ?<br />
-                    <small class="text-gray-500"
-                        >Cette action est réversible.</small
-                    >
+                    <b>{{ employeeToDelete.first_name }} {{ employeeToDelete.last_name }}</b>?<br />
+                    <small class="text-gray-500">Cette action est réversible.</small>
                 </span>
             </div>
             <template #footer>
@@ -406,7 +451,6 @@ const executeStatusChange = () => {
             </template>
         </Dialog>
 
-        <!-- Dialog de confirmation de changement de statut -->
         <Dialog
             v-model:visible="statusChangeDialog"
             :style="{ width: '450px' }"
@@ -420,18 +464,11 @@ const executeStatusChange = () => {
                 />
                 <span v-if="statusChangeData.employee">
                     Changer le statut de
-                    <b
-                        >{{ statusChangeData.employee.first_name }}
-                        {{ statusChangeData.employee.last_name }}</b
-                    ><br />
+                    <b>{{ statusChangeData.employee.first_name }} {{ statusChangeData.employee.last_name }}</b><br />
                     de
                     <Tag
-                        :value="
-                            getStatusLabel(statusChangeData.employee.status)
-                        "
-                        :severity="
-                            getStatusColor(statusChangeData.employee.status)
-                        "
+                        :value="getStatusLabel(statusChangeData.employee.status)"
+                        :severity="getStatusColor(statusChangeData.employee.status)"
                         class="mr-2"
                     />
                     à
@@ -456,5 +493,5 @@ const executeStatusChange = () => {
                 />
             </template>
         </Dialog>
-    </AdminLayout>
+    </AuthenticatedLayout>
 </template>
