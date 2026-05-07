@@ -83,15 +83,21 @@ const calculateHours = (dateStr) => {
         if (end > start) {
             totalHours = (end - start) / (1000 * 60 * 60) - (entry.break_duration / 60);
             overtimeHours = totalHours - entry.planned_hours;
+        } else if (end < start) {
+            // Optionnel : Gestion si l'heure de fin est le lendemain (ex: 22h à 02h)
+            const endNextDay = new Date(`2000-01-02T${entry.check_out}`);
+            totalHours = (endNextDay - start) / (1000 * 60 * 60) - (entry.break_duration / 60);
+            overtimeHours = totalHours - entry.planned_hours;
         }
     }
     
-    // Forcer la réactivité avec Object.assign
-    weekEntries.value[dateStr] = {
-        ...weekEntries.value[dateStr],
-        total_hours: totalHours,
-        overtime_hours: overtimeHours,
-    };
+    // Mise à jour de l'état local
+    weekEntries.value[dateStr].total_hours = totalHours;
+    weekEntries.value[dateStr].overtime_hours = overtimeHours;
+
+    // IMPORTANT : Synchroniser avec le formulaire Inertia pour l'envoi
+    form.entries = { ...weekEntries.value }; 
+    
     calculateWeekTotals();
 };
 
@@ -119,6 +125,7 @@ const submit = (action) => {
     form.entries = weekEntries.value;
     
     form.post(`/timesheets/${props.employee.id}?week=${props.week}`, {
+        preserveScroll: true,
         onSuccess: () => {
             // Succès géré par les messages flash
         },

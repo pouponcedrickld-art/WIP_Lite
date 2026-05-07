@@ -165,76 +165,77 @@ class TimesheetController extends Controller
         ]);
     }
     
-    public function store(Request $request, Employee $employee)
-    {
-        $user = Auth::user();
-        $this->authorizeAccess($user, $employee);
-        
-        $week = $request->get('week');
-        $year = (int)substr($week, 0, 4);
-        $weekNumber = (int)substr($week, 6);
-        
-        $startDate = Carbon::now()->setISODate($year, $weekNumber)->startOfWeek();
-        $endDate = $startDate->copy()->endOfWeek();
-        
-        $timesheet = Timesheet::firstOrCreate([
-            'employee_id' => $employee->id,
-            'period_start' => $startDate->format('Y-m-d'),
-            'period_end' => $endDate->format('Y-m-d'),
-        ]);
-        
-        // Vérifier que la timesheet n'est pas déjà validée
-        if ($timesheet->status === 'validé') {
-            return back()->with('error', 'Cette feuille de temps est déjà validée et ne peut plus être modifiée.');
-        }
-        
-        $entries = $request->get('entries', []);
-        
-        foreach ($entries as $date => $data) {
-            // Calcul des heures
-            $totalHours = 0;
-            $overtimeHours = 0;
-            
-            if ($data['check_in'] && $data['check_out']) {
-                $checkIn = Carbon::parse($data['check_in']);
-                $checkOut = Carbon::parse($data['check_out']);
-                $breakMinutes = $data['break_duration'] ?? 0;
-                
-                $totalHours = $checkOut->diffInMinutes($checkIn) / 60 - ($breakMinutes / 60);
-                
-                // Calcul des heures supplémentaires (positif) ou manquantes (négatif)
-                $plannedHours = $data['planned_hours'] ?? 0;
-                $overtimeHours = $totalHours - $plannedHours; // Peut être négatif
-            }
-            
-            // Créer ou mettre à jour l'entrée
-            TimesheetEntry::updateOrCreate([
-                'timesheet_id' => $timesheet->id,
-                'date' => $date,
-            ], [
-                'check_in' => $data['check_in'] ?? null,
-                'check_out' => $data['check_out'] ?? null,
-                'break_duration' => $data['break_duration'] ?? 0,
-                'total_hours' => $totalHours,
-                'planned_hours' => $data['planned_hours'] ?? 0,
-                'overtime_hours' => $overtimeHours,
-                'absence_type' => $data['absence_type'] ?? null,
-                'comment' => $data['comment'] ?? null,
-            ]);
-        }
-        
-        // Mettre à jour le statut
-        $action = $request->get('action');
-        if ($action === 'submit') {
-            $timesheet->status = 'soumis';
-        } else {
-            $timesheet->status = 'brouillon';
-        }
-        
-        $timesheet->save();
-        
-        return redirect()->back()->with('success', 'Feuille de temps enregistrée avec succès.');
+public function store(Request $request, Employee $employee)
+{
+    $user = Auth::user();
+    $this->authorizeAccess($user, $employee);
+    
+    $week = $request->get('week');
+    $year = (int)substr($week, 0, 4);
+    $weekNumber = (int)substr($week, 6);
+    
+    $startDate = Carbon::now()->setISODate($year, $weekNumber)->startOfWeek();
+    $endDate = $startDate->copy()->endOfWeek();
+    
+    $timesheet = Timesheet::firstOrCreate([
+        'employee_id' => $employee->id,
+        'period_start' => $startDate->format('Y-m-d'),
+        'period_end' => $endDate->format('Y-m-d'),
+    ]);
+    
+    if ($timesheet->status === 'validé') {
+        return back()->with('error', 'Cette feuille de temps est déjà validée.');
     }
+    
+    $entries = $request->get('entries', []);
+    
+    foreach ($entries as $date => $data) {
+    $totalHours = 0;
+    $overtimeHours = 0;
+    $plannedHours = isset($data['planned_hours']) ? (float)$data['planned_hours'] : 0;
+
+    if (!empty($data['check_in']) && !empty($data['check_out'])) {
+        // On crée les objets Carbon en s'assurant qu'ils sont sur la même date
+        // pour que la différence ne concerne QUE l'heure
+        $checkIn = Carbon::createFromFormat('H:i', substr($data['check_in'], 0, 5));
+        $checkOut = Carbon::createFromFormat('H:i', substr($data['check_out'], 0, 5));
+        
+        $breakMinutes = (int)($data['break_duration'] ?? 0);
+
+        // Si le check_out est avant le check_in, on considère que c'est le lendemain
+        if ($checkOut->lt($checkIn)) {
+            $checkOut->addDay();
+        }
+
+        $diffMinutes = $checkOut->diffInMinutes($checkIn);
+        $totalHours = ($diffMinutes - $breakMinutes) / 60;
+    }
+
+    // Sécurité finale
+    $totalHours = max(0, $totalHours);
+    $overtimeHours = $totalHours - $plannedHours;
+
+        TimesheetEntry::updateOrCreate([
+            'timesheet_id' => $timesheet->id,
+            'date' => $date,
+        ], [
+            'check_in' => $data['check_in'] ?: null,
+            'check_out' => $data['check_out'] ?: null,
+            'break_duration' => $data['break_duration'] ?? 0,
+            'total_hours' => round($totalHours, 2),
+            'planned_hours' => $plannedHours,
+            'overtime_hours' => round($overtimeHours, 2),
+            'absence_type' => $data['absence_type'] ?: null,
+            'comment' => $data['comment'] ?: null,
+        ]);
+    }
+    
+    $action = $request->get('action');
+    $timesheet->status = ($action === 'submit') ? 'soumis' : 'brouillon';
+    $timesheet->save();
+    
+    return redirect()->back()->with('success', 'Feuille de temps mise à jour.');
+}
     
     public function validate(Request $request, Timesheet $timesheet)
     {
