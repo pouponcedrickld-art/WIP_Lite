@@ -1,7 +1,30 @@
+<script>
+import CPLayout from '@/Layouts/CPLayout.vue';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
+import SUPLayout from '@/Layouts/SUPLayout.vue';
+import TClayout from '@/Layouts/TCLayout.vue';
+
+export default {
+    layout: (h, page) => {
+        const layouts = {
+            cp: CPLayout,
+            sup: SUPLayout,
+            tc: TClayout,
+            admin: AdminLayout
+        };
+        const role = page.props.role;
+        const selectedLayout = layouts[role] || TClayout;
+        return h(selectedLayout, [page]);
+    }
+}
+</script>
+
 <script setup>
+
 import { ref, computed } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { usePage } from '@inertiajs/vue3';
+
 
 const props = defineProps({
     employees: Array,

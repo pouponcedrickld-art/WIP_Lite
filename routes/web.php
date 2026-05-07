@@ -48,7 +48,20 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     
-    
+    // Route dashboard générique
+    Route::get('/dashboard', function () {
+        $user = auth()->user();
+        
+        $route = match ($user->role->name) {
+            'admin' => 'admin.dashboard',
+            'cp' => 'cp.dashboard',
+            'sup' => 'sup.dashboard',
+            'tc' => 'tc.dashboard',
+            default => abort(403),
+        };
+        
+        return redirect()->route($route);
+    })->name('dashboard');
     
 
 ///////////////////////Routes STEVEN ////////////////////////////////////////////////

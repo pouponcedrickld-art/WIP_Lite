@@ -41,6 +41,13 @@ const isActive = (route) => page.url.startsWith(route);
           <i class="pi pi-calendar mr-3 text-lg" :class="isActive('/sup/weekly-planning') ? 'text-white' : 'text-sky-400'"></i>
           <span class="font-medium">Planning Hebdo</span>
         </Link>
+
+        <Link href="/timesheets" 
+              :class="[isActive('/timesheets') ? 'bg-sky-600 text-white' : 'hover:bg-slate-700 hover:text-white']"
+              class="flex items-center p-3 rounded-xl transition-all group">
+          <i class="pi pi-clock mr-3 text-lg" :class="isActive('/timesheets') ? 'text-white' : 'text-sky-400'"></i>
+          <span class="font-medium">Timesheets</span>
+        </Link>
       </nav>
 
       <div class="p-4 border-t border-slate-700">

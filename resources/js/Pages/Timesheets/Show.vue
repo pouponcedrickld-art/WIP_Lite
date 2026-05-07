@@ -1,3 +1,28 @@
+<script>
+import CPLayout from '@/Layouts/CPLayout.vue';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
+import SUPLayout from '@/Layouts/SUPLayout.vue';
+import TClayout from '@/Layouts/TCLayout.vue';
+
+export default {
+    layout: (h, page) => {
+        const layouts = {
+            cp: CPLayout,
+            sup: SUPLayout,
+            tc: TClayout,
+            admin: AdminLayout
+        };
+
+        // On vérifie d'abord dans page.props.role, 
+        // sinon on regarde dans l'objet auth partagé par Laravel/Inertia
+        const role = page.props.role || page.props.auth.user.role.name;
+        
+        const selectedLayout = layouts[role] || TClayout;
+        return h(selectedLayout, [page]);
+    }
+}
+</script>
+
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { Head, Link, router, useForm } from '@inertiajs/vue3';

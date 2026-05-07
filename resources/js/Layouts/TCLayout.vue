@@ -32,6 +32,13 @@ const isActive = (route) => page.url.startsWith(route);
           <i class="pi pi-calendar mr-3 text-lg" :class="isActive('/tc/my-planning') ? 'text-amber-500' : 'text-slate-400'"></i>
           Mon Planning
         </Link>
+
+        <Link href="/timesheets" 
+              :class="[isActive('/timesheets') ? 'bg-amber-50 text-amber-700' : 'hover:bg-slate-50 text-slate-500']"
+              class="flex items-center p-3 rounded-xl transition-all font-bold group">
+          <i class="pi pi-clock mr-3 text-lg" :class="isActive('/timesheets') ? 'text-amber-500' : 'text-slate-400'"></i>
+          Mes Timesheets
+        </Link>
       </nav>
 
       <div class="p-6">

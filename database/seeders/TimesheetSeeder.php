@@ -14,25 +14,17 @@ class TimesheetSeeder extends Seeder
      */
     public function run(): void
     {
-        // Récupérer les premiers employés créés
-        $employees = Employee::limit(10)->get();
-        
-        if ($employees->count() < 2) {
-            $this->command->error('Pas assez d\'employés pour créer les timesheets');
-            return;
-        }
-        
         $timesheets = [
             [
-                'employee_id' => $employees[0]->id,
+                'employee_id' => Employee::where('matricule', 'EMP0001')->first()->id,
                 'period_start' => '2024-04-01',
                 'period_end' => '2024-04-07',
                 'status' => 'validé',
-                'validated_by' => $employees[1]->id,
+                'validated_by' => Employee::where('matricule', 'EMP0002')->first()->id,
                 'validated_at' => '2024-04-08 10:00:00',
             ],
             [
-                'employee_id' => $employees[1]->id,
+                'employee_id' => Employee::where('matricule', 'EMP0002')->first()->id,
                 'period_start' => '2024-04-01',
                 'period_end' => '2024-04-07',
                 'status' => 'soumis',
@@ -40,7 +32,7 @@ class TimesheetSeeder extends Seeder
                 'validated_at' => null,
             ],
             [
-                'employee_id' => $employees[2]->id,
+                'employee_id' => Employee::where('matricule', 'EMP0003')->first()->id,
                 'period_start' => '2024-04-01',
                 'period_end' => '2024-04-07',
                 'status' => 'brouillon',
@@ -48,11 +40,11 @@ class TimesheetSeeder extends Seeder
                 'validated_at' => null,
             ],
             [
-                'employee_id' => $employees[3]->id,
+                'employee_id' => Employee::where('matricule', 'EMP0004')->first()->id,
                 'period_start' => '2024-04-08',
                 'period_end' => '2024-04-14',
                 'status' => 'validé',
-                'validated_by' => $employees[0]->id,
+                'validated_by' => Employee::where('matricule', 'EMP0001')->first()->id,
                 'validated_at' => '2024-04-15 09:00:00',
             ],
         ];

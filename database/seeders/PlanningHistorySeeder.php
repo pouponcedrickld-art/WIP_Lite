@@ -15,42 +15,41 @@ class PlanningHistorySeeder extends Seeder
      */
     public function run(): void
     {
-        // Récupérer les premiers planning assignments et utilisateurs créés
-        $planningAssignments = PlanningAssignment::limit(10)->get();
-        $users = User::limit(10)->get();
-        
-        if ($planningAssignments->count() < 1 || $users->count() < 1) {
-            $this->command->error('Pas assez de données pour créer les planning histories');
-            return;
-        }
-        
         $planningHistories = [
             [
-                'planning_assignment_id' => $planningAssignments[0]->id,
+                'planning_assignment_id' => PlanningAssignment::where('employee_id', function($query) {
+                    $query->select('id')->from('employees')->where('matricule', 'EMP0001');
+                })->first()->id,
                 'old_status' => null,
                 'new_status' => 'validé',
-                'changed_by' => $users[0]->id,
+                'changed_by' => User::first()->id,
                 'reason' => 'Validation initiale du planning',
             ],
             [
-                'planning_assignment_id' => $planningAssignments[1]->id,
+                'planning_assignment_id' => PlanningAssignment::where('employee_id', function($query) {
+                    $query->select('id')->from('employees')->where('matricule', 'EMP0002');
+                })->first()->id,
                 'old_status' => null,
                 'new_status' => 'validé',
-                'changed_by' => $users[0]->id,
+                'changed_by' => User::first()->id,
                 'reason' => 'Validation initiale du planning',
             ],
             [
-                'planning_assignment_id' => $planningAssignments[2]->id,
+                'planning_assignment_id' => PlanningAssignment::where('employee_id', function($query) {
+                    $query->select('id')->from('employees')->where('matricule', 'EMP0004');
+                })->first()->id,
                 'old_status' => 'en attente',
                 'new_status' => 'suspendu',
-                'changed_by' => $users[0]->id,
+                'changed_by' => User::first()->id,
                 'reason' => 'Suspension temporaire du planning',
             ],
             [
-                'planning_assignment_id' => $planningAssignments[3]->id,
+                'planning_assignment_id' => PlanningAssignment::where('employee_id', function($query) {
+                    $query->select('id')->from('employees')->where('matricule', 'EMP0003');
+                })->first()->id,
                 'old_status' => 'validé',
                 'new_status' => 'terminé',
-                'changed_by' => $users[0]->id,
+                'changed_by' => User::first()->id,
                 'reason' => 'Fin de période de planning',
             ],
         ];
