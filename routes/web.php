@@ -66,6 +66,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     Route::get('/admin/dashboard', [AdminController::class, 'index'])
         ->name('admin.dashboard');
+
+    Route::post('/admin/no_users', [AdminController::class, 'no_users'])->name('no_users');
 });
 
 Route::middleware(['auth', 'cp'])->group(function () {
@@ -160,7 +162,7 @@ use App\Notifications\NewEmployeeAdded;
 
 Route::get('/test-sidebar', function () {
     $user = auth()->user(); // L'utilisateur connecté (toi)
-    
+
     // On envoie la notification à toi-même pour tester
     $user->notify(new NewEmployeeAdded("Marc-Antoine"));
 
@@ -186,4 +188,4 @@ Route::get('/test-sidebar', function () {
 // })->middleware(['auth'])->name('cp.dashboard');
 
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';
