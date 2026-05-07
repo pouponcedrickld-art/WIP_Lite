@@ -64,17 +64,17 @@
 
     </div>
 
-    <!-- Dialog confirmation suppression -->
-    <ConfirmDialog />
+ 
 
   </AppLayout>
 </template>
 
 <script setup>
+import { Button, DataTable, Column, Tag, Message } from 'primevue'
 import { useConfirm } from 'primevue/useconfirm'
-import { useForm } from '@inertiajs/vue3'
+import { router } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
-import { Button, DataTable, Column, Tag, Message, ConfirmDialog } from 'primevue'
+import { ConfirmDialog } from 'primevue'
 
 const props = defineProps({
   models: Object,
@@ -91,7 +91,7 @@ function confirmDelete(model) {
     rejectLabel: 'Annuler',
     acceptClass: 'p-button-danger',
     accept: () => {
-      useForm({}).delete(route('planning-models.destroy', model.id))
+      router.delete(route('planning-models.destroy', model.id))
     },
   })
 }

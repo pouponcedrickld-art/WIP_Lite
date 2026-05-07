@@ -28,14 +28,14 @@ const planningModels = computed(() =>
 )
 
 const form = useForm({
-  employee_id:       a.value?.employee?.id,
-  planning_model_id: a.value?.planning_model?.id,
-  start_date:        a.value?.start_date,
-  end_date:          a.value?.end_date,
+  employee_id:       props.assignment.employee?.id,
+  planning_model_id: props.assignment.planning_model?.id,
+  start_date:        props.assignment.start_date,
+  end_date:          props.assignment.end_date,
 })
 
 function submit() {
-  form.put(route('planning-assignments.update', a.value?.id))
+  form.put(route('planning-assignments.update', props.assignment.id))
 }
 </script>
 

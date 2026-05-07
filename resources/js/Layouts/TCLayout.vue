@@ -15,6 +15,9 @@
             <Link href="/tc/tasks" class="text-gray-500 flex flex-col items-center">
                 <i class="pi pi-check-square"></i><span class="text-xs">Tâches</span>
             </Link>
+          <Link href="/tc/planning" class="text-gray-500 flex flex-col items-center">
+    <i class="pi pi-calendar"></i><span class="text-xs">Mon Planning</span>
+</Link>
         </footer>
     </div>
 </template>

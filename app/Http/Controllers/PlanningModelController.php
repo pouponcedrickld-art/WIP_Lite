@@ -10,7 +10,6 @@ use Inertia\Inertia;
 
 class PlanningModelController extends Controller
 {
-    // Liste tous les modèles
     public function index()
     {
         $models = PlanningModel::with('creator')
@@ -22,13 +21,11 @@ class PlanningModelController extends Controller
         ]);
     }
 
-    // Formulaire création
     public function create()
     {
         return Inertia::render('Planning/Models/Create');
     }
 
-    // Enregistrer un nouveau modèle
     public function store(StorePlanningModelRequest $request)
     {
         PlanningModel::create([
@@ -41,25 +38,22 @@ class PlanningModelController extends Controller
             ->with('success', 'Modèle de planning créé avec succès.');
     }
 
-    // Détail d'un modèle
     public function show(PlanningModel $planningModel)
     {
         $planningModel->load('creator', 'assignments.employee');
 
         return Inertia::render('Planning/Models/Show', [
-            'model' => new PlanningModelResource($planningModel),
+            'model' => (new PlanningModelResource($planningModel))->resolve(), // ✅
         ]);
     }
 
-    // Formulaire édition
     public function edit(PlanningModel $planningModel)
     {
         return Inertia::render('Planning/Models/Edit', [
-            'model' => new PlanningModelResource($planningModel),
+            'model' => (new PlanningModelResource($planningModel))->resolve(), // ✅
         ]);
     }
 
-    // Mettre à jour un modèle
     public function update(UpdatePlanningModelRequest $request, PlanningModel $planningModel)
     {
         $planningModel->update($request->validated());
@@ -69,10 +63,8 @@ class PlanningModelController extends Controller
             ->with('success', 'Modèle de planning mis à jour avec succès.');
     }
 
-    // Supprimer un modèle
     public function destroy(PlanningModel $planningModel)
     {
-        // Vérifier si le modèle est utilisé dans des affectations actives
         $hasActiveAssignments = $planningModel->assignments()
             ->whereIn('status', ['en attente', 'validé'])
             ->exists();

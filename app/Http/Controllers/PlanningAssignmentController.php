@@ -60,26 +60,34 @@ class PlanningAssignmentController extends Controller
 
     public function show(PlanningAssignment $planningAssignment)
     {
-        // ✅ Relations chargées
         $planningAssignment->load(['employee', 'planningModel', 'validator']);
 
         return Inertia::render('Planning/Assignments/Show', [
-            'assignment' => new PlanningAssignmentResource($planningAssignment),
+            'assignment' => (new PlanningAssignmentResource($planningAssignment))->resolve(),
             'histories' => [],
         ]);
     }
 
     public function edit(PlanningAssignment $planningAssignment)
     {
-        // ✅ Relations chargées (manquaient dans l'ancien code)
         $planningAssignment->load(['employee', 'planningModel', 'validator']);
 
         return Inertia::render('Planning/Assignments/Edit', [
-            'assignment' => new PlanningAssignmentResource($planningAssignment),
-            'employees' => Employee::select('id', 'first_name', 'last_name', 'matricule')
-                ->where('status', 'actif')
-                ->get(),
+            'assignment' => (new PlanningAssignmentResource($planningAssignment))->resolve(),
+            'employees' => Employee::select('id', 'first_name', 'last_name', 'matricule')->where('status', 'actif')->get(),
             'planningModels' => PlanningModel::select('id', 'name', 'total_hours')->get(),
+        ]);
+    }
+
+    public function history(PlanningAssignment $planningAssignment)
+    {
+        $planningAssignment->load(['employee', 'planningModel', 'validator']);
+
+        $histories = $planningAssignment->histories()->with('user')->latest()->get();
+
+        return Inertia::render('Planning/Assignments/History', [
+            'assignment' => (new PlanningAssignmentResource($planningAssignment))->resolve(),
+            'histories' => PlanningHistoryResource::collection($histories)->resolve(),
         ]);
     }
 
@@ -179,16 +187,5 @@ class PlanningAssignmentController extends Controller
         return back()->with('success', 'Affectation terminée avec succès.');
     }
 
-    public function history(PlanningAssignment $planningAssignment)
-    {
-        // ✅ Relations chargées (manquaient dans l'ancien code)
-        $planningAssignment->load(['employee', 'planningModel', 'validator']);
-
-        $histories = $planningAssignment->histories()->with('user')->latest()->get();
-
-        return Inertia::render('Planning/Assignments/History', [
-            'assignment' => new PlanningAssignmentResource($planningAssignment),
-            'histories' => PlanningHistoryResource::collection($histories),
-        ]);
-    }
+   
 }

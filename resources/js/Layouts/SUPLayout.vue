@@ -6,6 +6,8 @@
                 <span class="font-bold">WIP Lite SUP</span>
                 <Link href="/sup/dashboard" class="hover:underline">Contrôle</Link>
                 <Link href="/approvals" class="hover:underline">Validations</Link>
+               <Link href="/planning-models" class="hover:underline">Modèles Planning</Link>
+               <Link href="/planning-assignments" class="hover:underline">Affectations</Link>
             </div>
             <Button icon="pi pi-sign-out" class="p-button-text text-white" />
         </nav>
