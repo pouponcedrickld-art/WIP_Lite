@@ -14,7 +14,7 @@ class UpdatePlanningModelRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => 'sometimes|string|max:255|unique:planning_models,name,' . $this->route('planning_model'),
+            'name' => 'sometimes|string|max:255|unique:planning_models,name,' . $this->route('planningModel')->id,
             'description' => 'nullable|string',
             'monday_hours' => 'sometimes|numeric|min:0|max:24',
             'tuesday_hours' => 'sometimes|numeric|min:0|max:24',

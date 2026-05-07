@@ -11,13 +11,16 @@ class UpdatePlanningAssignmentRequest extends FormRequest
         return true;
     }
 
+ 
     public function rules(): array
     {
+        $assignment = $this->route('planningAssignment');
+
         return [
             'planning_model_id' => 'sometimes|exists:planning_models,id',
             'employee_id' => 'sometimes|exists:employees,id',
             'start_date' => 'sometimes|date',
-            'end_date' => 'nullable|date|after:start_date',
+            'end_date' => 'nullable|date|after_or_equal:' . ($this->start_date ?? $assignment->start_date),
         ];
     }
 
@@ -31,4 +34,5 @@ class UpdatePlanningAssignmentRequest extends FormRequest
             'end_date.after' => 'La date de fin doit être après la date de début.',
         ];
     }
+
 }

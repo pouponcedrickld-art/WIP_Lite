@@ -109,6 +109,11 @@ const form = useForm({
 })
 
 function submit() {
-  form.post(route('planning-assignments.store'))
+  const data = {
+    ...form.data(),
+    start_date: form.start_date ? new Date(form.start_date).toISOString().split('T')[0] : null,
+    end_date:   form.end_date   ? new Date(form.end_date).toISOString().split('T')[0]   : null,
+  }
+  form.transform(() => data).post(route('planning-assignments.store'))
 }
 </script>

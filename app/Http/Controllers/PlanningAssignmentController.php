@@ -186,6 +186,5 @@ class PlanningAssignmentController extends Controller
 
         return back()->with('success', 'Affectation terminée avec succès.');
     }
-
    
 }
