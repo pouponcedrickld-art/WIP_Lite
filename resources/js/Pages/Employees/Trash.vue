@@ -185,7 +185,7 @@ const forceDeleteEmployee = () => {
     <Head title="Employés Supprimés" />
 
     <AdminLayout>
-        <template #header>
+
             <div class="flex justify-between items-center">
                 <h2 class="text-xl font-semibold leading-tight text-gray-800">
                     Historique des Employés Supprimés
@@ -198,7 +198,6 @@ const forceDeleteEmployee = () => {
                     />
                 </Link>
             </div>
-        </template>
 
         <div class="py-6">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
