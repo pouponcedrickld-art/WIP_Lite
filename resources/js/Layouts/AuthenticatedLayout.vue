@@ -1,5 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue'; // Ajout de computed
+import { watch } from 'vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import Dropdown from '@/Components/Dropdown.vue';
 import DropdownLink from '@/Components/DropdownLink.vue';
@@ -11,6 +12,7 @@ import Toast from 'primevue/toast';
 // Service toast PrimeVue pour afficher les messages
 import { useToast } from 'primevue/usetoast';
 import { Link} from '@inertiajs/vue3'; // Ajout de usePage
+
 
 // État pour le menu hamburger (mobile)
 const showingNavigationDropdown = ref(false);
@@ -117,10 +119,27 @@ const dashboardRoute = computed(() => {
 
     return roleRoutes[user.role.name] || 'login';
 });
+const page = usePage();
+const toast = useToast();
+
+// Surveiller les messages flash
+watch(
+    () => page.props.flash,
+    (flash) => {
+        if (flash?.success) {
+            toast.add({ severity: 'success', summary: 'Succès', detail: flash.success, life: 4000 });
+        }
+        if (flash?.error) {
+            toast.add({ severity: 'error', summary: 'Erreur', detail: flash.error, life: 4000 });
+        }
+    },
+    { deep: true, immediate: true }
+);
 </script>
 
 <template>
     <div>
+        <Toast position="top-center" />
         <div class="min-h-screen bg-gray-100">
             <nav class="border-b border-gray-100 bg-white">
                 <!-- Primary Navigation Menu -->

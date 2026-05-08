@@ -15,6 +15,7 @@ use App\Http\Controllers\EmployeeController;
 use App\Models\User;
 use App\Notifications\PlanningPublicated;
 use App\Notifications\NewEmployeeAdded;
+use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -122,6 +123,23 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
     Route::post('/admin/no_users', [AdminController::class, 'no_users'])
         ->name('no_users');
+    Route::get('/admin/no_users', [AdminController::class, 'no_user'])->name('admin.no_users');
+
+    Route::get('/users', [UserController::class, 'index'])->name('users.index');
+
+    Route::get('/users/create', [UserController::class, 'create'])->name('users.create');
+
+    Route::post('/users', [UserController::class, 'store'])->name('users.store');
+
+    Route::get('/users/deactivated', [UserController::class, 'deactivated'])->name('users.deactivated');
+
+    Route::get('/users/{user}', [UserController::class, 'show'])->name('users.show');
+
+    Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+
+    Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
+    
+    Route::patch('/users/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('users.toggle-status');
 });
 
 Route::middleware(['auth', 'cp'])->group(function () {
