@@ -1,9 +1,12 @@
 <?php
 
+use App\Http\Controllers\AssignmentController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\CampaignController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PlanningModelController;
 use App\Http\Controllers\PlanningAssignmentController;
-use App\Http\Controllers\ProfileController;
+
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\Cp\CpController;
 use App\Http\Controllers\Sup\SupController;
@@ -97,7 +100,15 @@ Route::middleware('auth')->group(function () {
 ///////////////////////Routes STEVEN ////////////////////////////////////////////////
 
 
-
+Route::middleware(['auth', 'verified'])->group(function () {
+    // Cette ligne génère automatiquement : campaigns.index, campaigns.store, campaigns.update, campaigns.destroy
+    Route::resource('campaigns', CampaignController::class);
+});
+Route::middleware(['auth'])->group(function () {
+    Route::get('/assignments', [AssignmentController::class, 'index'])->name('assignments.index');
+    Route::post('/assignments', [AssignmentController::class, 'store'])->name('assignments.store');
+    Route::delete('/assignments/{assignment}', [AssignmentController::class, 'release'])->name('assignments.release');
+});
 
 
 
@@ -200,6 +211,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/reporting/create', [ReportingController::class, 'create'])->name('reporting.create');
 
     Route::post('/reporting', [ReportingController::class, 'store'])->name('reporting.store');
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::resource('reporting', ReportingController::class);
 });
 
 

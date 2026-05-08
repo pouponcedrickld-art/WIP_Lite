@@ -32,13 +32,18 @@ createInertiaApp({
         app.use(plugin)
             .use(ZiggyVue)
             .use(PrimeVue, {
+                // Configuration du thème Aura
                 theme: {
                     preset: Aura,
+                    options: {
+                        prefix: "p",
+                        darkModeSelector: "none", // Force le mode clair pour éviter les textes blancs sur fond blanc
+                        cssLayer: false,
+                    },
                 },
             })
             .use(ToastService)
             .use(ConfirmationService);
-
         app.directive("tooltip", Tooltip);
 
         return app.mount(el);
