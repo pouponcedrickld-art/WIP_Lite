@@ -119,8 +119,6 @@ const dashboardRoute = computed(() => {
 
     return roleRoutes[user.role.name] || 'login';
 });
-const page = usePage();
-const toast = useToast();
 
 // Surveiller les messages flash
 watch(
