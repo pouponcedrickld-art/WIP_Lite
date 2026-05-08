@@ -137,12 +137,29 @@ Route::get('/employees/{employee}/history', [EmployeeController::class, 'history
 
 
 ///////////////////////Routes DYLAN - GESTION DES HEURES ////////////////////////////////////////////////
-
 Route::middleware('auth')->prefix('timesheets')->name('timesheets.')->group(function () {
+
+    // 👇 METS CELA EN PREMIER
+    Route::get('/bulk-entry', [TimesheetController::class, 'bulkEntry'])
+        ->name('bulkEntry');
+
+    Route::post('/bulk-submit', [TimesheetController::class, 'bulkSubmit'])
+        ->name('bulkSubmit');
+
+    Route::post('/bulk-validate', [TimesheetController::class, 'bulkValidate'])
+        ->name('bulkValidate');
+    Route::post('/bulk-store', [TimesheetController::class, 'bulkStore'])
+    ->name('bulkStore');
     Route::get('/', [TimesheetController::class, 'index'])->name('index');
-    Route::get('/{employee}', [TimesheetController::class, 'show'])->name('show');
+
     Route::post('/{employee}', [TimesheetController::class, 'store'])->name('store');
-    Route::post('/{timesheet}/validate', [TimesheetController::class, 'validate'])->name('validate');
+
+    Route::get('/{employee}', [TimesheetController::class, 'show'])
+        ->whereNumber('employee')
+        ->name('show');
+
+    Route::post('/{timesheet}/validate', [TimesheetController::class, 'validate'])
+        ->name('validate');
 });
 
 

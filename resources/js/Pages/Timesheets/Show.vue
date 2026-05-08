@@ -5,21 +5,26 @@ import SUPLayout from '@/Layouts/SUPLayout.vue';
 import TClayout from '@/Layouts/TCLayout.vue';
 
 export default {
-    layout: (h, page) => {
-        const layouts = {
-            cp: CPLayout,
-            sup: SUPLayout,
-            tc: TClayout,
-            admin: AdminLayout
-        };
+layout: (h, page) => {
+    console.log('📦 PAGE PROPS DANS LAYOUT:', page.props);
 
-        // On vérifie d'abord dans page.props.role, 
-        // sinon on regarde dans l'objet auth partagé par Laravel/Inertia
-        const role = page.props.role || page.props.auth.user.role.name;
-        
-        const selectedLayout = layouts[role] || TClayout;
-        return h(selectedLayout, [page]);
-    }
+    const layouts = {
+        cp: CPLayout,
+        sup: SUPLayout,
+        tc: TClayout,
+        admin: AdminLayout
+    };
+
+    const role = page.props.role || page.props.auth?.user?.role?.name;
+
+    console.log('🎭 ROLE DANS LAYOUT:', role);
+
+    const selectedLayout = layouts[role] || TClayout;
+
+    console.log('🧩 LAYOUT CHOISI:', selectedLayout.name);
+
+    return h(selectedLayout, [page]);
+}
 }
 </script>
 
@@ -37,6 +42,9 @@ const props = defineProps({
     endDate: String,
     planningAssignment: Object,
     week: String,
+    isBulkEntry: Boolean,
+    employeeIds: Array,
+    employees: Array,
 });
 
 const page = usePage();
@@ -143,6 +151,8 @@ const form = useForm({
     entries: {}, // Sera rempli au montage
     action: 'draft',
     week: props.week,
+    employee_ids: props.employeeIds ?? [],   // 🔥 AJOUT IMPORTANT
+    is_bulk_entry: false,
 });
 
 // --- 3. Cycle de vie (Lifecycle) ---
@@ -157,14 +167,50 @@ onMounted(() => {
 // --- 4. Autres fonctions et calculs ---
 
 const submit = (action) => {
+    console.log("🔥 SUBMIT CLICKED");
+    console.log("Action:", action);
+    console.log("Bulk mode:", props.isBulkEntry);
+    console.log("Employee ID:", props.employee?.id);
+    console.log("Entries:", weekEntries.value);
+
     form.action = action;
     form.entries = weekEntries.value;
-    
-    form.post(`/timesheets/${props.employee.id}?week=${props.week}`, {
+
+    console.log("FORM BEFORE SEND:", form);
+
+if (props.isBulkEntry) {
+    console.log("🚀 BULK MODE REQUEST");
+
+    form.employee_ids = [...props.employeeIds.map(id => Number(id))];
+    form.is_bulk_entry = true;
+
+    console.log("FINAL PAYLOAD:", form.data());
+
+    form.post(route('timesheets.bulkStore'), {
         preserveScroll: true,
-        onSuccess: () => {
-            // Succès géré par les messages flash
+
+        onSuccess: (page) => {
+            console.log("✅ BULK SUCCESS:", page);
         },
+
+        onError: (errors) => {
+            console.log("❌ BULK ERRORS:", errors);
+        }
+    });
+
+    return;
+}
+
+    console.log("🚀 NORMAL MODE REQUEST");
+
+    form.post(route('timesheets.store', props.employee.id), {
+        preserveScroll: true,
+        onSuccess: (page) => {
+            console.log("✅ SUCCESS NORMAL:", page);
+        },
+        onError: (errors) => {
+            console.log("❌ NORMAL ERRORS:", errors);
+        }
     });
 };
 
@@ -258,11 +304,21 @@ const weekDays = computed(() => {
                         </Link>
                         <div>
                             <h1 class="text-2xl font-bold text-gray-900">
-                                Feuille de temps - {{ employee.first_name }} {{ employee.last_name }}
+                                <span v-if="props.isBulkEntry">
+                                    Mode Saisie Groupée : {{ props.employees.length }} employés sélectionnés
+                                </span>
+                                <span v-else>
+                                    Feuille de temps - {{ employee.first_name }} {{ employee.last_name }}
+                                </span>
                             </h1>
                             <p class="text-sm text-gray-600 mt-1">
-                                {{ employee.matricule }} • {{ employee.position?.name || 'Non défini' }} • 
-                                Semaine du {{ new Date(startDate).toLocaleDateString('fr-FR') }} au {{ new Date(endDate).toLocaleDateString('fr-FR') }}
+                                <span v-if="props.isBulkEntry">
+                                    Saisie groupée pour la semaine du {{ new Date(startDate).toLocaleDateString('fr-FR') }} au {{ new Date(endDate).toLocaleDateString('fr-FR') }}
+                                </span>
+                                <span v-else>
+                                    {{ employee.matricule }} • {{ employee.position?.name || 'Non défini' }} • 
+                                    Semaine du {{ new Date(startDate).toLocaleDateString('fr-FR') }} au {{ new Date(endDate).toLocaleDateString('fr-FR') }}
+                                </span>
                             </p>
                         </div>
                     </div>
@@ -449,18 +505,20 @@ const weekDays = computed(() => {
         </Link>
     </div>
     
-    <div v-if="timesheet.status === 'brouillon' && hasPlanning" class="flex space-x-4">
+    <div v-if="timesheet.status === 'brouillon'" class="flex space-x-4">
         <button type="button"
                 @click="submit('draft')"
                 :disabled="form.processing"
                 class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50">
-            Enregistrer le brouillon
+            <span v-if="props.isBulkEntry">Enregistrer pour tous</span>
+            <span v-else>Enregistrer le brouillon</span>
         </button>
         <button type="button"
                 @click="submit('submit')"
                 :disabled="form.processing"
                 class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50">
-            Soumettre pour validation
+            <span v-if="props.isBulkEntry">Soumettre pour tous</span>
+            <span v-else>Soumettre pour validation</span>
         </button>
     </div>
 

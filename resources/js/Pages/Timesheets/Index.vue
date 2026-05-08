@@ -21,9 +21,11 @@ export default {
 
 <script setup>
 
-import { ref, computed } from 'vue';
+import { ref, computed,watch } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { usePage } from '@inertiajs/vue3';
+import { useToast } from 'primevue/usetoast';
+
 
 
 const props = defineProps({
@@ -38,9 +40,44 @@ const props = defineProps({
 const page = usePage();
 const flash = computed(() => page.props.flash || {});
 
+
+const toast = useToast();
+
+
+watch(
+    () => page.props.flash,
+    (flash) => {
+        if (flash?.success) {
+            toast.add({
+                severity: 'success',
+                summary: 'Succès',
+                detail: flash.success,
+                life: 4000
+            });
+        }
+
+        if (flash?.error) {
+            toast.add({
+                severity: 'error',
+                summary: 'Erreur',
+                detail: flash.error,
+                life: 4000
+            });
+        }
+    },
+    { immediate: true, deep: true }
+);
 const selectedWeek = ref(props.currentWeek);
 const searchQuery = ref('');
+const selectedEmployees = ref([]);
+const selectAll = ref(false);
 
+
+watch(selectedEmployees, (newVal) => {
+    selectAll.value =
+        newVal.length === filteredEmployees.value.length &&
+        filteredEmployees.value.length > 0;
+});
 const weekDays = computed(() => {
     // S'assurer que startDate est bien un lundi
     const start = new Date(props.startDate + 'T12:00:00');
@@ -164,6 +201,105 @@ const getHoursForDay = (employee, date) => {
     }
 };
 
+// Fonctions pour la sélection multiple
+const toggleSelectAll = () => {
+    if (selectAll.value) {
+        selectedEmployees.value = filteredEmployees.value.map(emp => emp.id);
+    } else {
+        selectedEmployees.value = [];
+    }
+};
+
+const toggleEmployeeSelection = (employeeId) => {
+    const index = selectedEmployees.value.indexOf(employeeId);
+    if (index > -1) {
+        selectedEmployees.value.splice(index, 1);
+    } else {
+        selectedEmployees.value.push(employeeId);
+    }
+    
+    // Mettre à jour l'état de "tout sélectionner"
+    selectAll.value = selectedEmployees.value.length === filteredEmployees.value.length && filteredEmployees.value.length > 0;
+};
+
+const canBulkAction = computed(() => {
+    return selectedEmployees.value.length > 0;
+});
+
+const getSelectedEmployeesStatus = () => {
+    const statuses = selectedEmployees.value.map(empId => {
+        const emp = filteredEmployees.value.find(e => e.id === empId);
+        return emp ? getTimesheetStatus(emp) : null;
+    }).filter(Boolean);
+    
+    const uniqueStatuses = [...new Set(statuses)];
+    return uniqueStatuses;
+};
+
+const canBulkValidate = computed(() => {
+    const statuses = getSelectedEmployeesStatus();
+    return statuses.length === 1 && statuses[0] === 'soumis' && props.role === 'cp';
+});
+
+const canBulkEntry = computed(() => {
+    return selectedEmployees.value.length >= 2 && props.role !== 'tc';
+});
+
+// Fonction pour la saisie groupée
+const bulkEntry = () => {
+    console.log("CLICK BULK ENTRY");
+    console.log(selectedEmployees.value);
+
+    const ids = selectedEmployees.value.join(',');
+    const url = `/timesheets/bulk-entry?ids=${ids}&week=${selectedWeek.value}`;
+
+    console.log(url);
+
+    router.get(url, {}, {
+    preserveState: false,
+    preserveScroll: false,
+    replace: false
+}); // ✅ IMPORTANT (Inertia navigation)
+};
+
+const canBulkSubmit = computed(() => {
+    const statuses = getSelectedEmployeesStatus();
+    return statuses.every(status => status === 'brouillon') && props.role !== 'tc';
+});
+
+// Actions en masse
+const bulkValidate = () => {
+    if (!confirm(`Voulez-vous vraiment valider les timesheets de ${selectedEmployees.value.length} employé(s) ?`)) {
+        return;
+    }
+    
+    router.post('/timesheets/bulk-validate', {
+        employee_ids: selectedEmployees.value,
+        week: selectedWeek.value
+    }, {
+        onSuccess: () => {
+            selectedEmployees.value = [];
+            selectAll.value = false;
+        }
+    });
+};
+
+const bulkSubmit = () => {
+    if (!confirm(`Voulez-vous vraiment soumettre les timesheets de ${selectedEmployees.value.length} employé(s) ?`)) {
+        return;
+    }
+    
+    router.post('/timesheets/bulk-submit', {
+        employee_ids: selectedEmployees.value,
+        week: selectedWeek.value
+    }, {
+        onSuccess: () => {
+            selectedEmployees.value = [];
+            selectAll.value = false;
+        }
+    });
+};
+
 const getTotalHours = (employee) => {
     const timesheet = employee.timesheet_for_period;
     if (!timesheet || !timesheet.entries) return '0h 00';
@@ -204,7 +340,7 @@ const getHeaderText = () => {
 
 <template>
     <Head title="Gestion des Heures" />
-
+   <Toast />
     <div class="min-h-screen bg-gray-50">
         <!-- Header -->
         <div class="bg-white shadow-sm border-b">
@@ -270,6 +406,12 @@ const getHeaderText = () => {
                         <thead class="bg-gray-50 border-b">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    <input 
+                                        type="checkbox" 
+                                        v-model="selectAll"
+                                        @change="toggleSelectAll"
+                                        class="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                    />
                                     Employé
                                 </th>
                                 <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -294,6 +436,13 @@ const getHeaderText = () => {
                                 <!-- Employé -->
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
+                                        <input 
+                                            type="checkbox" 
+                                            :value="employee.id"
+                                            v-model="selectedEmployees"
+                                            
+                                            class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 mr-3"
+                                        />
                                         <div class="flex-shrink-0 h-10 w-10">
                                             <div class="h-10 w-10 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold text-sm">
                                                 {{ employee.first_name[0] }}{{ employee.last_name[0] }}
@@ -363,6 +512,33 @@ const getHeaderText = () => {
                         <p class="mt-2">
                             {{ searchQuery ? 'Aucun employé trouvé pour cette recherche.' : 'Aucun employé disponible pour cette période.' }}
                         </p>
+                    </div>
+                </div>
+
+                <!-- Actions en masse -->
+                <div v-if="canBulkAction" class="flex items-center justify-between bg-white border-t px-6 py-4">
+                    <div class="text-sm text-gray-700">
+                        {{ selectedEmployees.length }} employé(s) sélectionné(s)
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <button 
+                            v-if="canBulkEntry"
+                            @click="bulkEntry"
+                            class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium">
+                            Saisie groupée
+                        </button>
+                        <button 
+                            v-if="canBulkSubmit"
+                            @click="bulkSubmit"
+                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium">
+                            Soumettre les timesheets
+                        </button>
+                        <button 
+                            v-if="canBulkValidate"
+                            @click="bulkValidate"
+                            class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium">
+                            Valider les timesheets
+                        </button>
                     </div>
                 </div>
             </div>
