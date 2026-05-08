@@ -127,6 +127,15 @@ const activateUsers = () => {
             Affectations plannings
         </Link>
 
+        <Link
+            :href="route('timesheets.index')"
+            :class="[isRouteActive('timesheets.index') ? 'bg-slate-800 text-white' : 'hover:bg-slate-800']"
+            class="flex items-center p-3 rounded-xl transition"
+>
+<i class="pi pi-link mr-3"></i>
+            timesheets
+</Link>
+
         <!-- Activation comptes -->
         <Link
             :href="route('no_users')"

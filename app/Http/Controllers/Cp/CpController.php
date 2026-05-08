@@ -4,50 +4,51 @@ namespace App\Http\Controllers\Cp;
 
 use App\Http\Controllers\Controller;
 use App\Models\Assignment;
-use App\Models\Campaign;
 use App\Models\Employee;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Notification;
 
 class CpController extends Controller
 {
-public function index()
-{
-    $cpEmployee = Employee::where('user_id', auth()->id())->first();
+    public function index()
+    {
+        // 🔥 récupérer l'employé du CP connecté
+        $cpEmployee = Employee::where('user_id', auth()->id())->first();
 
-    // 1. Assignments du CP
-    $assignments = Assignment::with(['employee', 'campaign'])
-        ->where('manager_id', $cpEmployee->id)
-        ->latest()
-        ->get();
+        // ✅ Sécurité anti erreur 500
+        if (!$cpEmployee) {
+            abort(403, 'Aucun profil employé associé à cet utilisateur.');
+        }
 
-    // 2. Employés du CP
-    $employees = Employee::whereHas('assignments', function ($q) use ($cpEmployee) {
-        $q->where('manager_id', $cpEmployee->id);
-    })->get();
+        // 1️⃣ Assignments du CP
+        $assignments = Assignment::with(['employee', 'campaign'])
+            ->where('manager_id', $cpEmployee->id)
+            ->latest()
+            ->get();
 
-    // 3. PLANNINGS (IMPORTANT)
-    // 👉 si planning est dans campaign
-    $plannings = Assignment::with(['campaign'])
-        ->where('manager_id', $cpEmployee->id)
-        ->whereHas('campaign', function ($q) {
-            $q->whereNotNull('id'); // adapte si status planning existe
-        })
-        ->get();
+        // 2️⃣ Employés du CP
+        $employees = Employee::whereHas('assignments', function ($q) use ($cpEmployee) {
+            $q->where('manager_id', $cpEmployee->id);
+        })->get();
 
-    return Inertia::render('Dashboard/CPDashboard', [
-        'stats' => [
-            'employees_count' => $employees->count(),
-            'campaigns_count' => $assignments->pluck('campaign_id')->unique()->count(),
-            'pending_count'   => $assignments->where('status', 'pending')->count(),
-        ],
+        // 3️⃣ Plannings
+        $plannings = Assignment::with(['campaign'])
+            ->where('manager_id', $cpEmployee->id)
+            ->whereHas('campaign', function ($q) {
+                $q->whereNotNull('id');
+            })
+            ->get();
 
-        'my_teams' => $employees,
+        return Inertia::render('Dashboard/CPDashboard', [
+            'stats' => [
+                'employees_count' => $employees->count(),
+                'campaigns_count' => $assignments->pluck('campaign_id')->unique()->count(),
+                'pending_count'   => $assignments->where('status', 'pending')->count(),
+            ],
 
-        // 👇 AJOUT IMPORTANT
-        'assignments' => $assignments,
-        'plannings' => $plannings,
-    ]);
-}
+            'my_teams'   => $employees,
+            'assignments'=> $assignments,
+            'plannings'  => $plannings,
+        ]);
+    }
 }

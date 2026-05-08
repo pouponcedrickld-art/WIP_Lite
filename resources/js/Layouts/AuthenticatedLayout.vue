@@ -161,6 +161,12 @@ watch(
                                 >
                                     Dashboard
                                 </NavLink>
+                                <NavLink
+                                    :href="route('timesheets.index')"
+                                    :active="route().current('timesheets.*')"
+                                >
+                                    Timesheets
+                                </NavLink>
                             </div>
 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
     <NavLink
@@ -231,6 +237,12 @@ watch(
                             :active="route().current(dashboardRoute)"
                         >
                             Dashboard
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            :href="route('timesheets.index')"
+                            :active="route().current('timesheets.*')"
+                        >
+                            Timesheets
                         </ResponsiveNavLink>
                     </div>
 
