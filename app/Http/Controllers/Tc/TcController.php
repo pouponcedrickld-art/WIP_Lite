@@ -35,4 +35,9 @@ class TcController extends Controller
             ]),
     ]);
     }
+
+    public function planning()
+    {
+        return Inertia::render('Dashboard/TCDashboard');
+    }
 }

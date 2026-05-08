@@ -25,7 +25,10 @@ import { ref, computed,watch } from 'vue';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { usePage } from '@inertiajs/vue3';
 import { useToast } from 'primevue/usetoast';
+import Paginator from 'primevue/paginator';
 
+const currentPage = ref(1);
+const rowsPerPage = ref(5);
 
 
 const props = defineProps({
@@ -155,13 +158,22 @@ const weekOptions = computed(() => {
 
 const filteredEmployees = computed(() => {
     if (!searchQuery.value) return props.employees;
-    
-    const query = searchQuery.value.toLowerCase();
-    return props.employees.filter(employee => 
-        employee.first_name.toLowerCase().includes(query) ||
-        employee.last_name.toLowerCase().includes(query) ||
-        employee.matricule.toLowerCase().includes(query)
+
+    const q = searchQuery.value.toLowerCase();
+
+    return props.employees.filter(e =>
+        e.first_name.toLowerCase().includes(q) ||
+        e.last_name.toLowerCase().includes(q) ||
+        e.matricule.toLowerCase().includes(q)
     );
+});
+
+/* ======================
+   PAGINATION
+====================== */
+const paginatedEmployees = computed(() => {
+    const start = (currentPage.value - 1) * rowsPerPage.value;
+    return filteredEmployees.value.slice(start, start + rowsPerPage.value);
 });
 
 const changeWeek = () => {
@@ -381,7 +393,7 @@ const getHeaderText = () => {
         </div>
 
         <!-- Main Content -->
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="max-w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <!-- Filtre de recherche -->
             <div class="bg-white rounded-lg shadow-sm border p-4 mb-6">
                 <div class="flex items-center space-x-4">
@@ -432,7 +444,7 @@ const getHeaderText = () => {
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-200">
-                            <tr v-for="employee in filteredEmployees" :key="employee.id" class="hover:bg-gray-50">
+                            <tr v-for="employee in paginatedEmployees" :key="employee.id" class="hover:bg-gray-50">
                                 <!-- Employé -->
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
@@ -501,6 +513,16 @@ const getHeaderText = () => {
                             </tr>
                         </tbody>
                     </table>
+<Paginator
+    :first="(currentPage - 1) * rowsPerPage"
+    :rows="rowsPerPage"
+    :totalRecords="filteredEmployees.length"
+    :rowsPerPageOptions="[5, 10, 20]"
+    @page="(e) => {
+        currentPage = e.page + 1;
+        rowsPerPage = e.rows;
+    }"
+/>
                 </div>
                 
                 <!-- Message si vide -->

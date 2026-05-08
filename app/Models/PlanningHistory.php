@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PlanningHistory extends Model
 {
-    // Si votre table s'appelle 'planning_historys' (selon votre migration précédente)
+   
     protected $table = 'planning_historys';
 
     protected $fillable = [

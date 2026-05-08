@@ -33,19 +33,21 @@ public function index(Request $request)
     $query = Employee::query();
 
     // Logique de filtrage selon le rôle
+if ($role !== 'admin') {
+
+    $query->whereHas('assignments', function($q) use ($user) {
+        $q->where('manager_id', $user->employee->id)
+          ->where('status', 'actif');
+    });
+
     if ($role === 'sup') {
-        $query->whereHas('assignments', function($q) use ($user) {
-            $q->where('manager_id', $user->employee->id)->where('status', 'actif');
-        })->whereHas('position', function($q) {
-            $q->where('code', 'TC');
-        });
-    } elseif ($role === 'cp') {
-        $query->whereHas('assignments', function($q) use ($user) {
-            $q->where('manager_id', $user->employee->id)->where('status', 'actif');
-        })->whereHas('position', function($q) {
-            $q->where('code', 'SUP');
-        });
+        $query->whereHas('position', fn($q) => $q->where('code', 'TC'));
     }
+
+    if ($role === 'cp') {
+        $query->whereHas('position', fn($q) => $q->where('code', 'SUP'));
+    }
+}
 
     // Récupération des subordonnés
     $subordinates = ($role === 'tc') ? collect() : $query->with(['position'])->get();

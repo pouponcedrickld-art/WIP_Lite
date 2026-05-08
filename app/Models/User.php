@@ -10,10 +10,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+
+
 // #[Fillable(['name', 'email', 'password'])]
 // #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
+    use Notifiable;
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
@@ -28,6 +31,7 @@ class User extends Authenticatable
         'password',
         'role_id',
         'email_verified_at',
+        'status'
     ];
 
     protected $hidden = [
@@ -45,11 +49,20 @@ class User extends Authenticatable
     public function role()
     {
         return $this->belongsTo(Role::class);
+
     }
 
-    // AJOUTE CECI :
-    public function employee()
-    {
-        return $this->hasOne(Employee::class);
-    }
+// AJOUTE CECI :
+public function employee()
+{
+    return $this->hasOne(Employee::class);
+}
+
+
+    public function reportings()
+{
+    // On utilise HasMany car un agent peut créer plusieurs rapports
+    return $this->hasMany(Reporting::class);
+}
+
 }

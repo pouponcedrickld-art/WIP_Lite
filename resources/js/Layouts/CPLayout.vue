@@ -1,15 +1,34 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import OverlayPanel from 'primevue/overlaypanel';
 import Button from 'primevue/button';
+import Toast from 'primevue/toast';
+import { useToast } from 'primevue/usetoast';
 
 const op = ref();
 const page = usePage();
+const toast = useToast();
+
+// Surveiller les messages flash
+watch(
+    () => page.props.flash,
+    (flash) => {
+        if (flash?.success) {
+            toast.add({ severity: 'success', summary: 'Succès', detail: flash.success, life: 4000 });
+        }
+        if (flash?.error) {
+            toast.add({ severity: 'error', summary: 'Erreur', detail: flash.error, life: 4000 });
+        }
+    },
+    { deep: true, immediate: true }
+);
+
 const isActive = (route) => page.url.startsWith(route);
 </script>
 
 <template>
+  <Toast position="top-center" />
   <div class="min-h-screen bg-slate-50 flex font-sans antialiased">
     
     <!-- Sidebar CP (Style Vert Émeraude pour différencier) -->
@@ -41,13 +60,36 @@ const isActive = (route) => page.url.startsWith(route);
           <i class="pi pi-check-square mr-3" :class="isActive('/cp/planning-validation') ? 'text-emerald-400' : 'text-emerald-600'"></i>
           <span class="font-medium">Validations</span>
         </Link>
+<Link href="/cp/planning-validation" 
+      :class="[isActive('/cp/planning-validation') ? 'bg-emerald-900 text-white' : 'hover:bg-emerald-900/50 hover:text-white']"
+      class="flex items-center p-3 rounded-xl transition-all group">
+  <i class="pi pi-check-square mr-3" :class="isActive('/cp/planning-validation') ? 'text-emerald-400' : 'text-emerald-600'"></i>
+  <span class="font-medium">Validations</span>
+</Link>
 
-        <Link href="/timesheets" 
-              :class="[isActive('/timesheets') ? 'bg-emerald-900 text-white' : 'hover:bg-emerald-900/50 hover:text-white']"
-              class="flex items-center p-3 rounded-xl transition-all group">
-          <i class="pi pi-clock mr-3" :class="isActive('/timesheets') ? 'text-emerald-400' : 'text-emerald-600'"></i>
-          <span class="font-medium">Timesheets</span>
-        </Link>
+<!-- TIMESHEETS -->
+<Link href="/timesheets" 
+      :class="[isActive('/timesheets') ? 'bg-emerald-900 text-white' : 'hover:bg-emerald-900/50 hover:text-white']"
+      class="flex items-center p-3 rounded-xl transition-all group">
+  <i class="pi pi-clock mr-3" :class="isActive('/timesheets') ? 'text-emerald-400' : 'text-emerald-600'"></i>
+  <span class="font-medium">Timesheets</span>
+</Link>
+
+<!-- PLANNING MODELS -->
+<Link href="/planning-models"
+      :class="[isActive('/planning-models') ? 'bg-emerald-900 text-white' : 'hover:bg-emerald-900/50 hover:text-white']"
+      class="flex items-center p-3 rounded-xl transition-all group">
+  <i class="pi pi-table mr-3" :class="isActive('/planning-models') ? 'text-emerald-400' : 'text-emerald-600'"></i>
+  <span class="font-medium">Modèles Planning</span>
+</Link>
+
+<!-- PLANNING ASSIGNMENTS -->
+<Link href="/planning-assignments"
+      :class="[isActive('/planning-assignments') ? 'bg-emerald-900 text-white' : 'hover:bg-emerald-900/50 hover:text-white']"
+      class="flex items-center p-3 rounded-xl transition-all group">
+  <i class="pi pi-users mr-3" :class="isActive('/planning-assignments') ? 'text-emerald-400' : 'text-emerald-600'"></i>
+  <span class="font-medium">Affectations</span>
+</Link>
       </nav>
 
       <div class="p-4 border-t border-emerald-900/50">

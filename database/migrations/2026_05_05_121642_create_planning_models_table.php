@@ -13,7 +13,7 @@ return new class extends Migration {
     {
         Schema::create('planning_models', function (Blueprint $table) {
             $table->id();
-            $table->string('name'); // ex: "Semaine Standard 40h"
+            $table->string('name')->unique(); // ex: "Semaine Standard 40h"
             $table->text('description')->nullable();
             // Heures prévues par jour
             $table->decimal('monday_hours', 4, 2)->default(0);
