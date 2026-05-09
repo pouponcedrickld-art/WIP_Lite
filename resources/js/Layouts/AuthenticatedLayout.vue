@@ -12,21 +12,21 @@ import Toast from 'primevue/toast';
 // Service toast PrimeVue pour afficher les messages
 import { useToast } from 'primevue/usetoast';
 import { Link} from '@inertiajs/vue3'; // Ajout de usePage
-
-
+ 
+ 
 // État pour le menu hamburger (mobile)
 const showingNavigationDropdown = ref(false);
-
+ 
 // Récupérer le service toast PrimeVue
 const toast = useToast();
-
+ 
 // Récupérer l'objet page d'Inertia qui contient les props partagées
-
-
+ 
+ 
 /**
  * Fonction pour afficher les toasts basés sur les messages flash.
  * Elle est appelée au montage et à chaque changement de page.props.
- * 
+ *
  * Les messages flash sont définis côté serveur via :
  * - redirect()->with('success', 'Message...')
  * - redirect()->with('error', 'Message...')
@@ -35,10 +35,10 @@ const toast = useToast();
  */
 const displayFlashToasts = () => {
     const flash = page.props.flash;
-    
+   
     // Ne rien faire si flash est vide
     if (!flash) return;
-
+ 
     // Afficher le toast de succès (vert) - ex: création, modification, suppression
     if (flash.success) {
         toast.add({
@@ -48,7 +48,7 @@ const displayFlashToasts = () => {
             life: 4000,
         });
     }
-
+ 
     // Afficher le toast d'erreur (rouge) - ex: exception serveur
     if (flash.error) {
         toast.add({
@@ -58,7 +58,7 @@ const displayFlashToasts = () => {
             life: 5000,
         });
     }
-
+ 
     // Afficher le toast d'information (bleu) - ex: message neutre
     if (flash.info) {
         toast.add({
@@ -68,7 +68,7 @@ const displayFlashToasts = () => {
             life: 4000,
         });
     }
-
+ 
     // Afficher le toast d'avertissement (orange) - ex: action partielle
     if (flash.warning) {
         toast.add({
@@ -79,7 +79,7 @@ const displayFlashToasts = () => {
         });
     }
 };
-
+ 
 /**
  * Au montage du layout, afficher les toasts s'il y en a.
  * Cela capture les messages flash du premier chargement de la page.
@@ -87,12 +87,12 @@ const displayFlashToasts = () => {
 onMounted(() => {
     displayFlashToasts();
 });
-
+ 
 /**
  * Surveiller les changements dans page.props.
  * À chaque navigation Inertia (redirect, lien, formulaire), les props changent
  * et on affiche automatiquement les toasts correspondants.
- * 
+ *
  * deep: true permet de détecter les mutations profondes dans les objets imbriqués.
  */
 watch(
@@ -103,12 +103,12 @@ watch(
     { deep: true }
 );
 const page = usePage();
-
+ 
 // Détermine dynamiquement la route du dashboard selon le rôle
 const dashboardRoute = computed(() => {
     const user = page.props.auth.user;
     if (!user || !user.role) return 'login';
-    
+   
     // Mapping basé sur ton fichier web.php
     const roleRoutes = {
         'admin': 'admin.dashboard',
@@ -116,10 +116,10 @@ const dashboardRoute = computed(() => {
         'sup': 'sup.dashboard',
         'tc': 'tc.dashboard'
     };
-
+ 
     return roleRoutes[user.role.name] || 'login';
 });
-
+ 
 // Surveiller les messages flash
 watch(
     () => page.props.flash,
@@ -134,7 +134,7 @@ watch(
     { deep: true, immediate: true }
 );
 </script>
-
+ 
 <template>
     <div>
         <Toast position="top-center" />
@@ -151,7 +151,7 @@ watch(
                                     <ApplicationLogo class="block h-9 w-auto fill-current text-gray-800" />
                                 </Link>
                             </div>
-
+ 
                             <!-- Navigation Links -->
                             <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                 <!-- Changement : route(dashboardRoute) et current(dashboardRoute) -->
@@ -160,12 +160,6 @@ watch(
                                     :active="route().current(dashboardRoute)"
                                 >
                                     Dashboard
-                                </NavLink>
-                                <NavLink
-                                    :href="route('timesheets.index')"
-                                    :active="route().current('timesheets.*')"
-                                >
-                                    Timesheets
                                 </NavLink>
                             </div>
 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
@@ -189,7 +183,7 @@ watch(
     </NavLink>
 </div>
                         </div>
-
+ 
                         <div class="hidden sm:ms-6 sm:flex sm:items-center">
                             <!-- Settings Dropdown -->
                             <div class="relative ms-3">
@@ -207,7 +201,7 @@ watch(
                                             </button>
                                         </span>
                                     </template>
-
+ 
                                     <template #content>
                                         <DropdownLink :href="route('profile.edit')"> Profile </DropdownLink>
                                         <DropdownLink :href="route('logout')" method="post" as="button"> Log Out </DropdownLink>
@@ -215,7 +209,7 @@ watch(
                                 </Dropdown>
                             </div>
                         </div>
-
+ 
                         <!-- Hamburger -->
                         <div class="-me-2 flex items-center sm:hidden">
                             <button @click="showingNavigationDropdown = !showingNavigationDropdown" class="inline-flex items-center justify-center rounded-md p-2 text-gray-400 transition duration-150 ease-in-out hover:bg-gray-100 hover:text-gray-500 focus:bg-gray-100 focus:text-gray-500 focus:outline-none">
@@ -227,7 +221,7 @@ watch(
                         </div>
                     </div>
                 </div>
-
+ 
                 <!-- Responsive Navigation Menu -->
                 <div :class="{ block: showingNavigationDropdown, hidden: !showingNavigationDropdown }" class="sm:hidden">
                     <div class="space-y-1 pb-3 pt-2">
@@ -238,14 +232,8 @@ watch(
                         >
                             Dashboard
                         </ResponsiveNavLink>
-                        <ResponsiveNavLink
-                            :href="route('timesheets.index')"
-                            :active="route().current('timesheets.*')"
-                        >
-                            Timesheets
-                        </ResponsiveNavLink>
                     </div>
-
+ 
                     <div class="border-t border-gray-200 pb-1 pt-4">
                         <div class="px-4">
                             <div class="text-base font-medium text-gray-800">{{ $page.props.auth.user?.name }}</div>
@@ -258,16 +246,17 @@ watch(
                     </div>
                 </div>
             </nav>
-
+ 
             <header class="bg-white shadow" v-if="$slots.header">
                 <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
                     <slot name="header" />
                 </div>
             </header>
-
+ 
             <main>
                 <slot />
             </main>
         </div>
     </div>
 </template>
+ 

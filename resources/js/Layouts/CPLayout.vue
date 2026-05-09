@@ -40,55 +40,79 @@ const isActive = (route) => page.url.startsWith(route);
       <nav class="flex-1 p-4 space-y-1">
         <p class="text-[10px] uppercase tracking-widest text-emerald-500 font-bold mb-4 px-3">Pilotage</p>
         
-        <Link href="/cp/dashboard" 
-              :class="[isActive('/cp/dashboard') ? 'bg-emerald-900 text-white' : 'hover:bg-emerald-900/50 hover:text-white']"
-              class="flex items-center p-3 rounded-xl transition-all group">
-          <i class="pi pi-th-large mr-3" :class="isActive('/cp/dashboard') ? 'text-emerald-400' : 'text-emerald-600'"></i>
-          <span class="font-medium">Vue d'ensemble</span>
-        </Link>
-
-        <Link href="/cp/my-campaigns" 
-              :class="[isActive('/cp/my-campaigns') ? 'bg-emerald-900 text-white' : 'hover:bg-emerald-900/50 hover:text-white']"
-              class="flex items-center p-3 rounded-xl transition-all group">
-          <i class="pi pi-briefcase mr-3" :class="isActive('/cp/my-campaigns') ? 'text-emerald-400' : 'text-emerald-600'"></i>
-          <span class="font-medium">Mes Campagnes</span>
-        </Link>
-
+        <Link
+  :href="route('cp.dashboard')"
+  :class="[isActive('/cp/dashboard') ? 'bg-orange-600 text-white shadow-lg shadow-orange-950/50' : 'hover:bg-orange-900/50 hover:text-white']"
+  class="flex items-center p-4 rounded-2xl transition-all duration-300 group"
+>
+                    <i
+                        class="pi pi-th-large mr-4 text-xl"
+                        :class="
+                            isActive('cp.dashboard')
+                                ? 'text-white'
+                                : 'text-orange-400 group-hover:text-white'
+                        "
+                    ></i>
+                    <span class="font-bold tracking-tight">Dashboard</span>
+                </Link>
+ 
+                <!-- Campagnes -->
+                <Link
+  :href="route('campaigns.index')"
+  :class="[isActive('/campaigns') ? 'bg-orange-600 text-white shadow-lg shadow-orange-950/50' : 'hover:bg-orange-900/50 hover:text-white']"
+  class="flex items-center p-4 rounded-2xl transition-all duration-300 group"
+>
+                    <i
+                        class="pi pi-flag mr-4 text-xl"
+                        :class="
+                            isActive('campaigns.*')
+                                ? 'text-white'
+                                : 'text-orange-400 group-hover:text-white'
+                        "
+                    ></i>
+                    <span class="font-bold tracking-tight">Campagnes</span>
+                </Link>
+ 
+                <!-- Affectations -->
+                <Link
+  :href="route('assignments.index')"
+  :class="[isActive('/assignments') ? 'bg-orange-600 text-white shadow-lg shadow-orange-950/50' : 'hover:bg-orange-900/50 hover:text-white']"
+  class="flex items-center p-4 rounded-2xl transition-all duration-300 group"
+>
+                    <i
+                        class="pi pi-users mr-4 text-xl"
+                        :class="
+                            isActive('assignments.*')
+                                ? 'text-white'
+                                : 'text-orange-400 group-hover:text-white'
+                        "
+                    ></i>
+                    <span class="font-bold tracking-tight">Mes Équipes</span>
+                </Link>
         <Link href="/cp/planning-validation" 
               :class="[isActive('/cp/planning-validation') ? 'bg-emerald-900 text-white' : 'hover:bg-emerald-900/50 hover:text-white']"
               class="flex items-center p-3 rounded-xl transition-all group">
           <i class="pi pi-check-square mr-3" :class="isActive('/cp/planning-validation') ? 'text-emerald-400' : 'text-emerald-600'"></i>
           <span class="font-medium">Validations</span>
         </Link>
-<Link href="/cp/planning-validation" 
-      :class="[isActive('/cp/planning-validation') ? 'bg-emerald-900 text-white' : 'hover:bg-emerald-900/50 hover:text-white']"
-      class="flex items-center p-3 rounded-xl transition-all group">
-  <i class="pi pi-check-square mr-3" :class="isActive('/cp/planning-validation') ? 'text-emerald-400' : 'text-emerald-600'"></i>
-  <span class="font-medium">Validations</span>
-</Link>
-
-<!-- TIMESHEETS -->
-<Link href="/timesheets" 
-      :class="[isActive('/timesheets') ? 'bg-emerald-900 text-white' : 'hover:bg-emerald-900/50 hover:text-white']"
-      class="flex items-center p-3 rounded-xl transition-all group">
-  <i class="pi pi-clock mr-3" :class="isActive('/timesheets') ? 'text-emerald-400' : 'text-emerald-600'"></i>
-  <span class="font-medium">Timesheets</span>
-</Link>
-
-<!-- PLANNING MODELS -->
-<Link href="/planning-models"
+      <Link href="/planning-models"
       :class="[isActive('/planning-models') ? 'bg-emerald-900 text-white' : 'hover:bg-emerald-900/50 hover:text-white']"
       class="flex items-center p-3 rounded-xl transition-all group">
   <i class="pi pi-table mr-3" :class="isActive('/planning-models') ? 'text-emerald-400' : 'text-emerald-600'"></i>
   <span class="font-medium">Modèles Planning</span>
 </Link>
 
-<!-- PLANNING ASSIGNMENTS -->
 <Link href="/planning-assignments"
       :class="[isActive('/planning-assignments') ? 'bg-emerald-900 text-white' : 'hover:bg-emerald-900/50 hover:text-white']"
       class="flex items-center p-3 rounded-xl transition-all group">
   <i class="pi pi-users mr-3" :class="isActive('/planning-assignments') ? 'text-emerald-400' : 'text-emerald-600'"></i>
   <span class="font-medium">Affectations</span>
+</Link>
+<Link href="route('timesheets.index')"
+      :class="[isActive('/timesheets') ? 'bg-emerald-900 text-white' : 'hover:bg-emerald-900/50 hover:text-white']"
+      class="flex items-center p-3 rounded-xl transition-all group">
+  <i class="pi pi-users mr-3" :class="isActive('/timesheet') ? 'text-emerald-400' : 'text-emerald-600'"></i>
+  <span class="font-medium">Timesheet</span>
 </Link>
       </nav>
 
