@@ -12,7 +12,7 @@ const props = defineProps({
 });
 
 const page = usePage();
-const userRole = computed(() => page.props.auth.user.role.name);
+const userRole = computed(() => page.props.auth?.user?.role?.name || 'guest');
 
 // Déterminer le layout selon le rôle
 const currentLayout = computed(() => {
@@ -106,16 +106,16 @@ const currentLayout = computed(() => {
                                 <div v-for="as in campaign.assignments" :key="as.id" class="flex items-center justify-between p-4 bg-white border border-orange-100 rounded-2xl hover:shadow-md transition-all">
                                     <div class="flex items-center gap-3">
                                         <div class="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 font-bold text-xs">
-                                            {{ as.employee.first_name.charAt(0) }}
+                                            {{ as.employee?.first_name?.charAt(0) || '?' }}
                                         </div>
                                         <div>
-                                            <p class="text-xs font-black text-slate-800 uppercase">{{ as.employee.first_name }} {{ as.employee.last_name }}</p>
+                                            <p class="text-xs font-black text-slate-800 uppercase">{{ as.employee?.first_name }} {{ as.employee?.last_name }}</p>
                                             <p class="text-[9px] text-orange-500 font-bold uppercase">{{ as.position_id === 1 ? 'CP' : as.position_id === 2 ? 'SUP' : 'TC' }}</p>
                                         </div>
                                     </div>
                                     <div v-if="as.manager" class="text-right">
                                         <p class="text-[8px] text-slate-400 uppercase font-bold">Manager</p>
-                                        <p class="text-[10px] text-slate-600 font-bold">{{ as.manager.first_name }}</p>
+                                        <p class="text-[10px] text-slate-600 font-bold">{{ as.manager?.first_name }}</p>
                                     </div>
                                 </div>
                             </div>

@@ -1,6 +1,8 @@
 <script setup>
 import AdminLayout from "@/Layouts/AdminLayout.vue";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import CPLayout from "@/Layouts/CPLayout.vue";
+import SUPLayout from "@/Layouts/SUPLayout.vue";
 import TCLayout from "@/Layouts/TCLayout.vue";
 import { ref, computed, watch, onMounted} from "vue";
 import { useForm, router, Head } from "@inertiajs/vue3"; // Ajout de Head
@@ -23,7 +25,15 @@ const props = defineProps({
 });
 
 // Déterminer le layout selon le rôle
-const currentLayout = AdminLayout;
+const currentLayout = computed(() => {
+    switch(props.userRole) {
+        case 'admin': return AdminLayout;
+        case 'cp': return CPLayout;
+        case 'sup': return SUPLayout;
+        case 'tc': return TCLayout;
+        default: return AuthenticatedLayout;
+    }
+});
 
 const searchQuery = ref("");
 const selectedPositionFilter = ref(null);
@@ -36,22 +46,23 @@ const form = useForm({
     campaign_id: null,
     manager_id: null,
     position_id: null,
+    reason: "Affectation via Plateau"
 });
 
 // --- LOGIQUE DYNAMIQUE DU FORMULAIRE ---
 const selectedCampaignData = computed(() => {
-    return props.campaignsTree.find((c) => c.id === form.campaign_id);
+    return (props.campaignsTree || []).find((c) => c.id === form.campaign_id);
 });
 
 const availableManagers = computed(() => {
     if (!selectedCampaignData.value || !form.position_id) return [];
     if (form.position_id === 2) {
-        return selectedCampaignData.value.assignments.filter(
+        return (selectedCampaignData.value.assignments || []).filter(
             (a) => a.position_id === 1,
         );
     }
     if (form.position_id === 3) {
-        return selectedCampaignData.value.assignments.filter(
+        return (selectedCampaignData.value.assignments || []).filter(
             (a) => a.position_id === 2,
         );
     }
@@ -107,13 +118,14 @@ const vivierByPosition = computed(() => {
                 ? emp.position_id === selectedPositionFilter.value
                 : true;
 
-            return matchesSearch && matchesPosition;
+            // L'Admin voit tout le monde mais uniquement ceux qui sont ACTIFS
+            return matchesSearch && matchesPosition && emp.status === 'actif';
         }) || [];
 
     return {
-        CP: available.filter((e) => e.position_id === 1),
-        SUP: available.filter((e) => e.position_id === 2),
-        TC: available.filter((e) => e.position_id === 3),
+        CP: available.filter((e) => e.position_id === 2),
+        SUP: available.filter((e) => e.position_id === 3),
+        TC: available.filter((e) => e.position_id === 4),
     };
 });
 
@@ -459,9 +471,9 @@ onMounted(() => {
                         </button>
                         <button
                             v-for="pos in [
-                                { l: 'CP', v: 1 },
-                                { l: 'SUP', v: 2 },
-                                { l: 'TC', v: 3 },
+                                { l: 'CP (2)', v: 2 },
+                                { l: 'SUP (3)', v: 3 },
+                                { l: 'TC (4)', v: 4 },
                             ]"
                             :key="pos.v"
                             @click="selectedPositionFilter = pos.v"

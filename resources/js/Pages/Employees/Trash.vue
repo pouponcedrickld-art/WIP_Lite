@@ -182,13 +182,13 @@ const forceDeleteEmployee = () => {
 </script>
 
 <template>
-    <Head title="Employés Supprimés" />
+    <Head title="Historique & Suspendus" />
 
     <AdminLayout>
 
             <div class="flex justify-between items-center">
                 <h2 class="text-xl font-semibold leading-tight text-gray-800">
-                    Historique des Employés Supprimés
+                    Historique & Employés Suspendus
                 </h2>
                 <Link :href="route('employees.index')">
                     <Button
@@ -287,15 +287,15 @@ const forceDeleteEmployee = () => {
                             </template>
                         </Column>
 
-                        <!-- Colonne : Date de suppression -->
+                        <!-- Colonne : Date de suspension / suppression -->
                         <Column
-                            field="deleted_at"
-                            header="Date de suppression"
+                            field="updated_at"
+                            header="Date de suspension / suppression"
                             sortable
                         >
                             <template #body="{ data }">
                                 <span class="text-sm">
-                                    {{ formatDate(data.deleted_at) }}
+                                    {{ data.status === 'suspendu' ? formatDate(data.updated_at) : formatDate(data.deleted_at) }}
                                 </span>
                             </template>
                         </Column>

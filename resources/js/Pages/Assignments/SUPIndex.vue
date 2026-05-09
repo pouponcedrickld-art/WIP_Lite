@@ -47,6 +47,12 @@ const filteredVivier = computed(() => {
         return name.includes(searchQueryVivier.value.toLowerCase()) && emp.position_id === 3;
     });
 });
+const visibleCampaigns = computed(() => {
+    return props.campaignsTree.filter(campaign => {
+        const assignments = campaign.assignments || [];
+        return assignments.length > 0;
+    });
+});
 
 const openAssignModal = (emp) => {
     form.reset();
@@ -105,7 +111,7 @@ const handleRelease = (id) => {
                         </div>
                     </div>
 
-                    <div v-for="campaign in campaignsTree" :key="campaign.id" class="bg-white rounded-3xl border border-orange-100 p-8 shadow-sm">
+                    <div v-for="campaign in visibleCampaigns" :key="campaign.id" class="bg-white rounded-3xl border border-orange-100 p-8 shadow-sm">
                         <div class="flex justify-between items-center mb-8 pb-4 border-b border-orange-50">
                             <h2 class="text-xl font-bold text-slate-700">{{ campaign.name }}</h2>
                             <Tag :value="`${filteredTeam(campaign).length} Téléconseillers`" severity="warning" class="!bg-orange-50 !text-orange-600" />

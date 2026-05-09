@@ -16,7 +16,8 @@ import PrimeVue from "primevue/config";
 import ToastService from "primevue/toastservice";
 import ConfirmationService from "primevue/confirmationservice";
 import Tooltip from "primevue/tooltip";
-import BadgeDirective from "primevue/badgedirective";
+import Popover from "primevue/popover";
+import OverlayBadge from "primevue/overlaybadge";
 import Dialog from "primevue/dialog";
 
 import Aura from "@primeuix/themes/aura";
@@ -54,7 +55,8 @@ createInertiaApp({
             .use(ToastService)
             .use(ConfirmationService)
             .directive("tooltip", Tooltip)
-            .directive("badge", BadgeDirective)
+            .component("Popover", Popover)
+            .component("OverlayBadge", OverlayBadge)
             .component("Dialog", Dialog);
 
         return app.mount(el);

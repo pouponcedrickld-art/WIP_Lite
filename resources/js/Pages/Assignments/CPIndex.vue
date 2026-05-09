@@ -44,7 +44,12 @@ const availableManagers = computed(() => {
     const campaign = props.campaignsTree.find(c => c.id === form.campaign_id);
     return campaign ? campaign.assignments.filter(a => a.position_id === 2) : [];
 });
-
+const visibleCampaigns = computed(() => {
+    return props.campaignsTree.filter(campaign => {
+        const assignments = campaign.assignments || [];
+        return assignments.length > 0;
+    });
+});
 const getSUPs = (campaign) => campaign.assignments?.filter(a => a.position_id === 2) || [];
 const getTCs = (campaign, supId) => campaign.assignments?.filter(a => a.position_id === 3 && a.manager_id === supId) || [];
 
@@ -90,7 +95,7 @@ const handleRelease = (id) => {
                 <div class="flex-1 space-y-6">
                     <h1 class="text-2xl font-black text-slate-900 tracking-tighter uppercase">Gestion de mes équipes</h1>
                     
-                    <div v-for="campaign in campaignsTree" :key="campaign.id" class="bg-white rounded-3xl border border-orange-100 p-8 shadow-sm">
+                    <div v-for="campaign in visibleCampaigns" :key="campaign.id" class="bg-white rounded-3xl border border-orange-100 p-8 shadow-sm">
                         <h2 class="text-xl font-bold mb-6 flex items-center gap-3">
                             <div class="w-2 h-6 bg-orange-500 rounded-full"></div>
                             {{ campaign.name }}

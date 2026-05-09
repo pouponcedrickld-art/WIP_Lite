@@ -138,11 +138,11 @@ const activateUsers = () => {
 
         <!-- Activation comptes -->
         <Link
-            :href="route('no_users')"
+            :href="route('users.index')"
             class="flex items-center p-3 rounded-xl hover:bg-slate-800 transition"
         >
             <i class="pi pi-user-plus mr-3"></i>
-            Activation comptes
+            Gestion Utilisateurs
         </Link>
 
         <!-- Reporting -->

@@ -64,11 +64,12 @@ class AdminController extends Controller
 
     public function no_user(Request $request)
     {
-        // Récupérer les utilisateurs sans employés associés
-        $usersWithoutEmployees = \App\Models\User::whereDoesntHave('employee')->get();
+        // Récupérer les employés qui n'ont PAS d'utilisateur associé
+        $employesSansCompte = \App\Models\Employee::whereNull('user_id')->with('position')->get();
         
         return Inertia::render('Users/No_users', [
-            'users' => $usersWithoutEmployees
+            'employesSansCompte' => $employesSansCompte,
+            'roles' => \App\Models\Role::whereIn('name', ['cp', 'sup', 'tc'])->get()
         ]);
     }
 }

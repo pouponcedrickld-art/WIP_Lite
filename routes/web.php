@@ -147,21 +147,19 @@ Route::middleware(['auth', 'admin'])->group(function () {
 });
  
 Route::middleware(['auth', 'cp'])->group(function () {
- 
-    Route::get('/cp/dashboard', [CpController::class, 'index'])
-        ->name('cp.dashboard');
+    Route::get('/cp/dashboard', [CpController::class, 'index'])->name('cp.dashboard');
+    Route::get('/cp/planning-validation', [CpController::class, 'index'])->name('cp.planning-validation'); // Temporaire pour éviter 404
 });
  
 Route::middleware(['auth', 'sup'])->group(function () {
- 
-    Route::get('/sup/dashboard', [SupController::class, 'index'])
-        ->name('sup.dashboard');
+    Route::get('/sup/dashboard', [SupController::class, 'index'])->name('sup.dashboard');
+    Route::get('/sup/my-agents', [AssignmentController::class, 'index'])->name('sup.my-agents');
 });
  
 Route::middleware(['auth', 'tc'])->group(function () {
- 
     Route::get('/tc/dashboard', [TcController::class, 'index'])->name('tc.dashboard');
     Route::get('/tc/planning', [TcController::class, 'planning'])->name('tc.planning');
+    Route::get('/tc/my-planning', [TcController::class, 'planning'])->name('tc.my-planning');
 });
  
  

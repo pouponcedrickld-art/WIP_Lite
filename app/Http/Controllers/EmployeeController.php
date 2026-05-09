@@ -27,8 +27,10 @@ class EmployeeController extends Controller
      */
     public function index(Request $request)
     {
-        // Récupérer uniquement les employés NON supprimés
-        $query = Employee::withoutTrashed()->with(['position', 'user']);
+        // Récupérer uniquement les employés NON supprimés et NON suspendus
+        $query = Employee::withoutTrashed()
+            ->where('status', '!=', 'suspendu')
+            ->with(['position', 'user']);
 
         // Recherche par terme
         if ($request->filled('search')) {
@@ -75,10 +77,13 @@ class EmployeeController extends Controller
      */
     public function store(StoreEmployeeRequest $request): RedirectResponse
     {
-        $employee = $this->employeeService->create($request->validated());
-        auth()->user()->notify(new EmployeeCreatedNotification($employee));
         try {
             $employee = $this->employeeService->create($request->validated());
+            
+            // Notification (optionnel, vérifier si auth()->user() existe)
+            if (auth()->check()) {
+                auth()->user()->notify(new EmployeeCreatedNotification($employee));
+            }
 
             // Message de succès avec le nom de l'employé créé
             return redirect()->route('employees.index')
@@ -204,8 +209,13 @@ class EmployeeController extends Controller
      */
     public function trash(Request $request)
     {
-        // Récupérer uniquement les employés supprimés (soft deleted)
-        $query = Employee::onlyTrashed()->with(['position', 'user']);
+        // Récupérer les employés supprimés (soft deleted) OU suspendus
+        $query = Employee::withTrashed()
+            ->where(function($q) {
+                $q->onlyTrashed()
+                  ->orWhere('status', 'suspendu');
+            })
+            ->with(['position', 'user']);
 
         // Recherche par terme
         if ($request->filled('search')) {
@@ -237,17 +247,18 @@ class EmployeeController extends Controller
     public function restore(Request $request, $id): RedirectResponse
     {
         try {
-            // Récupérer l'employé supprimé (soft-deleted)
+            // Récupérer l'employé (soft-deleted ou suspendu)
             $employee = Employee::withTrashed()->findOrFail($id);
 
-            // Vérifier que l'employé est bien supprimé
-            if (!$employee->trashed()) {
-                return redirect()->back()
-                    ->with('warning', "Cet employé n'est pas supprimé.");
+            // Si l'employé est soft-deleted, on le restaure
+            if ($employee->trashed()) {
+                $employee->restore();
             }
 
-            // Restaurer l'employé
-            $employee->restore();
+            // Si le statut est suspendu, on le repasse en inactif par défaut (pour qu'il réapparaisse dans la liste)
+            if ($employee->status === 'suspendu') {
+                $employee->update(['status' => 'inactif']);
+            }
 
             // Message de succès avec le nom de l'employé restauré
             return redirect()->route('employees.trash')
