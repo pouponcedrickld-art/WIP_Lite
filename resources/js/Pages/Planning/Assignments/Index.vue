@@ -1,5 +1,5 @@
 <template>
-  <AppLayout title="Affectations Planning">
+  <CPLayout title="Affectations Planning">
     <ConfirmDialog />
 
     <div class="p-6">
@@ -136,14 +136,14 @@
 
     </div>
 
-  </AppLayout>
+  </CPLayout>
 </template>
 
 
 <script setup>
 import { useConfirm } from 'primevue/useconfirm'
 import { router } from '@inertiajs/vue3'
-import AppLayout from '@/Layouts/AdminLayout.vue'
+import CPLayout from '@/Layouts/CPLayout.vue'
 // Assure-toi que ces imports correspondent à ta version de PrimeVue
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'

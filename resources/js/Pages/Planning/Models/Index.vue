@@ -1,5 +1,5 @@
 <template>
-  <AppLayout title="Modèles de Planning">
+  <CPLayout title="Modèles de Planning">
      <ConfirmDialog />
     <div class="p-6">
 
@@ -67,14 +67,14 @@
 
  
 
-  </AppLayout>
+  </CPLayout>
 </template>
 
 <script setup>
 import { Button, DataTable, Column, Tag, Message } from 'primevue'
 import { useConfirm } from 'primevue/useconfirm'
 import { router } from '@inertiajs/vue3'
-import AppLayout from '@/Layouts/AdminLayout.vue'
+import CPLayout from '@/Layouts/CPLayout.vue'
 import { ConfirmDialog } from 'primevue'
 
 const props = defineProps({
