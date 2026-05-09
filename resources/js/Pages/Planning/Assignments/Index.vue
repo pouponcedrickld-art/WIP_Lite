@@ -1,5 +1,5 @@
 <template>
-  <CPLayout title="Affectations Planning">
+  
     <ConfirmDialog />
 
     <div class="p-6">
@@ -136,14 +136,14 @@
 
     </div>
 
-  </CPLayout>
+
 </template>
 
 
 <script setup>
 import { useConfirm } from 'primevue/useconfirm'
 import { router } from '@inertiajs/vue3'
-import CPLayout from '@/Layouts/CPLayout.vue'
+// import AppLayout from '@/Layouts/AdminLayout.vue'
 // Assure-toi que ces imports correspondent à ta version de PrimeVue
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
@@ -196,3 +196,27 @@ const terminer = (assignment) => {
 }
 </script>
 
+<script>
+import CPLayout from '@/Layouts/CPLayout.vue';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
+import SUPLayout from '@/Layouts/SUPLayout.vue';
+import TClayout from '@/Layouts/TCLayout.vue';
+
+export default {
+    layout: (h, page) => {
+        const layouts = {
+            cp: CPLayout,
+            sup: SUPLayout,
+            tc: TClayout,
+            admin: AdminLayout
+        };
+
+        // ✅ FIX ICI
+        const role = page.props.auth?.user?.role?.name;
+
+        const selectedLayout = layouts[role] || TClayout;
+
+        return h(selectedLayout, [page]);
+    }
+}
+</script>

@@ -1,5 +1,5 @@
 <template>
-  <CPLayout title="Modèles de Planning">
+
      <ConfirmDialog />
     <div class="p-6">
 
@@ -67,14 +67,14 @@
 
  
 
-  </CPLayout>
+
 </template>
 
 <script setup>
 import { Button, DataTable, Column, Tag, Message } from 'primevue'
 import { useConfirm } from 'primevue/useconfirm'
 import { router } from '@inertiajs/vue3'
-import CPLayout from '@/Layouts/CPLayout.vue'
+
 import { ConfirmDialog } from 'primevue'
 
 const props = defineProps({
@@ -98,3 +98,27 @@ function confirmDelete(model) {
 }
 </script>
 
+<script>
+import CPLayout from '@/Layouts/CPLayout.vue';
+import AdminLayout from '@/Layouts/AdminLayout.vue';
+import SUPLayout from '@/Layouts/SUPLayout.vue';
+import TClayout from '@/Layouts/TCLayout.vue';
+
+export default {
+    layout: (h, page) => {
+        const layouts = {
+            cp: CPLayout,
+            sup: SUPLayout,
+            tc: TClayout,
+            admin: AdminLayout
+        };
+
+        // ✅ FIX ICI
+        const role = page.props.auth?.user?.role?.name;
+
+        const selectedLayout = layouts[role] || TClayout;
+
+        return h(selectedLayout, [page]);
+    }
+}
+</script>
