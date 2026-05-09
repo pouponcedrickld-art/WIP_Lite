@@ -70,9 +70,16 @@ class PlanningAssignmentController extends Controller
             $employees = Employee::where('status', 'actif')->get();
         }
 
+        // Filtrer les modèles de planning selon le rôle
+        $planningModelsQuery = PlanningModel::query();
+        if ($user->role->name === 'cp') {
+            $planningModelsQuery->where('created_by', $user->id);
+        }
+        $planningModels = $planningModelsQuery->get();
+
         return Inertia::render('Planning/Assignments/Create', [
             'employees' => $employees,
-            'planningModels' => PlanningModel::all(),
+            'planningModels' => $planningModels,
         ]);
     }
 
@@ -83,6 +90,25 @@ class PlanningAssignmentController extends Controller
         // Sécurité : Seuls Admin et CP peuvent créer
         if (!in_array(auth()->user()->role->name, ['admin', 'cp'])) {
             abort(403, 'Action non autorisée.');
+        }
+
+        $user = auth()->user();
+        $employee = $user->employee;
+
+        // Vérifier que le modèle appartient au CP s'il est CP
+        if ($user->role->name === 'cp') {
+            $model = PlanningModel::find($request->planning_model_id);
+            if (!$model || $model->created_by !== $user->id) {
+                abort(403, 'Modèle de planning non autorisé.');
+            }
+
+            // Vérifier que l'employé est sous sa responsabilité
+            $canAssign = \App\Models\Assignment::where('employee_id', $request->employee_id)
+                ->where('manager_id', $employee->id)
+                ->exists();
+            if (!$canAssign) {
+                abort(403, 'Employé non autorisé pour cette affectation.');
+            }
         }
 
         $conflict = PlanningAssignment::where('employee_id', $request->employee_id)
@@ -125,12 +151,36 @@ class PlanningAssignmentController extends Controller
 
     public function edit(PlanningAssignment $planningAssignment)
     {
+        $user = auth()->user();
+        $employee = $user->employee;
+
+        // Vérifier l'autorisation : CP ne peut éditer que ses affectations
+        if ($user->role->name === 'cp') {
+            $canEdit = $planningAssignment->validated_by === $employee->id ||
+                \App\Models\Assignment::where('employee_id', $planningAssignment->employee_id)
+                    ->where('manager_id', $employee->id)
+                    ->exists();
+            if (!$canEdit) {
+                abort(403, 'Accès non autorisé.');
+            }
+        }
+
         $planningAssignment->load(['employee', 'planningModel', 'validator']);
+
+        // Filtrer les employés et modèles selon le rôle
+        $employeesQuery = Employee::select('id', 'first_name', 'last_name', 'matricule')->where('status', 'actif');
+        $planningModelsQuery = PlanningModel::select('id', 'name', 'total_hours');
+
+        if ($user->role->name === 'cp') {
+            $employeeIds = \App\Models\Assignment::where('manager_id', $employee->id)->pluck('employee_id');
+            $employeesQuery->whereIn('id', $employeeIds);
+            $planningModelsQuery->where('created_by', $user->id);
+        }
 
         return Inertia::render('Planning/Assignments/Edit', [
             'assignment' => (new PlanningAssignmentResource($planningAssignment))->resolve(),
-            'employees' => Employee::select('id', 'first_name', 'last_name', 'matricule')->where('status', 'actif')->get(),
-            'planningModels' => PlanningModel::select('id', 'name', 'total_hours')->get(),
+            'employees' => $employeesQuery->get(),
+            'planningModels' => $planningModelsQuery->get(),
         ]);
     }
 
@@ -148,6 +198,26 @@ class PlanningAssignmentController extends Controller
 
     public function update(UpdatePlanningAssignmentRequest $request, PlanningAssignment $planningAssignment)
     {
+        $user = auth()->user();
+        $employee = $user->employee;
+
+        // Vérifier l'autorisation
+        if ($user->role->name === 'cp') {
+            $canEdit = $planningAssignment->validated_by === $employee->id ||
+                \App\Models\Assignment::where('employee_id', $planningAssignment->employee_id)
+                    ->where('manager_id', $employee->id)
+                    ->exists();
+            if (!$canEdit) {
+                abort(403, 'Accès non autorisé.');
+            }
+
+            // Vérifier que le modèle appartient au CP
+            $model = PlanningModel::find($request->planning_model_id);
+            if (!$model || $model->created_by !== $user->id) {
+                abort(403, 'Modèle de planning non autorisé.');
+            }
+        }
+
         $planningAssignment->update($request->validated());
 
         return redirect()
@@ -158,12 +228,26 @@ class PlanningAssignmentController extends Controller
 
     public function destroy(PlanningAssignment $planningAssignment)
     {
+        $user = auth()->user();
+        $employee = $user->employee;
+
         // Sécurité : Seuls Admin et CP peuvent supprimer
-        if (!in_array(auth()->user()->role->name, ['admin', 'cp'])) {
+        if (!in_array($user->role->name, ['admin', 'cp'])) {
             abort(403, 'Action non autorisée.');
         }
 
-        if ($planningAssignment->status === 'validé' && auth()->user()->role->name !== 'admin') {
+        // Vérifier l'autorisation pour CP
+        if ($user->role->name === 'cp') {
+            $canDelete = $planningAssignment->validated_by === $employee->id ||
+                \App\Models\Assignment::where('employee_id', $planningAssignment->employee_id)
+                    ->where('manager_id', $employee->id)
+                    ->exists();
+            if (!$canDelete) {
+                abort(403, 'Accès non autorisé.');
+            }
+        }
+
+        if ($planningAssignment->status === 'validé' && $user->role->name !== 'admin') {
             return back()->with('error', 'Seul un administrateur peut supprimer une affectation déjà validée.');
         }
 
