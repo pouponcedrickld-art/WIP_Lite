@@ -21,6 +21,7 @@ class UpdatePlanningAssignmentRequest extends FormRequest
             'employee_id' => 'sometimes|exists:employees,id',
             'start_date' => 'sometimes|date',
             'end_date' => 'nullable|date|after_or_equal:' . ($this->start_date ?? $assignment->start_date),
+            'status' => 'required|in:en attente,validé,suspendu,terminé',
         ];
     }
 

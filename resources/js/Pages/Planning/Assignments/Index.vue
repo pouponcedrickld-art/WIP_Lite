@@ -1,80 +1,21 @@
-<script setup>
-
-import { useConfirm } from 'primevue/useconfirm'
-import { useForm } from '@inertiajs/vue3'
-import AppLayout from '@/Layouts/AdminLayout.vue'
-import { Button, DataTable, Column, Tag, Message, ConfirmDialog } from 'primevue'
-
-const props = defineProps({
-  assignments: Object,
-})
-
-const confirm = useConfirm()
-
-function statusSeverity(status) {
-  const map = {
-    'en attente': 'warning',
-    'validé':     'success',
-    'suspendu':   'danger',
-    'terminé':    'secondary',
-  }
-  return map[status] ?? 'info'
-}
-
-function valider(assignment) {
-  confirm.require({
-    message: `Valider le planning de "${assignment.employee.name}" ?`,
-    header: 'Confirmation',
-    icon: 'pi pi-check-circle',
-    acceptLabel: 'Valider',
-    rejectLabel: 'Annuler',
-    accept: () => {
-      useForm({}).patch(route('planning-assignments.validate', assignment.id))
-    },
-  })
-}
-
-function suspendre(assignment) {
-  confirm.require({
-    message: `Suspendre le planning de "${assignment.employee.name}" ?`,
-    header: 'Confirmation',
-    icon: 'pi pi-pause',
-    acceptLabel: 'Suspendre',
-    rejectLabel: 'Annuler',
-    acceptClass: 'p-button-warning',
-    accept: () => {
-      useForm({}).patch(route('planning-assignments.suspend', assignment.id))
-    },
-  })
-}
-
-function terminer(assignment) {
-  confirm.require({
-    message: `Terminer le planning de "${assignment.employee.name}" ? Cette action est irréversible.`,
-    header: 'Confirmation',
-    icon: 'pi pi-exclamation-triangle',
-    acceptLabel: 'Terminer',
-    rejectLabel: 'Annuler',
-    acceptClass: 'p-button-danger',
-    accept: () => {
-      useForm({}).patch(route('planning-assignments.terminate', assignment.id))
-    },
-  })
-}
-</script>
-
 <template>
   <AppLayout title="Affectations Planning">
+    <ConfirmDialog />
+
     <div class="p-6">
 
       <!-- Header -->
       <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-bold text-gray-800">Affectations Planning</h1>
-        <Button
-          label="Nouvelle affectation"
-          icon="pi pi-plus"
-          @click="$inertia.visit(route('planning-assignments.create'))"
-        />
+        <!-- Seul l'admin crée des affectations -->
+        <!-- Remplacer l'ancienne condition par celle-ci -->
+<Button
+  v-if="['admin', 'cp'].includes($page.props.auth.user.role.name)"
+  label="Nouvelle affectation"
+  icon="pi pi-plus"
+  @click="$inertia.visit(route('planning-assignments.create'))"
+/>
+
       </div>
 
       <!-- Flash messages -->
@@ -86,13 +27,14 @@ function terminer(assignment) {
       </Message>
 
       <!-- Table -->
-      <DataTable
-        :value="assignments.data"
-        paginator
-        :rows="10"
-        stripedRows
-        class="shadow rounded-xl"
-      >
+     <DataTable
+  :value="assignments?.data || []"
+  paginator
+  :rows="10"
+  stripedRows
+  class="shadow rounded-xl"
+>
+
         <Column header="Employé">
           <template #body="{ data }">
             <div>
@@ -128,7 +70,7 @@ function terminer(assignment) {
           <template #body="{ data }">
             <div class="flex gap-2 flex-wrap">
 
-              <!-- Voir -->
+              <!-- Voir : Tout le monde peut voir -->
               <Button
                 icon="pi pi-eye"
                 severity="info"
@@ -137,19 +79,19 @@ function terminer(assignment) {
                 @click="$inertia.visit(route('planning-assignments.show', data.id))"
               />
 
-              <!-- Modifier -->
               <Button
-                icon="pi pi-pencil"
-                severity="warning"
-                text
-                v-tooltip="'Modifier'"
-                :disabled="data.status === 'validé'"
-                @click="$inertia.visit(route('planning-assignments.edit', data.id))"
-              />
+  v-if="['admin', 'cp'].includes($page.props.auth.user.role.name)"
+  icon="pi pi-pencil"
+  severity="warning"
+  text
+  v-tooltip="'Modifier'"
+  @click="$inertia.visit(route('planning-assignments.edit', data.id))"
+/>
 
-              <!-- Valider -->
+
+              <!-- Valider : Admin et CP -->
               <Button
-                v-if="data.status === 'en attente'"
+                v-if="['admin', 'cp'].includes($page.props.auth.user.role.name) && data.status === 'en attente'"
                 icon="pi pi-check"
                 severity="success"
                 text
@@ -157,9 +99,9 @@ function terminer(assignment) {
                 @click="valider(data)"
               />
 
-              <!-- Suspendre -->
+              <!-- Suspendre : Admin et CP -->
               <Button
-                v-if="data.status === 'validé'"
+                v-if="['admin', 'cp'].includes($page.props.auth.user.role.name) && data.status === 'validé'"
                 icon="pi pi-pause"
                 severity="warning"
                 text
@@ -167,9 +109,9 @@ function terminer(assignment) {
                 @click="suspendre(data)"
               />
 
-              <!-- Terminer -->
+              <!-- Terminer : Admin uniquement -->
               <Button
-                v-if="data.status !== 'terminé'"
+                v-if="$page.props.auth.user.role.name === 'admin' && data.status !== 'terminé'"
                 icon="pi pi-stop"
                 severity="danger"
                 text
@@ -177,8 +119,9 @@ function terminer(assignment) {
                 @click="terminer(data)"
               />
 
-              <!-- Historique -->
+              <!-- Historique : Admin et CP -->
               <Button
+                v-if="['admin', 'cp'].includes($page.props.auth.user.role.name)"
                 icon="pi pi-history"
                 severity="secondary"
                 text
@@ -195,4 +138,61 @@ function terminer(assignment) {
 
   </AppLayout>
 </template>
+
+
+<script setup>
+import { useConfirm } from 'primevue/useconfirm'
+import { router } from '@inertiajs/vue3'
+import AppLayout from '@/Layouts/AdminLayout.vue'
+// Assure-toi que ces imports correspondent à ta version de PrimeVue
+import DataTable from 'primevue/datatable'
+import Column from 'primevue/column'
+import Button from 'primevue/button'
+import Tag from 'primevue/tag'
+import Message from 'primevue/message'
+import ConfirmDialog from 'primevue/confirmdialog'
+
+const props = defineProps({
+  assignments: {
+    type: Object,
+    default: () => ({ data: [] }) // Évite le crash si undefined
+  },
+})
+
+const confirm = useConfirm()
+
+const statusSeverity = (status) => {
+  const map = {
+    'en attente': 'warning',
+    'validé':     'success',
+    'suspendu':   'danger',
+    'terminé':    'secondary',
+  }
+  return map[status] ?? 'info'
+}
+
+const valider = (assignment) => {
+  confirm.require({
+    message: `Valider le planning de "${assignment.employee.name}" ?`,
+    header: 'Confirmation',
+    accept: () => router.patch(route('planning-assignments.validate', assignment.id))
+  })
+}
+
+const suspendre = (assignment) => {
+  confirm.require({
+    message: `Suspendre le planning de "${assignment.employee.name}" ?`,
+    header: 'Confirmation',
+    accept: () => router.patch(route('planning-assignments.suspend', assignment.id))
+  })
+}
+
+const terminer = (assignment) => {
+  confirm.require({
+    message: `Terminer le planning de "${assignment.employee.name}" ?`,
+    header: 'Confirmation',
+    accept: () => router.patch(route('planning-assignments.terminate', assignment.id))
+  })
+}
+</script>
 

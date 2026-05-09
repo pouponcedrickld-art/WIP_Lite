@@ -1,5 +1,6 @@
 <template>
   <AppLayout title="Modèles de Planning">
+     <ConfirmDialog />
     <div class="p-6">
 
       <!-- Header -->

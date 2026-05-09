@@ -53,7 +53,7 @@ class PlanningModelController extends Controller
             'model' => (new PlanningModelResource($planningModel))->resolve(), // ✅
         ]);
     }
-
+ 
     public function update(UpdatePlanningModelRequest $request, PlanningModel $planningModel)
     {
         $planningModel->update($request->validated());
@@ -65,18 +65,22 @@ class PlanningModelController extends Controller
 
     public function destroy(PlanningModel $planningModel)
     {
-        $hasActiveAssignments = $planningModel->assignments()
-            ->whereIn('status', ['en attente', 'validé'])
-            ->exists();
-
-        if ($hasActiveAssignments) {
-            return back()->with('error', 'Impossible de supprimer ce modèle, il est utilisé dans des affectations actives.');
+        // 1. Vérification logique : Existe-t-il n'importe quelle assignation liée ?
+        if ($planningModel->assignments()->exists()) {
+            return back()->with('error', 'Impossible de supprimer ce modèle car il est lié à des affectations existantes (historiques ou actives).');
         }
 
-        $planningModel->delete();
+        try {
+            $planningModel->delete();
 
-        return redirect()
-            ->route('planning-models.index')
-            ->with('success', 'Modèle de planning supprimé avec succès.');
+            return redirect()
+                ->route('planning-models.index')
+                ->with('success', 'Modèle de planning supprimé avec succès.');
+
+        } catch (\Illuminate\Database\QueryException $e) {
+            // 2. Sécurité ultime : capture l'erreur SQL si la vérification ci-dessus échoue
+            return back()->with('error', 'Erreur de base de données : suppression impossible car ce modèle est référencé ailleurs.');
+        }
     }
+
 }

@@ -28,15 +28,20 @@ const planningModels = computed(() =>
 )
 
 const form = useForm({
-  employee_id:       props.assignment.employee?.id,
-  planning_model_id: props.assignment.planning_model?.id,
-  start_date:        props.assignment.start_date,
-  end_date:          props.assignment.end_date,
+  employee_id: a.value.employee?.id,
+  planning_model_id: a.value.planning_model?.id,
+  start_date: a.value.start_date,
+  end_date: a.value.end_date,
+  status: a.value.status,
 })
 
 function submit() {
   form.put(route('planning-assignments.update', props.assignment.id))
 }
+
+
+
+
 </script>
 
 <template>
@@ -88,6 +93,18 @@ function submit() {
                 <DatePicker v-model="form.end_date" dateFormat="dd/mm/yy" class="w-full" />
                 <small class="text-red-500">{{ form.errors.end_date }}</small>
               </div>
+            </div>
+
+            <!-- Statut (AJOUTÉ) -->
+            <div class="flex flex-col gap-1">
+              <label class="font-medium">Statut *</label>
+              <Dropdown
+                v-model="form.status"
+                :options="['en attente', 'validé', 'suspendu', 'terminé']"
+                placeholder="Sélectionner un statut"
+                class="w-full"
+              />
+              <small class="text-red-500">{{ form.errors.status }}</small>
             </div>
 
             <!-- Boutons -->
