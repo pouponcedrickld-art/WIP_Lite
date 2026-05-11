@@ -1,5 +1,5 @@
 <template>
-  <AppLayout title="Détail affectation">
+
     <div class="p-6 max-w-4xl mx-auto">
 
       <!-- Header -->
@@ -68,7 +68,7 @@
       </Card>
 
     </div>
-  </AppLayout>
+
 </template>
 
 <script setup>

@@ -12,26 +12,42 @@ use Inertia\Inertia;
 
 class AssignmentController extends Controller
 {
-public function index()
-{
-    // On ne récupère que les affectations ACTIVE dans l'arborescence
-    $tree = Campaign::with(['assignments' => function($query) {
-        $query->where('status', 'active') // C'est cette ligne qui évite les doublons visuels
-              ->with(['employee', 'manager']);
-    }])->get();
+    public function index()
+    {
+        $user = auth()->user();
+        $userRole = $user->role->name ?? 'guest';
 
-    // On ne récupère que les employés qui ne sont PAS déjà affectés activement
-    // On vérifie qu'ils n'ont pas d'assignation 'active'
-    $availableEmployees = Employee::whereDoesntHave('assignments', function($query) {
-        $query->where('status', 'active');
-    })->get();
+        // On ne récupère que les affectations ACTIVE dans l'arborescence
+        $tree = Campaign::with(['assignments' => function($query) {
+            $query->where('status', 'active')
+                  ->with(['employee', 'manager']);
+        }])->get();
 
-    return Inertia::render('Assignments/Index', [
-        'campaignsTree' => $tree,
-        'availableEmployees' => $availableEmployees,
-        'campaigns' => Campaign::where('status', 'active')->get()
-    ]);
-}
+        // On ne récupère que les employés qui ne sont PAS déjà affectés activement et qui sont ACTIFS
+        $availableEmployees = Employee::where('status', 'actif')
+            ->whereDoesntHave('assignments', function($query) {
+                $query->where('status', 'active');
+            })->get();
+
+        $campaigns = Campaign::where('status', 'active')->get();
+
+        // Redirection vers la vue spécifique selon le rôle
+        $view = 'Assignments/Index'; // Par défaut (Admin)
+        
+        if ($userRole === 'cp') {
+            $view = 'Assignments/CPIndex';
+        } elseif ($userRole === 'sup') {
+            $view = 'Assignments/SUPIndex';
+        }
+
+        return Inertia::render($view, [
+            'campaignsTree' => $tree,
+            'availableEmployees' => $availableEmployees,
+            'campaigns' => $campaigns,
+            'userRole' => $userRole,
+            'isAdmin' => $userRole === 'admin'
+        ]);
+    }
 
     public function store(Request $request)
     {

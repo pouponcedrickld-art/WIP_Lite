@@ -37,6 +37,7 @@ const page_num = ref(props.employees.current_page || 1);
 const rows = ref(props.employees.per_page || 10);
 
 const isFormLoading = ref(false);
+let searchTimeout = null;
 
 const statusOptions = [
     { label: "Tous les statuts", value: "" },
@@ -96,7 +97,14 @@ const onPage = (event) => {
     applyFilters(newPage, newRows);
 };
 
-watch([search, status, position_id], () => {
+watch(search, () => {
+    if (searchTimeout) clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+        applyFilters(1);
+    }, 500); // Délai de 500ms pour éviter trop de requêtes
+});
+
+watch([status, position_id], () => {
     applyFilters(1);
 });
 
@@ -147,11 +155,11 @@ const closeEditDialog = () => {
 const handleCreateSubmit = (form) => {
     isFormLoading.value = true;
     form.post(route("employees.store"), {
-        onFinish: () => {
-            isFormLoading.value = false;
+        onSuccess: () => {
             closeCreateDialog();
+            form.reset();
         },
-        onError: () => {
+        onFinish: () => {
             isFormLoading.value = false;
         },
     });
@@ -160,11 +168,10 @@ const handleCreateSubmit = (form) => {
 const handleEditSubmit = (form) => {
     isFormLoading.value = true;
     form.put(route("employees.update", employeeToEdit.value.id), {
-        onFinish: () => {
-            isFormLoading.value = false;
+        onSuccess: () => {
             closeEditDialog();
         },
-        onError: () => {
+        onFinish: () => {
             isFormLoading.value = false;
         },
     });
@@ -219,9 +226,9 @@ const executeStatusChange = () => {
                 <div class="flex gap-2">
                     <Link :href="route('employees.trash')">
                         <Button
-                            label="Employés Supprimés"
-                            icon="pi pi-trash"
-                            class="p-button-warning"
+                            label="Historique / Suspendus"
+                            icon="pi pi-history"
+                            class="p-button-secondary"
                         />
                     </Link>
                     <Button
@@ -366,13 +373,7 @@ const executeStatusChange = () => {
                                         @change="confirmStatusChange(data, $event.value)"
                                         class="w-32"
                                         size="small"
-                                    />
-
-                                    <Button
-                                        label="Supprimer"
-                                        icon="pi pi-trash"
-                                        class="p-button-danger"
-                                        @click="confirmDelete(data)"
+                                        placeholder="Changer statut"
                                     />
                                 </div>
                             </template>

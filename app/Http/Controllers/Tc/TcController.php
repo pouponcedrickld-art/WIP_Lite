@@ -4,40 +4,56 @@ namespace App\Http\Controllers\Tc;
 
 use App\Http\Controllers\Controller;
 use App\Models\Assignment;
-use App\Models\Campaign;
 use App\Models\Employee;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Notification;
+use Illuminate\Support\Facades\Auth;
 
 class TcController extends Controller
 {
     public function index()
     {
+        $user = Auth::user();
         
+        // 1. Récupérer le profil employé du TC connecté
+        $employee = Employee::where('user_id', $user->id)->firstOrFail();
+
+        // 2. Récupérer l'affectation active (Campagne + Superviseur)
+        // On suppose que dans ton modèle Assignment, la relation 'manager' pointe vers le Superviseur
+        $assignment = Assignment::where('employee_id', $employee->id)
+            ->where('status', 'active')
+            ->with(['campaign', 'manager.user']) // On récupère la campagne et le manager (superviseur)
+            ->first();
+
+        // 3. Planning (Ici en statique comme dans ton exemple, ou à lier à une table Planning)
+        $todaySchedule = [
+            'morning_start' => '08:00',
+            'morning_end' => '12:00',
+            'lunch_break' => '12:00 - 13:00',
+            'afternoon_start' => '13:00',
+            'afternoon_end' => '17:00',
+        ];
+
         return Inertia::render('Dashboard/TCDashboard', [
-        'stats' => [
-            'employees_count' => Employee::count(),
-            'campaigns_count' => Campaign::where('status', 'active')->count(), // Ajuste selon tes colonnes
-            'pending_count'   => Employee::whereDoesntHave('assignments')->count(), // Ceux qui n'ont pas de mission
-            'alerts_count'    => 5, // Tu pourras lier ça à une logique d'erreurs plus tard
-        ],
-        'recent_assignments' => Assignment::with(['employee', 'campaign'])
-            ->latest()
-            ->take(5)
-            ->get()
-            ->map(fn($assign) => [
-                'id' => $assign->id,
-                'employee_name' => $assign->employee->first_name . ' ' . $assign->employee->last_name,
-                'role' => $assign->employee->position->name ?? 'Non défini',
-                'campaign_name' => $assign->campaign->name,
-                'status' =>  $assign->employee->status, // Ou une logique de statut réelle
-            ]),
-    ]);
+            'auth_employee' => [
+                'full_name' => $employee->first_name . ' ' . $employee->last_name,
+                'photo' => $employee->photo_url, // Si tu as ce champ
+            ],
+            'assignment' => $assignment ? [
+                'campaign_name' => $assignment->campaign->name,
+                'campaign_description' => $assignment->campaign->description,
+                'manager_name' => $assignment->manager ? $assignment->manager->first_name . ' ' . $assignment->manager->last_name : 'Non assigné',
+            ] : null,
+            'today_schedule' => $todaySchedule,
+            'my_stats' => [
+                'quality_score' => 95,
+                'off_days' => 12,
+            ],
+        ]);
     }
 
     public function planning()
     {
-        return Inertia::render('Dashboard/TCDashboard');
+        // Tu peux rediriger vers l'index ou créer une vue spécifique
+        return Inertia::render('Dashboard/TCPlanning');
     }
 }

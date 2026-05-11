@@ -12,9 +12,14 @@ class PlanningModelController extends Controller
 {
     public function index()
     {
-        $models = PlanningModel::with('creator')
-            ->latest()
-            ->paginate(10);
+        $query = PlanningModel::with('creator');
+
+        // Si l'utilisateur est CP, ne montrer que ses modèles
+        if (auth()->user()->role->name === 'cp') {
+            $query->where('created_by', auth()->id());
+        }
+
+        $models = $query->latest()->paginate(10);
 
         return Inertia::render('Planning/Models/Index', [
             'models' => PlanningModelResource::collection($models),
@@ -40,6 +45,11 @@ class PlanningModelController extends Controller
 
     public function show(PlanningModel $planningModel)
     {
+        // Vérifier l'autorisation
+        if (auth()->user()->role->name === 'cp' && $planningModel->created_by !== auth()->id()) {
+            abort(403, 'Accès non autorisé.');
+        }
+
         $planningModel->load('creator', 'assignments.employee');
 
         return Inertia::render('Planning/Models/Show', [
@@ -49,13 +59,23 @@ class PlanningModelController extends Controller
 
     public function edit(PlanningModel $planningModel)
     {
+        // Vérifier l'autorisation
+        if (auth()->user()->role->name === 'cp' && $planningModel->created_by !== auth()->id()) {
+            abort(403, 'Accès non autorisé.');
+        }
+
         return Inertia::render('Planning/Models/Edit', [
             'model' => (new PlanningModelResource($planningModel))->resolve(), // ✅
         ]);
     }
-
+ 
     public function update(UpdatePlanningModelRequest $request, PlanningModel $planningModel)
     {
+        // Vérifier l'autorisation
+        if (auth()->user()->role->name === 'cp' && $planningModel->created_by !== auth()->id()) {
+            abort(403, 'Accès non autorisé.');
+        }
+
         $planningModel->update($request->validated());
 
         return redirect()
@@ -65,18 +85,27 @@ class PlanningModelController extends Controller
 
     public function destroy(PlanningModel $planningModel)
     {
-        $hasActiveAssignments = $planningModel->assignments()
-            ->whereIn('status', ['en attente', 'validé'])
-            ->exists();
-
-        if ($hasActiveAssignments) {
-            return back()->with('error', 'Impossible de supprimer ce modèle, il est utilisé dans des affectations actives.');
+        // Vérifier l'autorisation
+        if (auth()->user()->role->name === 'cp' && $planningModel->created_by !== auth()->id()) {
+            abort(403, 'Accès non autorisé.');
         }
 
-        $planningModel->delete();
+        // 1. Vérification logique : Existe-t-il n'importe quelle assignation liée ?
+        if ($planningModel->assignments()->exists()) {
+            return back()->with('error', 'Impossible de supprimer ce modèle car il est lié à des affectations existantes (historiques ou actives).');
+        }
 
-        return redirect()
-            ->route('planning-models.index')
-            ->with('success', 'Modèle de planning supprimé avec succès.');
+        try {
+            $planningModel->delete();
+
+            return redirect()
+                ->route('planning-models.index')
+                ->with('success', 'Modèle de planning supprimé avec succès.');
+
+        } catch (\Illuminate\Database\QueryException $e) {
+            // 2. Sécurité ultime : capture l'erreur SQL si la vérification ci-dessus échoue
+            return back()->with('error', 'Erreur de base de données : suppression impossible car ce modèle est référencé ailleurs.');
+        }
     }
+
 }
