@@ -37,7 +37,7 @@ if ($role !== 'admin') {
 
     $query->whereHas('assignments', function($q) use ($user) {
         $q->where('manager_id', $user->employee->id)
-          ->where('status', 'actif');
+          ->where('status', 'active');
     });
 
     if ($role === 'sup') {
