@@ -45,11 +45,12 @@ const isActive = (route) => {
           Mon Tableau de bord
         </Link>
 
-        <Link href="/tc/my-planning" 
-              :class="[isActive('/tc/my-planning') ? 'bg-amber-50 text-amber-700' : 'hover:bg-slate-50 text-slate-500']"
-              class="flex items-center p-3 rounded-xl transition-all font-bold group">
-          <i class="pi pi-calendar mr-3 text-lg" :class="isActive('/tc/my-planning') ? 'text-amber-500' : 'text-slate-400'"></i>
-          Mon Planning
+        <Link
+            :href="route('planning-assignments.index')"
+            :class="[isActive('planning-assignments.index') ? 'bg-amber-50 text-amber-700' : 'hover:bg-slate-50 text-slate-500']"
+            class="flex items-center p-3 rounded-xl transition-all font-bold group">
+ <i class="pi pi-table mr-3"></i>
+           Mon plannig
         </Link>
 
         <Link href="/timesheets"
